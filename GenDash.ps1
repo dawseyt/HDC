@@ -503,7 +503,7 @@ function Update-Dashboard {
         $IsFirstFile = $true
 
         if (Test-Path -LiteralPath $LogPath) {
-            # Bypassing PowerShell Path Bug: 
+            # Bypassing PowerShell Path Bug while maintaining performance:
             # When a LiteralPath contains brackets (e.g., [toolkit]), the -Filter parameter breaks and returns nothing.
             # Using an escaped path with -Path allows -Filter to work, drastically improving performance over Where-Object.
             $EscapedPath = [System.Management.Automation.WildcardPattern]::Escape($LogPath)
