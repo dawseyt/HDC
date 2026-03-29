@@ -505,9 +505,9 @@ function Update-Dashboard {
         if (Test-Path -LiteralPath $LogPath) {
             # Bypassing PowerShell Path Bug while maintaining performance:
             # When a LiteralPath contains brackets (e.g., [toolkit]), the -Filter parameter breaks and returns nothing.
-            # By escaping the LogPath and using -Path with -Filter, we achieve ~4-5x faster filtering than Where-Object.
-            $EscapedLogPath = [System.Management.Automation.WildcardPattern]::Escape($LogPath)
-            $CsvFiles = Get-ChildItem -Path $EscapedLogPath -Filter "UnlockLog_*.csv" -Recurse -ErrorAction SilentlyContinue |
+            # Using an escaped path with -Path allows -Filter to work, drastically improving performance over Where-Object.
+            $EscapedPath = [System.Management.Automation.WildcardPattern]::Escape($LogPath)
+            $CsvFiles = Get-ChildItem -Path $EscapedPath -Filter "UnlockLog_*.csv" -Recurse -ErrorAction SilentlyContinue |
                         Sort-Object LastWriteTime
             
             if ($CsvFiles) {
@@ -596,9 +596,9 @@ $Global:LastSignature = ""
 
 function Check-For-Updates {
     if (Test-Path -LiteralPath $LogPath) {
-        # Bypassing PowerShell Path Bug here as well
-        $CurrentSignature = Get-ChildItem -LiteralPath $LogPath -Recurse -ErrorAction SilentlyContinue | 
-                            Where-Object { $_.Name -like "UnlockLog_*.csv" } |
+        # Bypassing PowerShell Path Bug here as well using escaped path and -Filter for better performance
+        $EscapedPath = [System.Management.Automation.WildcardPattern]::Escape($LogPath)
+        $CurrentSignature = Get-ChildItem -Path $EscapedPath -Filter "UnlockLog_*.csv" -Recurse -ErrorAction SilentlyContinue |
                             Sort-Object Name |
                             ForEach-Object { "$($_.Name)|$($_.LastWriteTime.Ticks)|$($_.Length)" } |
                             Out-String

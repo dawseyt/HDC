@@ -191,7 +191,7 @@ function Register-ComputerUIEvents {
                             try {
                                 if ($job -and $job.State -eq 'Running') { Stop-Job $job -Force -ErrorAction SilentlyContinue }
                                 Remove-Job $job -Force -ErrorAction SilentlyContinue
-                            } catch {}
+                            } catch { Write-Debug "Failed to stop or remove job: $($_.Exception.Message)" }
                             $loadWin.Close()
                         }.GetNewClosure())
                     }
@@ -350,7 +350,7 @@ function Register-ComputerUIEvents {
                             
                             # Check if a user is currently logged on to retrieve User-scoped policies
                             $loggedOnUser = $null
-                            try { $loggedOnUser = (Get-CimInstance Win32_ComputerSystem -ErrorAction Stop).UserName } catch {}
+                            try { $loggedOnUser = (Get-CimInstance Win32_ComputerSystem -ErrorAction Stop).UserName } catch { Write-Debug "Failed to get logged on user: $($_.Exception.Message)" }
                             
                             if ([string]::IsNullOrWhiteSpace($loggedOnUser)) {
                                 & gpresult.exe /SCOPE COMPUTER /X $remoteTemp /F *>&1 | Out-Null
@@ -699,7 +699,7 @@ function Register-ComputerUIEvents {
                         try {
                             if ($job -and $job.State -eq 'Running') { Stop-Job $job -Force -ErrorAction SilentlyContinue }
                             Remove-Job $job -Force -ErrorAction SilentlyContinue
-                        } catch {}
+                        } catch { Write-Debug "Failed to stop or remove job: $($_.Exception.Message)" }
                         $loadWin.Close()
                     }.GetNewClosure())
                 }
@@ -774,7 +774,7 @@ function Register-ComputerUIEvents {
                         try {
                             if ($job -and $job.State -eq 'Running') { Stop-Job $job -Force -ErrorAction SilentlyContinue }
                             Remove-Job $job -Force -ErrorAction SilentlyContinue
-                        } catch {}
+                        } catch { Write-Debug "Failed to stop or remove job: $($_.Exception.Message)" }
                         $loadWin.Close()
                     }.GetNewClosure())
                 }
@@ -1001,7 +1001,7 @@ function Register-ComputerUIEvents {
                         try {
                             if ($job -and $job.State -eq 'Running') { Stop-Job $job -Force -ErrorAction SilentlyContinue }
                             Remove-Job $job -Force -ErrorAction SilentlyContinue
-                        } catch {}
+                        } catch { Write-Debug "Failed to stop or remove job: $($_.Exception.Message)" }
                         $loadWin.Close()
                     }.GetNewClosure())
                 }
@@ -1407,7 +1407,7 @@ function Register-ComputerUIEvents {
                                     $stL = [Math]::Min(8, $ln.Length - $colSt)
                                     $st  = if ($stL -gt 0) { $ln.Substring($colSt, $stL).Trim() } else { "" }
                                     if ($uN -and $sId) { $sessions += [PSCustomObject]@{ Username=$uN; SessionId=$sId; State=$st } }
-                                } catch {}
+                                } catch { Write-Debug "Failed to parse active user session: $($_.Exception.Message)" }
                             }
                         }
 
@@ -1484,7 +1484,7 @@ function Open-RemotePowerShell {
         $errorMessage = $_.Exception.Message
         if ($Config -and $State) { Add-AppLog -Event "Remote Session" -Username $ComputerName -Details "Failed to open PowerShell session to ${ComputerName}: $errorMessage" -Config $Config -State $State -Status "Error" -Color "Red" }
         $themeColors = $null
-        try { if ($State) { $themeColors = Get-FluentThemeColors $State } } catch {}
+        try { if ($State) { $themeColors = Get-FluentThemeColors $State } } catch { Write-Debug "Failed to get theme colors: $($_.Exception.Message)" }
         Show-AppMessageBox -Message "Failed to open Remote PowerShell session to ${ComputerName}.`n`nError: $errorMessage" -Title "Connection Error" -IconType "Error" -ThemeColors $themeColors | Out-Null
     }
 }
