@@ -566,8 +566,15 @@ function Update-Dashboard {
         # Query AD
         $AdLockoutsJson = "[]"
         try {
-            $lockedAccounts = Search-ADAccount -LockedOut -ErrorAction Stop | 
-                              Where-Object { $IgnoredUsers -notcontains $_.SamAccountName } |
+            # Build server-side filter to exclude ignored users at the AD query level
+            $Filter = "LockedOut -eq `$true"
+            if ($IgnoredUsers) {
+                foreach ($user in $IgnoredUsers) {
+                    $Filter += " -and SamAccountName -notlike '$user'"
+                }
+            }
+
+            $lockedAccounts = Get-ADUser -Filter $Filter -Properties LockoutTime -ErrorAction Stop |
                               Select-Object SamAccountName, Name, @{N='LockoutTime';E={
                                   if ($_.LockoutTime) { [DateTime]::FromFileTime($_.LockoutTime).ToString("MM/dd/yyyy HH:mm:ss") } else { "" }
                               }}
