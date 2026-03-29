@@ -925,8 +925,7 @@ $InstallPrinterAction = {
     
     $cbDriver = $instWin.FindName("cbDriver")
     if ($cbDriver -and $remoteDrivers) { 
-        $cbDriver.Items.Clear()
-        foreach($d in $remoteDrivers) { $cbDriver.Items.Add($d) | Out-Null }
+        $cbDriver.ItemsSource = $remoteDrivers
         if ($cbDriver.Items.Count -gt 0) { $cbDriver.SelectedIndex = 0 }
     }
     
@@ -980,8 +979,7 @@ $InstallPrinterAction = {
                     # Refresh the combo box with remote drivers
                     if ($cbDriver -and $updatedRemoteDrivers.Drivers) {
                         $currentText = $cbDriver.Text
-                        $cbDriver.Items.Clear()
-                        foreach($d in $updatedRemoteDrivers.Drivers) { $cbDriver.Items.Add($d) | Out-Null }
+                        $cbDriver.ItemsSource = $updatedRemoteDrivers.Drivers
                         $cbDriver.Text = $currentText
                     }
                     
@@ -1121,15 +1119,16 @@ $InstallPrinterAction = {
                     
                     # Guarantee it appears in the Combobox
                     if ($cbDriver -and $updatedRemoteDrivers) {
-                        $cbDriver.Items.Clear()
-                        foreach($d in $updatedRemoteDrivers) { $cbDriver.Items.Add($d) | Out-Null }
+                        $cbDriver.ItemsSource = $updatedRemoteDrivers
                         
-                        if ($cbDriver.Items.Contains($drvName)) {
-                            $cbDriver.SelectedItem = $drvName
-                        } else {
-                            $cbDriver.Items.Add($drvName) | Out-Null
-                            $cbDriver.SelectedItem = $drvName
+                        if (-not $cbDriver.Items.Contains($drvName)) {
+                            # If it's still not there (unexpected), we must add it to the underlying source
+                            # since Items.Add() is prohibited when ItemsSource is set.
+                            $updatedRemoteDrivers += $drvName
+                            $cbDriver.ItemsSource = $updatedRemoteDrivers
                         }
+
+                        $cbDriver.SelectedItem = $drvName
                         $cbDriver.Text = $drvName 
                         $cbDriver.Focus()
                     }

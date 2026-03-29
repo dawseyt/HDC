@@ -171,7 +171,7 @@ function Register-CoreUIEvents {
                 Show-AppMessageBox -Message "Details copied to clipboard." -Title "Copied" -IconType "Information" -OwnerWindow $Window -ThemeColors (Get-FluentThemeColors $State) | Out-Null
             }
         })
-        $ctxCopy.Items.Add($miCopy) | Out-Null
+        [void]($ctxCopy.Items.Add($miCopy))
         $txtDetailsContent.ContextMenu = $ctxCopy
     }
 
@@ -390,8 +390,7 @@ function Register-CoreUIEvents {
         if ($term -notin $State.SearchHistory) {
             $State.SearchHistory = @($term) + @($State.SearchHistory | Select-Object -First 19)
             if ($txtSearch) {
-                $txtSearch.Items.Clear()
-                foreach ($h in $State.SearchHistory) { $txtSearch.Items.Add($h) | Out-Null }
+                $txtSearch.ItemsSource = $State.SearchHistory
             }
             try {
                 $prefsDir  = Join-Path $env:LOCALAPPDATA "PelicanCU\HDCompanion"
@@ -589,8 +588,7 @@ function Register-CoreUIEvents {
             }
         } catch {}
         if ($txtSearch -and $State.SearchHistory.Count -gt 0) {
-            $txtSearch.Items.Clear()
-            foreach ($h in $State.SearchHistory) { $txtSearch.Items.Add($h) | Out-Null }
+            $txtSearch.ItemsSource = $State.SearchHistory
         }
         & $ApplyTheme -TargetTheme $State.CurrentTheme
         if ($btnRefresh) { $btnRefresh.RaiseEvent([System.Windows.RoutedEventArgs]::new([System.Windows.Controls.Primitives.ButtonBase]::ClickEvent)) }
@@ -1336,8 +1334,7 @@ function Register-CoreUIEvents {
 
                     $mainSearchBox = $WindowRef.FindName("txtSearch")
                     if ($mainSearchBox) {
-                        $mainSearchBox.Items.Clear()
-                        foreach ($h in $StateRef.SearchHistory) { $mainSearchBox.Items.Add($h) | Out-Null }
+                        $mainSearchBox.ItemsSource = $StateRef.SearchHistory
                     }
                 }
 

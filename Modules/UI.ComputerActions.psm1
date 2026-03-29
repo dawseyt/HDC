@@ -54,7 +54,7 @@ function Register-ComputerUIEvents {
             $sIcon.FontWeight = [System.Windows.FontWeights]::Bold
             $sIcon.SetResourceReference([System.Windows.Controls.TextBlock]::ForegroundProperty, "AccentFill")
             $ctxSoftwareManager.Icon = $sIcon
-            $lvData.ContextMenu.Items.Add($ctxSoftwareManager) | Out-Null
+            [void]($lvData.ContextMenu.Items.Add($ctxSoftwareManager))
         }
     }
 
@@ -202,12 +202,12 @@ function Register-ComputerUIEvents {
                 $dynamicItems[$action.Name] = $mi
             }
 
-            $ctxQuickActions.Items.Add($dynamicItems["Force Group Policy Update"]) | Out-Null
-            $ctxQuickActions.Items.Add($dynamicItems["Restart Print Spooler"]) | Out-Null
-            $ctxQuickActions.Items.Add($dynamicItems["Flush DNS Cache"]) | Out-Null
-            $ctxQuickActions.Items.Add($dynamicItems["Send Popup Message"]) | Out-Null
+            [void]($ctxQuickActions.Items.Add($dynamicItems["Force Group Policy Update"]))
+            [void]($ctxQuickActions.Items.Add($dynamicItems["Restart Print Spooler"]))
+            [void]($ctxQuickActions.Items.Add($dynamicItems["Flush DNS Cache"]))
+            [void]($ctxQuickActions.Items.Add($dynamicItems["Send Popup Message"]))
             
-            $ctxQuickActions.Items.Add([System.Windows.Controls.Separator]::new()) | Out-Null
+            [void]($ctxQuickActions.Items.Add([System.Windows.Controls.Separator]::new()))
             
             $itemsToMove = @(
                 @{ Item = $ctxPSSession; Icon = [char]0xE756 },
@@ -232,12 +232,12 @@ function Register-ComputerUIEvents {
                         if ($lvData.ContextMenu.Items.Contains($item)) { $lvData.ContextMenu.Items.Remove($item) }
                         if ($ctxPowerMenu -and $ctxPowerMenu.Items.Contains($item)) { $ctxPowerMenu.Items.Remove($item) }
                     }
-                    $ctxQuickActions.Items.Add($item) | Out-Null
+                    [void]($ctxQuickActions.Items.Add($item))
                 }
             }
 
-            $ctxQuickActions.Items.Add([System.Windows.Controls.Separator]::new()) | Out-Null
-            $ctxQuickActions.Items.Add($dynamicItems["Reboot Computer"]) | Out-Null
+            [void]($ctxQuickActions.Items.Add([System.Windows.Controls.Separator]::new()))
+            [void]($ctxQuickActions.Items.Add($dynamicItems["Reboot Computer"]))
 
             if ($ctxShutdownComputer) {
                 $sIcon = New-Object System.Windows.Controls.TextBlock
@@ -259,7 +259,7 @@ function Register-ComputerUIEvents {
                         if ($lvData.ContextMenu.Items.Contains($item)) { $lvData.ContextMenu.Items.Remove($item) }
                         if ($ctxPowerMenu -and $ctxPowerMenu.Items.Contains($item)) { $ctxPowerMenu.Items.Remove($item) }
                     }
-                    $ctxQuickActions.Items.Add($item) | Out-Null
+                    [void]($ctxQuickActions.Items.Add($item))
                 }
             }
 
@@ -276,8 +276,8 @@ function Register-ComputerUIEvents {
                 if ($parent -is [System.Windows.Controls.ItemsControl]) { $parent.Items.Remove($ctxRestartComputer) }
             }
 
-            $lvData.ContextMenu.Items.Add([System.Windows.Controls.Separator]::new()) | Out-Null
-            $lvData.ContextMenu.Items.Add($ctxQuickActions) | Out-Null
+            [void]($lvData.ContextMenu.Items.Add([System.Windows.Controls.Separator]::new()))
+            [void]($lvData.ContextMenu.Items.Add($ctxQuickActions))
         } else {
             $ctxQuickActions = $existingQA
         }
@@ -309,7 +309,7 @@ function Register-ComputerUIEvents {
                 $ctxActiveUsers.Items.Clear()
                 $dummyItem = New-Object System.Windows.Controls.MenuItem
                 $dummyItem.Header = "Loading..."
-                $ctxActiveUsers.Items.Add($dummyItem) | Out-Null
+                [void]($ctxActiveUsers.Items.Add($dummyItem))
             }
         }.GetNewClosure())
     }
@@ -622,7 +622,7 @@ function Register-ComputerUIEvents {
                                                         if ($node.HasChildNodes) {
                                                             foreach ($c in $node.ChildNodes) {
                                                                 $childTvi = Build-Tree -node $c
-                                                                if ($childTvi) { $tvi.Items.Add($childTvi) | Out-Null }
+                                                                if ($childTvi) { [void]($tvi.Items.Add($childTvi)) }
                                                             }
                                                         }
                                                         return $tvi
@@ -635,14 +635,14 @@ function Register-ComputerUIEvents {
                                                         $emptyTb.Text = "Cannot map XML tree. No valid GUID identifier found for this policy."
                                                         $emptyTb.Foreground = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.ColorConverter]::ConvertFromString($drillColors.Fg))
                                                         $emptyTvi.Header = $emptyTb
-                                                        $tvDetails.Items.Add($emptyTvi) | Out-Null
+                                                        [void]($tvDetails.Items.Add($emptyTvi))
                                                     } else {
                                                         # Query main GPO Node
                                                         $gpoNode = $xml.SelectSingleNode("//*[local-name()='GPO'][*[local-name()='Identifier'][text()='$guid']]")
                                                         if ($gpoNode) {
                                                             $gpoTvi = Build-Tree -node $gpoNode
                                                             $gpoTvi.IsExpanded = $true
-                                                            $tvDetails.Items.Add($gpoTvi) | Out-Null
+                                                            [void]($tvDetails.Items.Add($gpoTvi))
                                                         }
                                                         
                                                         # Query ExtensionData Nodes tied to this GPO
@@ -651,7 +651,7 @@ function Register-ComputerUIEvents {
                                                             foreach ($ext in $extNodes) {
                                                                 $extTvi = Build-Tree -node $ext
                                                                 $extTvi.IsExpanded = $true
-                                                                $tvDetails.Items.Add($extTvi) | Out-Null
+                                                                [void]($tvDetails.Items.Add($extTvi))
                                                             }
                                                         }
                                                         
@@ -661,7 +661,7 @@ function Register-ComputerUIEvents {
                                                             $emptyTb.Text = "No advanced XML properties found for this GPO."
                                                             $emptyTb.Foreground = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.ColorConverter]::ConvertFromString($drillColors.Fg))
                                                             $emptyTvi.Header = $emptyTb
-                                                            $tvDetails.Items.Add($emptyTvi) | Out-Null
+                                                            [void]($tvDetails.Items.Add($emptyTvi))
                                                         }
                                                     }
                                                 }
@@ -1367,7 +1367,7 @@ function Register-ComputerUIEvents {
             $loadingItem = New-Object System.Windows.Controls.MenuItem
             $loadingItem.Header = "Querying active sessions..."
             $loadingItem.IsEnabled = $false
-            $sender.Items.Add($loadingItem) | Out-Null
+            [void]($sender.Items.Add($loadingItem))
 
             $job = Start-Job -ScriptBlock {
                 param($c)
@@ -1415,7 +1415,7 @@ function Register-ComputerUIEvents {
                             $noUsers = New-Object System.Windows.Controls.MenuItem
                             $noUsers.Header = "No active users"
                             $noUsers.IsEnabled = $false
-                            $menuRef.Items.Add($noUsers) | Out-Null
+                            [void]($menuRef.Items.Add($noUsers))
                         } else {
                             foreach ($s in $sessions) {
                                 $uItem = New-Object System.Windows.Controls.MenuItem
@@ -1435,8 +1435,8 @@ function Register-ComputerUIEvents {
                                     return $action
                                 }
                                 $lItem.Add_Click((& $closure $s.Username $s.SessionId $comp))
-                                $uItem.Items.Add($lItem) | Out-Null
-                                $menuRef.Items.Add($uItem) | Out-Null
+                                [void]($uItem.Items.Add($lItem))
+                                [void]($menuRef.Items.Add($uItem))
                             }
                         }
                         $menuRef.Tag = $comp
@@ -1446,7 +1446,7 @@ function Register-ComputerUIEvents {
                         $errItem = New-Object System.Windows.Controls.MenuItem
                         $errItem.Header = "Query timed out or failed"
                         $errItem.IsEnabled = $false
-                        $menuRef.Items.Add($errItem) | Out-Null
+                        [void]($menuRef.Items.Add($errItem))
                     }
                 }
             }.GetNewClosure()

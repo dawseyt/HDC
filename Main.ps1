@@ -84,7 +84,7 @@ try {
 # --- 5. INITIALIZE UI ELEMENTS FROM CONFIG ---
 # Populate auto-refresh dropdown
 $cbAutoRefresh = $window.FindName("cbAutoRefresh")
-$global:Config.AutoSettings.AutoRefreshOptions | Where-Object { $_ -ne "Off" } | ForEach-Object { $cbAutoRefresh.Items.Add($_) } | Out-Null
+$cbAutoRefresh.ItemsSource = $global:Config.AutoSettings.AutoRefreshOptions | Where-Object { $_ -ne "Off" }
 $cbAutoRefresh.SelectedIndex = 3 
 $window.FindName("chkEnableEmail").IsChecked = $global:Config.EmailSettings.EnableEmailNotifications
 

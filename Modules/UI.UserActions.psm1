@@ -62,7 +62,7 @@ function Register-UserUIEvents {
                     $inserted = $true
                 }
             }
-            if (-not $inserted) { $lvData.ContextMenu.Items.Add($ctxLastLogonLocation) | Out-Null }
+            if (-not $inserted) { [void]($lvData.ContextMenu.Items.Add($ctxLastLogonLocation)) }
         }
 
         $lvData.AddHandler([System.Windows.Controls.Control]::ContextMenuOpeningEvent, [System.Windows.Controls.ContextMenuEventHandler]{
@@ -402,8 +402,7 @@ function Register-UserUIEvents {
                         
                         $found = Get-ADGroup -Filter "Name -like `'*$safe*`'" -Server $Config.GeneralSettings.DomainName -Properties Name, GroupScope, GroupCategory | Select-Object -First 30 Name, GroupScope, GroupCategory, DistinguishedName | Sort-Object Name
                         if ($lbGrpSearch) {
-                            $lbGrpSearch.Items.Clear()
-                            foreach ($g in $found) { $lbGrpSearch.Items.Add($g.Name) | Out-Null }
+                            $lbGrpSearch.ItemsSource = $found | Select-Object -ExpandProperty Name
                             $lbGrpSearch.Tag = $found
                         }
                         if ($borderSearch) { $borderSearch.Visibility = if ($found.Count -gt 0) { "Visible" } else { "Collapsed" } }
@@ -441,7 +440,7 @@ function Register-UserUIEvents {
                             if ($lblStatus) { $lblStatus.Foreground = [System.Windows.Media.Brushes]::Green; $lblStatus.Text = "Added to `'$($selGroup.Name)`'." }
                             Add-AppLog -Event "Group Add" -Username $id -Details "Added to group: $($selGroup.Name)" -Config $Config -State $State -Status "Success" -Color "Green"
                             if ($txtAddGrp)    { $txtAddGrp.Text = "" }
-                            if ($lbGrpSearch)  { $lbGrpSearch.Items.Clear() }
+                            if ($lbGrpSearch)  { $lbGrpSearch.ItemsSource = $null }
                             if ($borderSearch) { $borderSearch.Visibility = "Collapsed" }
                             if ($btnAddGrp)    { $btnAddGrp.IsEnabled = $false }
                             & $LoadGroupsAsync

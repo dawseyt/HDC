@@ -192,7 +192,7 @@ function Register-FreshserviceUIEvents {
                 $txtSubCat = $tktWin.FindName("txtSubCategory"); $txtItemCat = $tktWin.FindName("txtItemCategory")
                 $cbCategory = $tktWin.FindName("cbCategory")
                 $cats = @('Access & Security','Accounting','Account Servicing','Alerts','Auditing','Building and Grounds Maintenance','Change Request','Card Services','Cyber Security Incident','Development & Reporting','Digital Banking','Documents','Email','Facilities','File & Folder','Genesys Cloud Change Management','Hardware','Human Resources','Microsoft Authenticator','Mobile Device Management','Morning Tasks','Network','Office Furniture','Purchasing','Quality Assurance (QA)','Relocations','Scheduled Maintenance','Software','Time Tracking','Training','User Accounts','VDI','Video Playback','WFH Application','Freshservice','Member Experience','Project Management','ITM/ATM')
-                if ($cbCategory) { foreach ($c in $cats) { $cbCategory.Items.Add($c) | Out-Null }; $cbCategory.SelectedItem = 'User Accounts' }
+                if ($cbCategory) { $cbCategory.ItemsSource = $cats; $cbCategory.SelectedItem = 'User Accounts' }
 
                 # Category -> SubCategory -> Item lookup table
                 # SubCategory keys map to arrays of Items
@@ -241,17 +241,15 @@ function Register-FreshserviceUIEvents {
                 $PopulateSubCats = {
                     param($selCat)
                     if ($txtSubCat) {
-                        $txtSubCat.Items.Clear()
+                        $txtSubCat.ItemsSource = $null
                         $txtSubCat.Text = ""
                     }
                     if ($txtItemCat) {
-                        $txtItemCat.Items.Clear()
+                        $txtItemCat.ItemsSource = $null
                         $txtItemCat.Text = ""
                     }
                     if ($selCat -and $catMap.Contains($selCat)) {
-                        foreach ($sub in $catMap[$selCat].Keys) {
-                            if ($txtSubCat) { $txtSubCat.Items.Add($sub) | Out-Null }
-                        }
+                        if ($txtSubCat) { $txtSubCat.ItemsSource = $catMap[$selCat].Keys }
                     }
                 }.GetNewClosure()
 
@@ -259,13 +257,11 @@ function Register-FreshserviceUIEvents {
                 $PopulateItems = {
                     param($selCat, $selSub)
                     if ($txtItemCat) {
-                        $txtItemCat.Items.Clear()
+                        $txtItemCat.ItemsSource = $null
                         $txtItemCat.Text = ""
                     }
                     if ($selCat -and $selSub -and $catMap.Contains($selCat) -and $catMap[$selCat].Contains($selSub)) {
-                        foreach ($item in $catMap[$selCat][$selSub]) {
-                            if ($txtItemCat) { $txtItemCat.Items.Add($item) | Out-Null }
-                        }
+                        if ($txtItemCat) { $txtItemCat.ItemsSource = $catMap[$selCat][$selSub] }
                     }
                 }.GetNewClosure()
 
@@ -302,7 +298,6 @@ function Register-FreshserviceUIEvents {
 
                 $cbAssignee = $tktWin.FindName("cbAssignee")
                 if ($cbAssignee) {
-                    $cbAssignee.Items.Add("Unassigned") | Out-Null
                     $emails = @()
                     if ($null -ne $Config.EmailSettings) {
                         foreach ($p in $Config.EmailSettings.PSObject.Properties) {
@@ -310,8 +305,8 @@ function Register-FreshserviceUIEvents {
                             elseif ($p.Value -is [string] -and $p.Value -match "@") { $emails += $p.Value -split ',' }
                         }
                     }
-                    $emails = $emails | Select-Object -Unique | ForEach-Object { $_.Trim() } | Where-Object { $_ -match "@" }
-                    foreach ($em in $emails) { $cbAssignee.Items.Add($em) | Out-Null }
+                    $emails = @("Unassigned") + ($emails | Select-Object -Unique | ForEach-Object { $_.Trim() } | Where-Object { $_ -match "@" })
+                    $cbAssignee.ItemsSource = $emails
                     $cbAssignee.SelectedIndex = 0
                 }
 
