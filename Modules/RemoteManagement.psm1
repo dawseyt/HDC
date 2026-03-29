@@ -732,23 +732,24 @@ function Uninstall-HDRemoteSoftware {
         try {
             if ($targetType -eq 'AppX') {
                 # Execute in a discrete, non-interactive powershell process to bypass WinRM WinRT loading exceptions
-                $psCmd = "Remove-AppxPackage -Package '$targetId' -AllUsers"
-                Start-Process powershell.exe -ArgumentList "-NonInteractive -WindowStyle Hidden -Command `"$psCmd`"" -Wait -WindowStyle Hidden
+                $safeTargetId = $targetId.Replace("'", "''")
+                $psCmd = "Remove-AppxPackage -Package '$safeTargetId' -AllUsers"
+                Start-Process powershell.exe -ArgumentList @("-NonInteractive", "-WindowStyle", "Hidden", "-Command", $psCmd) -Wait -WindowStyle Hidden
             } else {
                 $cmd = $targetId
                 # Attempt to convert MSIs to silent execution
                 if ($cmd -match '(?i)msiexec') {
                     $cmd = $cmd -replace '(?i)/I', '/X'
                     if ($cmd -notmatch '(?i)/q') { $cmd += ' /qn /norestart' }
-                    Start-Process cmd.exe -ArgumentList "/c $cmd" -Wait -WindowStyle Hidden
+                    Start-Process cmd.exe -ArgumentList @("/c", $cmd) -Wait -WindowStyle Hidden
                 } elseif ($cmd -match '(?i)unins\d{3}\.exe') {
                     $cmd += ' /VERYSILENT /SUPPRESSMSGBOXES /NORESTART'
-                    Start-Process cmd.exe -ArgumentList "/c `"$cmd`"" -Wait -WindowStyle Hidden
+                    Start-Process cmd.exe -ArgumentList @("/c", $cmd) -Wait -WindowStyle Hidden
                 } elseif ($cmd -match '(?i)uninstall\.exe') {
                     $cmd += ' /S'
-                    Start-Process cmd.exe -ArgumentList "/c `"$cmd`"" -Wait -WindowStyle Hidden
+                    Start-Process cmd.exe -ArgumentList @("/c", $cmd) -Wait -WindowStyle Hidden
                 } else {
-                    Start-Process cmd.exe -ArgumentList "/c `"$cmd`"" -Wait -WindowStyle Hidden
+                    Start-Process cmd.exe -ArgumentList @("/c", $cmd) -Wait -WindowStyle Hidden
                 }
             }
             return $true
