@@ -355,7 +355,7 @@ function Register-FreshserviceUIEvents {
                 try {
                     $record = Get-FSUserRecord -User $userObj -Config $Config
                     [System.Windows.Input.Mouse]::OverrideCursor = $null
-                    if ($record) { try { Start-Process "msedge.exe" -ArgumentList "--app=""$($record.Url)""" } catch { Show-AppMessageBox -Message "Failed to open Microsoft Edge." -Title "Error" -IconType "Error" -OwnerWindow $Window -ThemeColors (Get-FluentThemeColors $State) } } 
+                    if ($record) { try { Start-Process "msedge.exe" -ArgumentList @("--app=$($record.Url)") } catch { Show-AppMessageBox -Message "Failed to open Microsoft Edge." -Title "Error" -IconType "Error" -OwnerWindow $Window -ThemeColors (Get-FluentThemeColors $State) } }
                     else { Show-AppMessageBox -Message "No Requester or Agent record found for $($userObj.Name) in Freshservice." -Title "Not Found" -IconType "Information" -OwnerWindow $Window -ThemeColors (Get-FluentThemeColors $State) }
                 } catch {
                      [System.Windows.Input.Mouse]::OverrideCursor = $null
@@ -400,7 +400,7 @@ function Register-FreshserviceUIEvents {
                             # Build CMDB URL from the configured domain rather than a hardcoded host
                             $fsBase = Get-FSApiUrl -Config $Config
                             $cmdbUrl = "$fsBase/cmdb/items/$($asset.display_id)"
-                            try { Start-Process "msedge.exe" -ArgumentList "--app=""$cmdbUrl""" } catch { Show-AppMessageBox -Message "Failed to open link." -Title "Error" -IconType "Error" -OwnerWindow $Window -ThemeColors (Get-FluentThemeColors $State) }
+                            try { Start-Process "msedge.exe" -ArgumentList @("--app=$cmdbUrl") } catch { Show-AppMessageBox -Message "Failed to open link." -Title "Error" -IconType "Error" -OwnerWindow $Window -ThemeColors (Get-FluentThemeColors $State) }
                         } else { Show-AppMessageBox -Message "Asset found but missing Display ID." -Title "Warning" -IconType "Warning" -OwnerWindow $Window -ThemeColors (Get-FluentThemeColors $State) }
                     } else { Show-AppMessageBox -Message "Computer '$computerName' not found in Freshservice inventory." -Title "Not Found" -IconType "Information" -OwnerWindow $Window -ThemeColors (Get-FluentThemeColors $State) }
                 } catch {
@@ -659,7 +659,7 @@ function Register-FreshserviceUIEvents {
                         $card.Cursor              = [System.Windows.Input.Cursors]::Hand
                         $card.ToolTip             = "Open ticket #$tktId in Freshservice"
                         $capturedUrl = $tktUrl
-                        $card.Add_Click({ Start-Process "msedge.exe" -ArgumentList "--app=`"$capturedUrl`"" }.GetNewClosure())
+                        $card.Add_Click({ Start-Process "msedge.exe" -ArgumentList @("--app=$capturedUrl") }.GetNewClosure())
 
                         # Build ControlTemplate in code: Border wrapping a ContentPresenter
                         $bdrFactory = New-Object System.Windows.FrameworkElementFactory([System.Windows.Controls.Border])

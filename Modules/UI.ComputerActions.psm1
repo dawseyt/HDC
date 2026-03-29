@@ -1347,7 +1347,10 @@ function Register-ComputerUIEvents {
                 $pmScript = Join-Path $AppRoot "PrinterManager.ps1"
                 if (-not (Test-Path $pmScript)) { Show-AppMessageBox -Message "Script not found at:`n$pmScript" -Title "Error" -IconType "Error" -OwnerWindow $Window -ThemeColors (Get-FluentThemeColors $State); return }
                 Add-AppLog -Event "Printer Management" -Username "System" -Details "Launching Printer Manager for $targetPC..." -Config $Config -State $State -Status "Info"
-                try { Start-Process -FilePath "powershell.exe" -ArgumentList "-WindowStyle Hidden -ExecutionPolicy Bypass -File `"$pmScript`" -ComputerName `"$targetPC`" -Theme `"$($State.CurrentTheme)`"" -WindowStyle Hidden } 
+                try {
+                    $argList = @("-WindowStyle", "Hidden", "-ExecutionPolicy", "Bypass", "-File", $pmScript, "-ComputerName", $targetPC, "-Theme", $State.CurrentTheme)
+                    Start-Process -FilePath "powershell.exe" -ArgumentList $argList -WindowStyle Hidden
+                }
                 catch { Show-AppMessageBox -Message "Launch Failed:`n$($_.Exception.Message)" -Title "Error" -IconType "Error" -OwnerWindow $Window -ThemeColors (Get-FluentThemeColors $State) }
             }
         }.GetNewClosure())
@@ -1470,9 +1473,9 @@ function Open-RemotePowerShell {
         $State
     )
     try {
-        $psCommand = "Write-Host 'Connecting to $ComputerName...' -ForegroundColor Cyan; Enter-PSSession -ComputerName '$ComputerName'"
-        $encodedCmd = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($psCommand))
-        $argList = "-WindowStyle Normal -NoExit -ExecutionPolicy Bypass -EncodedCommand $encodedCmd"
+        $safeComputerName = $ComputerName.Replace("'", "''")
+        $psCommand = "Write-Host 'Connecting to $safeComputerName...' -ForegroundColor Cyan; Enter-PSSession -ComputerName '$safeComputerName'"
+        $argList = @("-WindowStyle", "Normal", "-NoExit", "-ExecutionPolicy", "Bypass", "-Command", $psCommand)
         
         Start-Process -FilePath "powershell.exe" -ArgumentList $argList -ErrorAction Stop
         
