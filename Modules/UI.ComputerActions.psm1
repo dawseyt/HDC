@@ -1407,7 +1407,7 @@ function Register-ComputerUIEvents {
                                     $stL = [Math]::Min(8, $ln.Length - $colSt)
                                     $st  = if ($stL -gt 0) { $ln.Substring($colSt, $stL).Trim() } else { "" }
                                     if ($uN -and $sId) { $sessions += [PSCustomObject]@{ Username=$uN; SessionId=$sId; State=$st } }
-                                } catch {}
+                                } catch { Write-Debug "Failed to parse quser output line: $_" }
                             }
                         }
 
