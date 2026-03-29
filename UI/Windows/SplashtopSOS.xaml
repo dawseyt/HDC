@@ -1,0 +1,77 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Splashtop Attended Support" Width="460" SizeToContent="Height" WindowStartupLocation="CenterOwner"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        FontFamily="Segoe UI Variable Display, Segoe UI, sans-serif">
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Bd" Property="Opacity" Value="0.8"/></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Bd" Property="Opacity" Value="0.4"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="{Theme_BtnBg}"/>
+            <Setter Property="Foreground" Value="{Theme_Fg}"/>
+            <Setter Property="BorderBrush" Value="{Theme_BtnBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                            <ScrollViewer x:Name="PART_ContentHost"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Border Background="{Theme_Bg}" CornerRadius="8" BorderBrush="{Theme_BtnBorder}" BorderThickness="1" Margin="15">
+        <Border.Effect><DropShadowEffect BlurRadius="20" ShadowDepth="5" Opacity="0.3" Color="Black"/></Border.Effect>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Border x:Name="TitleBar" Grid.Row="0" Background="Transparent" Padding="20,20,20,0" Cursor="Hand">
+                <TextBlock Text="Splashtop Support" FontSize="16" FontWeight="SemiBold" Foreground="{Theme_Fg}"/>
+            </Border>
+            <StackPanel Grid.Row="1" Margin="20,14,20,20">
+                <!-- Status card -->
+                <Border Margin="0,0,0,8" Padding="14,10" Background="{Theme_BtnBg}" CornerRadius="6" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
+                    <TextBlock Text="Support Session Created" FontWeight="SemiBold" FontSize="14" Foreground="{Theme_PrimaryBg}"/>
+                </Border>
+                <!-- Link card -->
+                <Border Margin="0,0,0,0" Padding="14,10" Background="{Theme_Bg}" CornerRadius="6" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="Session Link" FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" Margin="0,0,0,6"/>
+                        <TextBlock Text="Provide this link to the user to download the SOS applet." FontSize="12" Foreground="{Theme_SecFg}" Margin="0,0,0,8"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBox x:Name="txtLink" Grid.Column="0" IsReadOnly="True" Height="30" Margin="0,0,6,0"/>
+                            <Button x:Name="btnCopy" Grid.Column="1" Content="Copy" Width="60" Height="30" Background="{Theme_BtnBg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+            <Border Grid.Row="2" Background="{Theme_BtnBg}" CornerRadius="0,0,8,8" Padding="16,12" BorderThickness="0,1,0,0" BorderBrush="{Theme_BtnBorder}">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="btnConnect" Content="Connect (Launch App)" Width="150" Height="28" Margin="0,0,8,0" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0"/>
+                    <Button x:Name="btnClose"   Content="Close"               Width="80"  Height="28"                   Background="{Theme_BtnBg}"    Foreground="{Theme_Fg}"      BorderBrush="{Theme_BtnBorder}" BorderThickness="1" IsCancel="True"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

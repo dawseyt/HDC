@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helpdesk Companion Config Editor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans min-h-screen">
+
+    <nav class="bg-blue-800 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="font-bold text-xl tracking-tight">Helpdesk Companion Config Editor</span>
+                </div>
+                <div class="flex space-x-4">
+                    <label class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded shadow cursor-pointer transition">
+                        <span>Load Config File</span>
+                        <input type="file" id="fileInput" class="hidden" accept=".json">
+                    </label>
+                    <button onclick="downloadConfig()" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded shadow transition flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Save JSON
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <div id="statusMsg" class="hidden mb-4 p-4 rounded bg-green-100 text-green-700 border border-green-200"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-6">
+                
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 font-semibold text-lg text-gray-700">General Settings</div>
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Domain Name</label>
+                            <input type="text" id="gen_DomainName" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 border p-2" placeholder="pscu.local">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Default Theme</label>
+                            <select id="gen_DefaultTheme" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 border p-2">
+                                <option value="Light">Light</option>
+                                <option value="Dark">Dark</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Log Directory (UNC Path)</label>
+                            <input type="text" id="gen_LogDirectory" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 border p-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Log Retention (Days)</label>
+                            <input type="number" id="gen_LogRetentionDays" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 border p-2" placeholder="90">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Splashtop API Token</label>
+                            <input type="password" id="gen_SplashtopAPIToken" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 border p-2" placeholder="Leave blank if not used">
+                        </div>
+                        <div class="md:col-span-2">
+                             <label class="block text-sm font-medium text-gray-700 mb-1">Filtered Users (Comma separated)</label>
+                             <input type="text" id="gen_FilteredUsers" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 border p-2" placeholder="guest, support">
+                        </div>
+                        
+                        <div class="md:col-span-2 pt-4 border-t border-gray-100 mt-2">
+                            <h3 class="text-sm font-bold text-gray-800 mb-3">Freshservice Integration</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Domain URL</label>
+                                    <input type="text" id="gen_FreshserviceDomain" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 border p-2" placeholder="https://pelicanstatecu.freshservice.com">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">API Key</label>
+                                    <input type="password" id="gen_FreshserviceAPIKey" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 border p-2" placeholder="Your API Key">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 font-semibold text-lg text-gray-700">Automation Settings</div>
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Auto-Unlock Interval (Seconds)</label>
+                            <input type="number" id="auto_UnlockInterval" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 border p-2" placeholder="300">
+                            <p class="text-xs text-gray-500 mt-1">How often the auto-unlocker runs when checked.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 font-semibold text-lg text-gray-700 flex justify-between items-center">
+                        <span>Email Notification Settings</span>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="email_Enabled" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="email_Enabled" class="ml-2 block text-sm text-gray-900">Enable</label>
+                        </div>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">SMTP Server</label>
+                            <input type="text" id="email_SmtpServer" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 border p-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">SMTP Port</label>
+                            <input type="number" id="email_SmtpPort" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 border p-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">From Address</label>
+                            <input type="text" id="email_From" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 border p-2">
+                        </div>
+                        <div class="flex items-center mt-6">
+                             <input type="checkbox" id="email_Ssl" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                             <label for="email_Ssl" class="ml-2 block text-sm text-gray-900">Enable SSL</label>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">To Address (Comma separated)</label>
+                            <input type="text" id="email_To" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 border p-2">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 font-semibold text-lg text-gray-700">UI Text Overrides</div>
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Main Title</label>
+                            <input type="text" id="ui_Title" class="w-full border p-2 rounded">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Subtitle</label>
+                            <input type="text" id="ui_Subtitle" class="w-full border p-2 rounded">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="space-y-6">
+                
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 font-semibold text-lg text-gray-700 border-l-4 border-yellow-400">Light Mode Colors</div>
+                    <div class="p-6 space-y-4" id="lightColorsContainer"></div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 font-semibold text-lg text-gray-700 border-l-4 border-gray-800">Dark Mode Colors</div>
+                    <div class="p-6 space-y-4" id="darkColorsContainer"></div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // POWERSHELL WILL DYNAMICALLY INJECT THE LIVE CONFIG HERE
+        window.INJECTED_CONFIG = null;
+
+        let configData = {
+            "GeneralSettings": {
+                "DomainName": "pscu.local",
+                "LogDirectoryUNC": "\\\\vm-isserver\\toolkit\\[it toolkit]\\hdcompanion\\Logs",
+                "LogRetentionDays": 90,
+                "FilteredUsers": ["guest", "support", "admbrian"],
+                "DefaultTheme": "Light",
+                "SplashtopAPIToken": "",
+                "FreshserviceDomain": "https://pelicanstatecu.freshservice.com",
+                "FreshserviceAPIKey": ""
+            },
+            "AutoSettings": {
+                 "AutoRefreshOptions": ["30 seconds", "1 minute", "2 minutes", "5 minutes", "10 minutes", "15 minutes", "30 minutes"],
+                 "AutoUnlockIntervalSeconds": 300
+            },
+            "EmailSettings": {
+                "EnableEmailNotifications": false,
+                "SmtpServer": "10.104.100.165",
+                "SmtpPort": 25,
+                "EnableSsl": true,
+                "FromAddress": "AccountMonitor@pelicancu.com",
+                "ToAddress": ["tdawsey@pelicancu.com", "bhigginbotham@pelicancu.com", "adaigle@pelicancu.com"],
+                "SmtpUsername": "",
+                "SmtpPassword": ""
+            },
+            "LightModeColors": {
+                "Text": [32, 32, 32],
+                "Primary": [0, 90, 158],
+                "Danger": [200, 30, 30],
+                "TextSecondary": [96, 96, 96],
+                "Background": [243, 243, 243],
+                "Success": [16, 124, 16],
+                "Card": [255, 255, 255],
+                "Secondary": [200, 200, 200],
+                "Hover": [229, 229, 229],
+                "AltRow": [249, 249, 249],
+                "OnlineText": [0, 100, 0],
+                "OfflineText": [178, 34, 34]
+            },
+            "DarkModeColors": {
+                "Text": [255, 255, 255],
+                "Primary": [0, 120, 212],
+                "Danger": [255, 100, 100],
+                "TextSecondary": [200, 200, 200],
+                "Background": [32, 32, 32],
+                "Success": [108, 203, 95],
+                "Card": [45, 45, 48],
+                "Secondary": [100, 100, 100],
+                "Hover": [62, 62, 66],
+                "OnlineText": [255, 255, 255],
+                "OfflineText": [255, 255, 255]
+            },
+            "ControlProperties": {
+                "TitleLabel": { "Text": "Helpdesk Companion" },
+                "SubtitleLabel": { "Text": "Manage locked accounts, remote systems, and AD" },
+                "UnlockButton": { "Text": "Unlock Selected" },
+                "UnlockAllButton": { "Text": "Unlock All" },
+                "RefreshButton": { "Text": "Refresh" },
+                "SearchButton": { "Text": "Search" },
+                "ViewLogButton": { "Text": "View Logs" }
+            }
+        };
+
+        function rgbArrayToHex(rgb) {
+            if (!rgb || rgb.length < 3) return "#000000";
+            return "#" + ((1 << 24) + (rgb[0] << 16) + (rgb[1] << 8) + rgb[2]).toString(16).slice(1).toUpperCase();
+        }
+
+        function hexToRgbArray(hex) {
+            let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)] : [0, 0, 0];
+        }
+
+        function textToRgbArray(text) {
+            if (text.startsWith("#")) return hexToRgbArray(text);
+            const parts = text.split(',').map(n => parseInt(n.trim()));
+            if (parts.length === 3 && parts.every(n => !isNaN(n) && n >= 0 && n <= 255)) { return parts; }
+            return null;
+        }
+
+        function createColorInput(key, rgbArray, mode) {
+            const hexValue = rgbArrayToHex(rgbArray);
+            const containerId = mode === 'Light' ? 'lightColorsContainer' : 'darkColorsContainer';
+            const inputId = `${mode}_${key}`;
+
+            const html = `
+                <div class="flex items-center justify-between group">
+                    <label class="text-sm font-medium text-gray-700 w-1/3">${key}</label>
+                    <div class="flex items-center w-2/3 space-x-2">
+                        <div class="relative w-10 h-10 flex-shrink-0 overflow-hidden rounded shadow border border-gray-300">
+                             <input type="color" id="${inputId}_picker" value="${hexValue}" class="absolute -top-2 -left-2 w-16 h-16 cursor-pointer p-0 border-0" oninput="updateColorFromPicker('${inputId}')">
+                        </div>
+                        <input type="text" id="${inputId}_text" value="${hexValue}" class="w-full text-sm border-gray-300 rounded border p-2 font-mono uppercase" placeholder="#RRGGBB or R,G,B" onchange="updateColorFromText('${inputId}')">
+                    </div>
+                </div>`;
+            document.getElementById(containerId).insertAdjacentHTML('beforeend', html);
+        }
+
+        function updateColorFromPicker(baseId) {
+            const picker = document.getElementById(baseId + '_picker');
+            const text = document.getElementById(baseId + '_text');
+            text.value = picker.value.toUpperCase();
+            updateConfigColorState(baseId, hexToRgbArray(picker.value));
+        }
+
+        function updateColorFromText(baseId) {
+            const picker = document.getElementById(baseId + '_picker');
+            const text = document.getElementById(baseId + '_text');
+            const rgb = textToRgbArray(text.value);
+            
+            if (rgb) {
+                picker.value = rgbArrayToHex(rgb);
+                text.value = text.value.toUpperCase(); 
+                text.classList.remove('border-red-500', 'ring-2', 'ring-red-200');
+                updateConfigColorState(baseId, rgb);
+            } else {
+                text.classList.add('border-red-500', 'ring-2', 'ring-red-200');
+            }
+        }
+
+        function updateConfigColorState(baseId, rgbArray) {
+            const parts = baseId.split('_');
+            const mode = parts[0] === 'Light' ? 'LightModeColors' : 'DarkModeColors';
+            const key = parts[1];
+            configData[mode][key] = rgbArray;
+        }
+
+        function populateUI() {
+            if (window.INJECTED_CONFIG) {
+                configData = { ...configData, ...window.INJECTED_CONFIG }; 
+                if(window.INJECTED_CONFIG.GeneralSettings) configData.GeneralSettings = { ...configData.GeneralSettings, ...window.INJECTED_CONFIG.GeneralSettings };
+                if(window.INJECTED_CONFIG.EmailSettings) configData.EmailSettings = { ...configData.EmailSettings, ...window.INJECTED_CONFIG.EmailSettings };
+                if(window.INJECTED_CONFIG.LightModeColors) configData.LightModeColors = { ...configData.LightModeColors, ...window.INJECTED_CONFIG.LightModeColors };
+                if(window.INJECTED_CONFIG.DarkModeColors) configData.DarkModeColors = { ...configData.DarkModeColors, ...window.INJECTED_CONFIG.DarkModeColors };
+                if(window.INJECTED_CONFIG.ControlProperties) configData.ControlProperties = { ...configData.ControlProperties, ...window.INJECTED_CONFIG.ControlProperties };
+                if(window.INJECTED_CONFIG.AutoSettings) configData.AutoSettings = { ...configData.AutoSettings, ...window.INJECTED_CONFIG.AutoSettings };
+                showStatus("Live configuration loaded automatically!", "green");
+            }
+
+            document.getElementById('gen_DomainName').value = configData.GeneralSettings.DomainName || "";
+            document.getElementById('gen_LogDirectory').value = configData.GeneralSettings.LogDirectoryUNC || "";
+            document.getElementById('gen_LogRetentionDays').value = configData.GeneralSettings.LogRetentionDays || 90;
+            document.getElementById('gen_FilteredUsers').value = (configData.GeneralSettings.FilteredUsers || []).join(', ');
+            document.getElementById('gen_DefaultTheme').value = configData.GeneralSettings.DefaultTheme || "Light";
+            document.getElementById('gen_SplashtopAPIToken').value = configData.GeneralSettings.SplashtopAPIToken || "";
+            document.getElementById('gen_FreshserviceDomain').value = configData.GeneralSettings.FreshserviceDomain || "";
+            document.getElementById('gen_FreshserviceAPIKey').value = configData.GeneralSettings.FreshserviceAPIKey || "";
+
+            if (configData.AutoSettings) { document.getElementById('auto_UnlockInterval').value = configData.AutoSettings.AutoUnlockIntervalSeconds || 300; }
+
+            document.getElementById('email_Enabled').checked = configData.EmailSettings.EnableEmailNotifications || false;
+            document.getElementById('email_Ssl').checked = configData.EmailSettings.EnableSsl || false;
+            document.getElementById('email_SmtpServer').value = configData.EmailSettings.SmtpServer || "";
+            document.getElementById('email_SmtpPort').value = configData.EmailSettings.SmtpPort || 25;
+            document.getElementById('email_From').value = configData.EmailSettings.FromAddress || "";
+            
+            const toAddr = configData.EmailSettings.ToAddress;
+            document.getElementById('email_To').value = Array.isArray(toAddr) ? toAddr.join(', ') : (toAddr || "");
+
+            if (configData.ControlProperties) {
+                if (configData.ControlProperties.TitleLabel) document.getElementById('ui_Title').value = configData.ControlProperties.TitleLabel.Text;
+                if (configData.ControlProperties.SubtitleLabel) document.getElementById('ui_Subtitle').value = configData.ControlProperties.SubtitleLabel.Text;
+            }
+
+            document.getElementById('lightColorsContainer').innerHTML = '';
+            document.getElementById('darkColorsContainer').innerHTML = '';
+
+            for (const [key, val] of Object.entries(configData.LightModeColors)) { createColorInput(key, val, 'Light'); }
+            for (const [key, val] of Object.entries(configData.DarkModeColors)) { createColorInput(key, val, 'Dark'); }
+        }
+
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    window.INJECTED_CONFIG = JSON.parse(e.target.result);
+                    populateUI();
+                } catch (err) { alert("Error parsing JSON: " + err); }
+            };
+            reader.readAsText(file);
+        });
+
+        function collectData() {
+            configData.GeneralSettings.DomainName = document.getElementById('gen_DomainName').value;
+            configData.GeneralSettings.LogDirectoryUNC = document.getElementById('gen_LogDirectory').value;
+            configData.GeneralSettings.DefaultTheme = document.getElementById('gen_DefaultTheme').value;
+            configData.GeneralSettings.SplashtopAPIToken = document.getElementById('gen_SplashtopAPIToken').value;
+            configData.GeneralSettings.FreshserviceDomain = document.getElementById('gen_FreshserviceDomain').value;
+            configData.GeneralSettings.FreshserviceAPIKey = document.getElementById('gen_FreshserviceAPIKey').value;
+            configData.GeneralSettings.LogRetentionDays = parseInt(document.getElementById('gen_LogRetentionDays').value) || 90;
+            
+            const usersStr = document.getElementById('gen_FilteredUsers').value;
+            configData.GeneralSettings.FilteredUsers = usersStr.split(',').map(s => s.trim()).filter(s => s);
+
+            if (!configData.AutoSettings) configData.AutoSettings = {};
+            configData.AutoSettings.AutoUnlockIntervalSeconds = parseInt(document.getElementById('auto_UnlockInterval').value) || 300;
+
+            configData.EmailSettings.EnableEmailNotifications = document.getElementById('email_Enabled').checked;
+            configData.EmailSettings.EnableSsl = document.getElementById('email_Ssl').checked;
+            configData.EmailSettings.SmtpServer = document.getElementById('email_SmtpServer').value;
+            configData.EmailSettings.SmtpPort = parseInt(document.getElementById('email_SmtpPort').value) || 25;
+            configData.EmailSettings.FromAddress = document.getElementById('email_From').value;
+            
+            const toStr = document.getElementById('email_To').value;
+            configData.EmailSettings.ToAddress = toStr.split(',').map(s => s.trim()).filter(s => s);
+
+            if (!configData.ControlProperties) configData.ControlProperties = {};
+            if (document.getElementById('ui_Title').value) {
+                if (!configData.ControlProperties.TitleLabel) configData.ControlProperties.TitleLabel = {};
+                configData.ControlProperties.TitleLabel.Text = document.getElementById('ui_Title').value;
+            }
+            if (document.getElementById('ui_Subtitle').value) {
+                if (!configData.ControlProperties.SubtitleLabel) configData.ControlProperties.SubtitleLabel = {};
+                configData.ControlProperties.SubtitleLabel.Text = document.getElementById('ui_Subtitle').value;
+            }
+        }
+
+        function downloadConfig() {
+            collectData();
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(configData, null, 4));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "hdcompanioncfg.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function showStatus(msg, color) {
+            const el = document.getElementById('statusMsg');
+            el.textContent = msg;
+            el.className = `mb-4 p-4 rounded bg-${color}-100 text-${color}-700 border border-${color}-200 block`;
+            setTimeout(() => { el.classList.add('hidden'); }, 4000);
+        }
+
+        window.onload = populateUI;
+    </script>
+</body>
+</html>

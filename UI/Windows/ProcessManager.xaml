@@ -1,0 +1,477 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Name="winProcessManager" Title="System Manager" Height="650" Width="900" WindowStartupLocation="CenterOwner" ResizeMode="CanResize" WindowStyle="SingleBorderWindow" Background="{Theme_Bg}"
+        FontFamily="Segoe UI Variable Display, Segoe UI, sans-serif">
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Bd" Property="Opacity" Value="0.8"/></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Bd" Property="Opacity" Value="0.5"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="GridViewColumnHeader">
+            <Setter Property="Background" Value="{Theme_Bg}"/>
+            <Setter Property="Foreground" Value="{Theme_SecFg}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="{Theme_GridBorder}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <Border Grid.Row="0" Background="{Theme_Bg}" Padding="16" BorderBrush="{Theme_GridBorder}" BorderThickness="0,0,0,1">
+            <Grid>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock x:Name="lblHeaderTitle" Text="System Manager" FontWeight="SemiBold" FontSize="18" Foreground="{Theme_Fg}"/>
+                    <TextBlock x:Name="lblUptime" Text="Uptime: Calculating..." FontSize="12" Foreground="{Theme_SecFg}" Margin="0,4,0,0"/>
+                </StackPanel>
+                
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="btnStartProcess" Content="Run New Task" Width="120" Height="30" Background="{Theme_BtnBg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <TabControl Grid.Row="1" x:Name="tabControlMain" Margin="8,8,8,0" Background="Transparent" BorderThickness="0">
+            <!-- 0. Device Info Tab (NEW - first tab) -->
+            <TabItem Header="Device Info" FontSize="14">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Refresh / status bar for this tab -->
+                    <Border Grid.Row="0" Margin="0,4,0,8" Padding="10,8" Background="{Theme_BtnBg}" CornerRadius="4" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
+                        <Grid>
+                            <TextBlock x:Name="lblDeviceInfoStatus" Text="Select a computer to load hardware information." Foreground="{Theme_SecFg}" FontSize="13" VerticalAlignment="Center"/>
+                            <Button x:Name="btnRefreshDeviceInfo" Content="Refresh" HorizontalAlignment="Right" Width="80" Height="24" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0" FontSize="12"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Info card grid -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <StackPanel x:Name="pnlDeviceInfo" Margin="4,0,4,8">
+
+                            <!-- Computer Name -->
+                            <Border Margin="0,0,0,6" Padding="14,10" Background="{Theme_BtnBg}" CornerRadius="6" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="200"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Computer Name" FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="txtDI_ComputerName" Grid.Column="1" Text="--" Foreground="{Theme_Fg}" FontSize="13" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- Manufacturer -->
+                            <Border Margin="0,0,0,6" Padding="14,10" Background="{Theme_Bg}" CornerRadius="6" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="200"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Manufacturer" FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="txtDI_Manufacturer" Grid.Column="1" Text="--" Foreground="{Theme_Fg}" FontSize="13" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- Model -->
+                            <Border Margin="0,0,0,6" Padding="14,10" Background="{Theme_BtnBg}" CornerRadius="6" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="200"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Model" FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="txtDI_Model" Grid.Column="1" Text="--" Foreground="{Theme_Fg}" FontSize="13" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- System Family -->
+                            <Border Margin="0,0,0,6" Padding="14,10" Background="{Theme_Bg}" CornerRadius="6" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="200"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="System Family" FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="txtDI_SystemFamily" Grid.Column="1" Text="--" Foreground="{Theme_Fg}" FontSize="13" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- Serial Number -->
+                            <Border Margin="0,0,0,6" Padding="14,10" Background="{Theme_BtnBg}" CornerRadius="6" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="200"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Serial Number" FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="txtDI_SerialNumber" Grid.Column="1" Text="--" Foreground="{Theme_Fg}" FontSize="13" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- BIOS Version -->
+                            <Border Margin="0,0,0,6" Padding="14,10" Background="{Theme_Bg}" CornerRadius="6" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="200"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="BIOS Version" FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="txtDI_BIOSVersion" Grid.Column="1" Text="--" Foreground="{Theme_Fg}" FontSize="13" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- Battery Status -->
+                            <Border Margin="0,0,0,6" Padding="14,10" Background="{Theme_BtnBg}" CornerRadius="6" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="200"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Battery Status" FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="txtDI_BatteryStatus" Grid.Column="1" Text="--" Foreground="{Theme_Fg}" FontSize="13" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- Admin Password Status -->
+                            <Border Margin="0,0,0,6" Padding="14,10" Background="{Theme_Bg}" CornerRadius="6" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="200"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Admin Password Status" FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="txtDI_AdminPasswordStatus" Grid.Column="1" Text="--" Foreground="{Theme_Fg}" FontSize="13" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- Query Time -->
+                            <Border Margin="0,0,0,6" Padding="14,10" Background="{Theme_BtnBg}" CornerRadius="6" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="200"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Last Queried" FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="txtDI_QueryTime" Grid.Column="1" Text="--" Foreground="{Theme_SecFg}" FontSize="12" FontStyle="Italic" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
+            <!-- 1. Overview Tab -->
+            <TabItem Header="Overview" FontSize="14">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Border Grid.Row="0" Margin="0,4,0,8" Padding="12" Background="{Theme_BtnBg}" CornerRadius="4" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
+                        <TextBlock x:Name="lblDiskSpace" Text="Disk Space: Loading..." Foreground="{Theme_Fg}" FontWeight="SemiBold" FontSize="15"/>
+                    </Border>
+                    
+                    <ListView x:Name="lvSoftware" Grid.Row="1" BorderThickness="1" BorderBrush="{Theme_GridBorder}" Background="Transparent" Foreground="{Theme_Fg}" AlternationCount="2">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Height" Value="28"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Foreground" Value="{Theme_Fg}"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListViewItem">
+                                            <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="Transparent" BorderThickness="0" CornerRadius="4" Padding="4,0" Margin="4,1">
+                                                <GridViewRowPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsSelected" Value="true">
+                                                    <Setter TargetName="Bd" Property="Background" Value="{Theme_PrimaryBg}"/>
+                                                    <Setter Property="Foreground" Value="{Theme_PrimaryFg}"/>
+                                                </Trigger>
+                                                <Trigger Property="IsMouseOver" Value="true">
+                                                    <Setter TargetName="Bd" Property="Background" Value="{Theme_HoverBg}"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                        <Setter Property="Background" Value="{Theme_AltRowBg}"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Application Name" DisplayMemberBinding="{Binding DisplayName}" Width="350"/>
+                                <GridViewColumn Header="Version" DisplayMemberBinding="{Binding DisplayVersion}" Width="150"/>
+                                <GridViewColumn Header="Publisher" DisplayMemberBinding="{Binding Publisher}" Width="200"/>
+                                <GridViewColumn Header="Install Date" DisplayMemberBinding="{Binding InstallDate}" Width="100"/>
+                            </GridView>
+                        </ListView.View>
+                        <ListView.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Uninstall Software" x:Name="ctxUninstallSoftware"/>
+                            </ContextMenu>
+                        </ListView.ContextMenu>
+                    </ListView>
+                </Grid>
+            </TabItem>
+
+            <!-- 2. Processes Tab -->
+            <TabItem Header="Processes" FontSize="14">
+                <ListView x:Name="lvProcesses" BorderThickness="1" BorderBrush="{Theme_GridBorder}" Margin="0,4,0,0" Background="Transparent" Foreground="{Theme_Fg}" AlternationCount="2">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Height" Value="28"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="{Theme_Fg}"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListViewItem">
+                                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="Transparent" BorderThickness="0" CornerRadius="4" Padding="4,0" Margin="4,1">
+                                            <GridViewRowPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsSelected" Value="true">
+                                                <Setter TargetName="Bd" Property="Background" Value="{Theme_PrimaryBg}"/>
+                                                <Setter Property="Foreground" Value="{Theme_PrimaryFg}"/>
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="true">
+                                                <Setter TargetName="Bd" Property="Background" Value="{Theme_HoverBg}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                    <Setter Property="Background" Value="{Theme_AltRowBg}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" Width="200"/>
+                            <GridViewColumn Header="ID" DisplayMemberBinding="{Binding Id}" Width="70"/>
+                            <GridViewColumn Header="CPU (s)" DisplayMemberBinding="{Binding CPU}" Width="70"/>
+                            <GridViewColumn Header="Mem (MB)" DisplayMemberBinding="{Binding MemMB}" Width="80"/>
+                            <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}" Width="350"/>
+                        </GridView>
+                    </ListView.View>
+                    <ListView.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Kill Process" x:Name="ctxKillProcess"/>
+                        </ContextMenu>
+                    </ListView.ContextMenu>
+                </ListView>
+            </TabItem>
+
+            <!-- 3. Services Tab -->
+            <TabItem Header="Services" FontSize="14">
+                <ListView x:Name="lvServices" BorderThickness="1" BorderBrush="{Theme_GridBorder}" Margin="0,4,0,0" Background="Transparent" Foreground="{Theme_Fg}" AlternationCount="2">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Height" Value="28"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="{Theme_Fg}"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListViewItem">
+                                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="Transparent" BorderThickness="0" CornerRadius="4" Padding="4,0" Margin="4,1">
+                                            <GridViewRowPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsSelected" Value="true">
+                                                <Setter TargetName="Bd" Property="Background" Value="{Theme_PrimaryBg}"/>
+                                                <Setter Property="Foreground" Value="{Theme_PrimaryFg}"/>
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="true">
+                                                <Setter TargetName="Bd" Property="Background" Value="{Theme_HoverBg}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                    <Setter Property="Background" Value="{Theme_AltRowBg}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" Width="150"/>
+                            <GridViewColumn Header="Display Name" DisplayMemberBinding="{Binding DisplayName}" Width="350"/>
+                            <GridViewColumn Header="Status" DisplayMemberBinding="{Binding State}" Width="100"/>
+                            <GridViewColumn Header="Start Type" DisplayMemberBinding="{Binding StartMode}" Width="150"/>
+                        </GridView>
+                    </ListView.View>
+                    <ListView.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Start Service" x:Name="ctxStartService"/>
+                            <MenuItem Header="Stop Service" x:Name="ctxStopService"/>
+                            <MenuItem Header="Restart Service" x:Name="ctxRestartService"/>
+                        </ContextMenu>
+                    </ListView.ContextMenu>
+                </ListView>
+            </TabItem>
+
+            <!-- 4. Profiles Tab -->
+            <TabItem Header="Profiles" FontSize="14">
+                <ListView x:Name="lvProfiles" BorderThickness="1" BorderBrush="{Theme_GridBorder}" Margin="0,4,0,0" Background="Transparent" Foreground="{Theme_Fg}" AlternationCount="2">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Height" Value="28"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="{Theme_Fg}"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListViewItem">
+                                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="Transparent" BorderThickness="0" CornerRadius="4" Padding="4,0" Margin="4,1">
+                                            <GridViewRowPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsSelected" Value="true">
+                                                <Setter TargetName="Bd" Property="Background" Value="{Theme_PrimaryBg}"/>
+                                                <Setter Property="Foreground" Value="{Theme_PrimaryFg}"/>
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="true">
+                                                <Setter TargetName="Bd" Property="Background" Value="{Theme_HoverBg}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                    <Setter Property="Background" Value="{Theme_AltRowBg}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="User Path" DisplayMemberBinding="{Binding LocalPath}" Width="300"/>
+                            <GridViewColumn Header="Last Used" DisplayMemberBinding="{Binding LastUseTime}" Width="180"/>
+                            <GridViewColumn Header="Loaded" DisplayMemberBinding="{Binding Loaded}" Width="80"/>
+                            <GridViewColumn Header="SID" DisplayMemberBinding="{Binding SID}" Width="250"/>
+                        </GridView>
+                    </ListView.View>
+                    <ListView.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Delete Profile" x:Name="ctxDeleteProfile"/>
+                        </ContextMenu>
+                    </ListView.ContextMenu>
+                </ListView>
+            </TabItem>
+
+            <!-- 5. Devices Tab -->
+            <TabItem Header="Devices" FontSize="14">
+                <ListView x:Name="lvDevices" BorderThickness="1" BorderBrush="{Theme_GridBorder}" Margin="0,4,0,0" Background="Transparent" Foreground="{Theme_Fg}" AlternationCount="2">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Height" Value="28"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="{Theme_Fg}"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListViewItem">
+                                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="Transparent" BorderThickness="0" CornerRadius="4" Padding="4,0" Margin="4,1">
+                                            <GridViewRowPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsSelected" Value="true">
+                                                <Setter TargetName="Bd" Property="Background" Value="{Theme_PrimaryBg}"/>
+                                                <Setter Property="Foreground" Value="{Theme_PrimaryFg}"/>
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="true">
+                                                <Setter TargetName="Bd" Property="Background" Value="{Theme_HoverBg}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                    <Setter Property="Background" Value="{Theme_AltRowBg}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Device Name" DisplayMemberBinding="{Binding FriendlyName}" Width="350"/>
+                            <GridViewColumn Header="Class" DisplayMemberBinding="{Binding Class}" Width="150"/>
+                            <GridViewColumn Header="Status" DisplayMemberBinding="{Binding Status}" Width="100"/>
+                            <GridViewColumn Header="Manufacturer" DisplayMemberBinding="{Binding Manufacturer}" Width="200"/>
+                        </GridView>
+                    </ListView.View>
+                    <ListView.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Enable Device" x:Name="ctxEnableDevice"/>
+                            <MenuItem Header="Disable Device" x:Name="ctxDisableDevice"/>
+                        </ContextMenu>
+                    </ListView.ContextMenu>
+                </ListView>
+            </TabItem>
+            
+            <!-- 6. Events Tab -->
+            <TabItem Header="Events" FontSize="14">
+                <ListView x:Name="lvEvents" BorderThickness="1" BorderBrush="{Theme_GridBorder}" Margin="0,4,0,0" Background="Transparent" Foreground="{Theme_Fg}" AlternationCount="2">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Height" Value="28"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="{Theme_Fg}"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListViewItem">
+                                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="Transparent" BorderThickness="0" CornerRadius="4" Padding="4,0" Margin="4,1">
+                                            <GridViewRowPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsSelected" Value="true">
+                                                <Setter TargetName="Bd" Property="Background" Value="{Theme_PrimaryBg}"/>
+                                                <Setter Property="Foreground" Value="{Theme_PrimaryFg}"/>
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="true">
+                                                <Setter TargetName="Bd" Property="Background" Value="{Theme_HoverBg}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                    <Setter Property="Background" Value="{Theme_AltRowBg}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Time" DisplayMemberBinding="{Binding TimeCreated}" Width="150"/>
+                            <GridViewColumn Header="Level" DisplayMemberBinding="{Binding Level}" Width="90"/>
+                            <GridViewColumn Header="ID" DisplayMemberBinding="{Binding Id}" Width="70"/>
+                            <GridViewColumn Header="Source" DisplayMemberBinding="{Binding Source}" Width="180"/>
+                            <GridViewColumn Header="Message" DisplayMemberBinding="{Binding Message}" Width="500"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
+
+        </TabControl>
+
+        <Border Grid.Row="2" Background="{Theme_BtnBg}" BorderBrush="{Theme_GridBorder}" BorderThickness="0,1,0,0" Padding="12">
+            <Grid>
+                <TextBlock x:Name="lblProcStatus" Text="Initializing..." FontSize="12" Foreground="{Theme_SecFg}" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+					 <CheckBox x:Name="chkAutoRefreshProcs" Content="Auto-Refresh (15s)" Foreground="{Theme_Fg}" VerticalAlignment="Center" Margin="0,0,15,0" IsChecked="False"/>
+                     <Button x:Name="btnRefreshProcs" Content="Refresh Now" Margin="0,0,8,0" Width="100" Height="28" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0"/>
+                     <Button x:Name="btnCloseProcs" Content="Close" Width="80" Height="28" Background="{Theme_Bg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

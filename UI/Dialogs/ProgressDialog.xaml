@@ -1,0 +1,29 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Working..." Width="380" SizeToContent="Height" WindowStartupLocation="CenterOwner"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent" ShowInTaskbar="False"
+        FontFamily="Segoe UI Variable Display, Segoe UI, sans-serif">
+    <Window.Resources>
+        <Style TargetType="ProgressBar">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ProgressBar">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="3" BorderThickness="0">
+                            <Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}" CornerRadius="3" HorizontalAlignment="Left"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Border Background="{Theme_Bg}" CornerRadius="8" BorderBrush="{Theme_BtnBorder}" BorderThickness="1" Margin="15">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="20" ShadowDepth="5" Opacity="0.3" Color="Black"/>
+        </Border.Effect>
+        <StackPanel Margin="24,28,24,28">
+            <TextBlock x:Name="lblProgressTitle" Text="Executing Operation" FontSize="17" FontWeight="SemiBold" Foreground="{Theme_Fg}" HorizontalAlignment="Center" Margin="0,0,0,18"/>
+            <ProgressBar x:Name="pbProgress" Height="5" IsIndeterminate="True" Background="{Theme_BtnBg}" Foreground="{Theme_PrimaryBg}" Margin="0,0,0,16" BorderThickness="0"/>
+            <TextBlock x:Name="lblProgressStatus" Text="Please wait while the remote system is updated..." FontSize="13" Foreground="{Theme_SecFg}" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
+        </StackPanel>
+    </Border>
+</Window>

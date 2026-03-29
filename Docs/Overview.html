@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HelpDesk Companion — Executive Overview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #07102a;
+  --navy-2: #0d1b3e;
+  --navy-3: #112250;
+  --blue: #1a6cf6;
+  --blue-light: #4d94ff;
+  --blue-glow: rgba(26,108,246,.3);
+  --teal: #00bfa5;
+  --teal-dim: rgba(0,191,165,.15);
+  --gold: #ffc53d;
+  --gold-dim: rgba(255,197,61,.12);
+  --white: #ffffff;
+  --off-white: #e8eef8;
+  --muted: rgba(232,238,248,.55);
+  --border: rgba(255,255,255,.08);
+  --border-bright: rgba(255,255,255,.16);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--navy);
+  color: var(--off-white);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: .5;
+}
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 0 48px; height: 64px;
+  display: flex; align-items: center; gap: 16px;
+  background: rgba(7,16,42,.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; color: var(--white); text-decoration: none; letter-spacing: -0.01em; }
+.nav-gem { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, var(--blue) 0%, #5ba0ff 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 16px var(--blue-glow); }
+.nav-gem svg { width: 16px; height: 16px; fill: white; }
+.nav-pill { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; background: rgba(255,255,255,.07); border: 1px solid var(--border-bright); color: var(--muted); letter-spacing: .04em; }
+.nav-right { margin-left: auto; display: flex; gap: 8px; }
+.nav-dot-pill { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); font-weight: 500; }
+.nav-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 8px var(--teal); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
+section { position: relative; z-index: 1; }
+
+/* HERO */
+.hero {
+  min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 120px 48px 80px; text-align: center;
+  background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(26,108,246,.22), transparent),
+              radial-gradient(ellipse 50% 40% at 80% 80%, rgba(0,191,165,.08), transparent);
+  overflow: hidden;
+}
+.hero-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--blue-light); margin-bottom: 20px; opacity: 0; animation: fadeUp .8s .2s forwards; }
+.hero-title { font-size: clamp(52px, 7vw, 86px); font-weight: 800; line-height: 1.05; letter-spacing: -0.03em; color: var(--white); margin-bottom: 24px; opacity: 0; animation: fadeUp .8s .4s forwards; }
+.hero-title span { color: var(--blue-light); position: relative; }
+.hero-title span::after { content: ''; position: absolute; bottom: -4px; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--blue), transparent); border-radius: 2px; }
+.hero-sub { font-size: 18px; font-weight: 400; color: var(--muted); max-width: 640px; line-height: 1.7; margin-bottom: 48px; opacity: 0; animation: fadeUp .8s .6s forwards; }
+.hero-kpis { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; opacity: 0; animation: fadeUp .8s .8s forwards; }
+.kpi-card { background: rgba(255,255,255,.04); border: 1px solid var(--border-bright); border-radius: 12px; padding: 24px 32px; min-width: 180px; text-align: center; backdrop-filter: blur(8px); transition: transform .3s, border-color .3s, box-shadow .3s; position: relative; overflow: hidden; }
+.kpi-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(26,108,246,.06), transparent); pointer-events: none; }
+.kpi-card:hover { transform: translateY(-4px); border-color: rgba(77,148,255,.4); box-shadow: 0 16px 40px rgba(26,108,246,.15); }
+.kpi-val { font-size: 42px; font-weight: 800; letter-spacing: -0.02em; color: var(--white); line-height: 1; margin-bottom: 8px; }
+.kpi-val.teal { color: var(--teal); }
+.kpi-val.gold { color: var(--gold); }
+.kpi-label { font-size: 13px; color: var(--muted); font-weight: 500; line-height: 1.4; }
+.hero-scroll { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; opacity: 0; animation: fadeUp .8s 1.2s forwards; }
+.hero-scroll span { font-size: 10px; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); }
+.scroll-arrow { width: 20px; height: 20px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); animation: bounce 1.5s infinite; }
+@keyframes bounce { 0%,100% { transform: translateY(0) rotate(45deg); } 50% { transform: translateY(5px) rotate(45deg); } }
+
+.section-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border-bright), transparent); }
+.section-header { text-align: center; padding: 80px 48px 40px; }
+.section-label { font-size: 11px; font-weight: 700; letter-spacing: .25em; text-transform: uppercase; color: var(--blue-light); margin-bottom: 12px; }
+.section-title { font-size: clamp(28px, 4vw, 42px); font-weight: 800; letter-spacing: -0.02em; color: var(--white); line-height: 1.15; }
+.section-title .accent { color: var(--blue-light); }
+.section-sub { font-size: 16px; color: var(--muted); max-width: 600px; margin: 16px auto 0; line-height: 1.7; font-weight: 400; }
+
+/* PROBLEM */
+.problem-section { padding: 0 48px 80px; background: radial-gradient(ellipse 60% 40% at 20% 50%, rgba(248,81,73,.04), transparent); }
+.problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 900px; margin: 0 auto; }
+.problem-card { background: rgba(255,255,255,.03); border: 1px solid var(--border); border-radius: 12px; padding: 24px; display: flex; gap: 16px; align-items: flex-start; transition: background .2s; position: relative; overflow: hidden; }
+.problem-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, rgba(248,81,73,.6), transparent); }
+.problem-card:hover { background: rgba(255,255,255,.05); }
+.problem-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(248,81,73,.1); border: 1px solid rgba(248,81,73,.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.problem-icon svg { width: 20px; height: 20px; stroke: #f85149; fill: none; stroke-width: 2; }
+.problem-title { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; color: var(--white); margin-bottom: 6px; }
+.problem-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+/* CAPABILITIES */
+.capabilities-section { padding: 0 48px 80px; background: radial-gradient(ellipse 70% 50% at 80% 50%, rgba(26,108,246,.06), transparent); }
+.cap-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; max-width: 1200px; margin: 0 auto; }
+.cap-card { background: rgba(255,255,255,.03); border: 1px solid var(--border); border-radius: 12px; padding: 22px 18px; text-align: center; transition: all .3s; position: relative; overflow: hidden; }
+.cap-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--blue), transparent); opacity: 0; transition: opacity .3s; }
+.cap-card:hover { background: rgba(26,108,246,.08); border-color: rgba(77,148,255,.3); transform: translateY(-3px); }
+.cap-card:hover::after { opacity: 1; }
+.cap-icon { width: 48px; height: 48px; border-radius: 12px; background: var(--blue-glow); border: 1px solid rgba(77,148,255,.3); display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
+.cap-icon svg { width: 22px; height: 22px; stroke: var(--blue-light); fill: none; stroke-width: 1.8; }
+.cap-title { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; color: var(--white); margin-bottom: 6px; }
+.cap-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+/* ADVANCED */
+.advanced-section { padding: 0 48px 80px; background: radial-gradient(ellipse 70% 50% at 20% 50%, rgba(0,191,165,.05), transparent); }
+.adv-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; max-width: 900px; margin: 0 auto; }
+.adv-card { background: rgba(255,255,255,.03); border: 1px solid var(--border); border-radius: 12px; padding: 24px; display: flex; gap: 16px; align-items: flex-start; transition: background .2s; position: relative; overflow: hidden; }
+.adv-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, rgba(0,191,165,.5), transparent); }
+.adv-card:hover { background: rgba(255,255,255,.05); }
+.adv-icon { width: 44px; height: 44px; border-radius: 10px; background: var(--teal-dim); border: 1px solid rgba(0,191,165,.3); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.adv-icon svg { width: 22px; height: 22px; stroke: var(--teal); fill: none; stroke-width: 1.8; }
+.adv-title { font-size: 15px; font-weight: 700; color: var(--white); margin-bottom: 6px; }
+.adv-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+/* EFFICIENCY */
+.efficiency-section { padding: 0 48px 80px; }
+.eff-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 900px; margin: 0 auto; }
+.eff-item { background: rgba(255,255,255,.03); border: 1px solid var(--border); border-radius: 12px; padding: 24px 20px; position: relative; overflow: hidden; }
+.eff-item-task { font-size: 14px; font-weight: 600; color: var(--off-white); margin-bottom: 16px; line-height: 1.4; }
+.eff-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.eff-bar-label { font-size: 12px; color: var(--muted); font-weight: 500; width: 40px; flex-shrink: 0; }
+.eff-bar-track { flex: 1; height: 6px; background: rgba(255,255,255,.06); border-radius: 3px; overflow: hidden; }
+.eff-bar-fill { height: 100%; border-radius: 3px; }
+.eff-bar-before .eff-bar-fill { background: rgba(248,81,73,.5); width: 100%; }
+.eff-bar-after .eff-bar-fill { background: var(--teal); }
+.eff-bar-time { font-size: 12px; font-weight: 600; width: 52px; text-align: right; flex-shrink: 0; }
+.eff-bar-before .eff-bar-time { color: rgba(248,81,73,.8); }
+.eff-bar-after .eff-bar-time { color: var(--teal); }
+.eff-saving { margin-top: 14px; padding: 8px 12px; border-radius: 8px; background: var(--teal-dim); border: 1px solid rgba(0,191,165,.2); font-size: 13px; font-weight: 600; color: var(--teal); text-align: center; }
+
+/* DASHBOARD */
+.dashboard-section { padding: 0 48px 80px; }
+.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 900px; margin: 0 auto; }
+.dash-panel { background: linear-gradient(135deg, rgba(26,108,246,.08), rgba(0,191,165,.04)); border: 1px solid var(--border-bright); border-radius: 14px; padding: 28px 24px; }
+.dash-panel-title { font-size: 16px; font-weight: 700; color: var(--white); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+.dash-panel-title svg { width: 18px; height: 18px; stroke: var(--blue-light); fill: none; stroke-width: 2; }
+.dash-feature { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 12px; }
+.dash-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue-light); flex-shrink: 0; margin-top: 7px; }
+.dash-feature-text { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.dash-feature-text strong { color: var(--off-white); }
+
+/* COMPLIANCE */
+.compliance-section { padding: 0 48px 80px; background: radial-gradient(ellipse 60% 40% at 50% 50%, rgba(0,191,165,.04), transparent); }
+.comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 900px; margin: 0 auto; }
+.comp-col { display: flex; flex-direction: column; gap: 10px; }
+.comp-card { background: rgba(255,255,255,.03); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; display: flex; gap: 14px; align-items: center; transition: background .2s; }
+.comp-card:hover { background: rgba(255,255,255,.05); }
+.comp-check { width: 32px; height: 32px; border-radius: 8px; background: var(--teal-dim); border: 1px solid rgba(0,191,165,.3); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.comp-check svg { width: 16px; height: 16px; stroke: var(--teal); fill: none; stroke-width: 2.5; }
+.comp-text-title { font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 2px; }
+.comp-text-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.comp-right-panel { background: linear-gradient(135deg, rgba(26,108,246,.08), rgba(0,191,165,.05)); border: 1px solid var(--border-bright); border-radius: 12px; padding: 28px 24px; display: flex; flex-direction: column; gap: 16px; }
+.comp-retention { text-align: center; }
+.comp-retention-val { font-size: 56px; font-weight: 800; letter-spacing: -0.03em; color: var(--teal); line-height: 1; }
+.comp-retention-label { font-size: 13px; font-weight: 500; color: var(--muted); margin-top: 6px; }
+.comp-divider { height: 1px; background: var(--border); }
+.comp-log-fields { display: flex; flex-direction: column; gap: 6px; }
+.comp-log-field { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.comp-log-field-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
+.comp-log-field-name { color: var(--blue-light); font-weight: 500; }
+.comp-log-field-desc { color: var(--muted); }
+
+/* COST */
+.cost-section { padding: 0 48px 80px; }
+.cost-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 900px; margin: 0 auto; }
+.cost-card { background: rgba(255,255,255,.03); border: 1px solid var(--border); border-radius: 12px; padding: 24px 20px; text-align: center; transition: all .3s; }
+.cost-card:hover { background: rgba(255,197,61,.04); border-color: rgba(255,197,61,.2); }
+.cost-icon { font-size: 28px; margin-bottom: 12px; }
+.cost-val { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; color: var(--gold); margin-bottom: 6px; }
+.cost-label { font-size: 14px; color: var(--off-white); font-weight: 600; margin-bottom: 6px; }
+.cost-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+/* ROADMAP */
+.roadmap-section { padding: 0 48px 80px; }
+.roadmap-list { max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; gap: 2px; }
+.roadmap-item { display: flex; gap: 20px; align-items: flex-start; padding: 18px 20px; border-radius: 10px; transition: background .2s; }
+.roadmap-item:hover { background: rgba(255,255,255,.03); }
+.roadmap-line { display: flex; flex-direction: column; align-items: center; }
+.roadmap-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 10px var(--blue-glow); flex-shrink: 0; }
+.roadmap-connector { width: 2px; flex: 1; min-height: 24px; background: linear-gradient(var(--border-bright), transparent); margin-top: 4px; }
+.roadmap-item:last-child .roadmap-connector { display: none; }
+.roadmap-title { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; color: var(--white); margin-bottom: 4px; }
+.roadmap-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+/* CTA */
+.cta-section { padding: 80px 48px 120px; text-align: center; background: radial-gradient(ellipse 60% 50% at 50% 100%, rgba(26,108,246,.12), transparent); }
+.cta-title { font-size: 36px; font-weight: 800; letter-spacing: -0.02em; color: var(--white); margin-bottom: 14px; }
+.cta-sub { font-size: 16px; color: var(--muted); margin-bottom: 36px; line-height: 1.6; }
+.cta-footer-line { font-size: 12px; font-weight: 500; color: var(--muted); letter-spacing: .06em; opacity: .6; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+.reveal.vis { opacity: 1; transform: none; }
+.reveal.delay-1 { transition-delay: .1s; } .reveal.delay-2 { transition-delay: .2s; } .reveal.delay-3 { transition-delay: .3s; }
+.reveal.delay-4 { transition-delay: .4s; } .reveal.delay-5 { transition-delay: .5s; } .reveal.delay-6 { transition-delay: .6s; }
+.reveal.delay-7 { transition-delay: .7s; } .reveal.delay-8 { transition-delay: .8s; }
+
+.grid-bg { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px); background-size: 60px 60px; -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%); mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%); }
+
+@media (max-width: 768px) {
+  .cap-grid { grid-template-columns: 1fr 1fr; }
+  .problem-grid, .comp-grid, .eff-grid, .cost-grid, .adv-grid, .dash-grid { grid-template-columns: 1fr; }
+  nav { padding: 0 20px; }
+  .hero, .problem-section, .capabilities-section, .efficiency-section, .compliance-section, .cost-section, .roadmap-section, .cta-section, .advanced-section, .dashboard-section { padding-left: 20px; padding-right: 20px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="nav-brand">
+    <div class="nav-gem"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+    HelpDesk Companion
+  </a>
+  <span class="nav-pill">Executive Overview</span>
+  <div class="nav-right">
+    <span class="nav-dot-pill"><span class="nav-dot"></span>Active in Production</span>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="grid-bg"></div>
+  <div class="hero-eyebrow">Pelican Credit Union · Information Technology</div>
+  <h1 class="hero-title">One tool.<br><span>Every IT task.</span></h1>
+  <p class="hero-sub">HelpDesk Companion consolidates the IT team's most time-intensive daily workflows into a single, unified interface — cutting resolution times, strengthening audit posture, and eliminating context switching.</p>
+  <div class="hero-kpis">
+    <div class="kpi-card"><div class="kpi-val">12+</div><div class="kpi-label">Helpdesk functions unified in one application</div></div>
+    <div class="kpi-card"><div class="kpi-val teal">~80%</div><div class="kpi-label">Average time saved on routine account tasks</div></div>
+    <div class="kpi-card"><div class="kpi-val gold">90</div><div class="kpi-label">Days of full audit trail retained automatically</div></div>
+    <div class="kpi-card"><div class="kpi-val">$0</div><div class="kpi-label">Additional licensing or infrastructure cost</div></div>
+  </div>
+  <div class="hero-scroll"><span>Scroll</span><div class="scroll-arrow"></div></div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- PROBLEM -->
+<section class="problem-section" style="padding-top:0;">
+  <div class="section-header">
+    <div class="section-label reveal">The Problem</div>
+    <div class="section-title reveal delay-1">Fragmented tools slow<br><span class="accent">every single request</span></div>
+    <div class="section-sub reveal delay-2">IT staff were navigating 4–5 separate consoles to resolve what should be a 2-minute task.</div>
+  </div>
+  <div class="problem-grid">
+    <div class="problem-card reveal delay-1">
+      <div class="problem-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+      <div><div class="problem-title">Slow Resolutions</div><div class="problem-desc">A single account unlock required multiple tool-switches. Average resolution time: 4–6 minutes for a task that should take under 1.</div></div>
+    </div>
+    <div class="problem-card reveal delay-2">
+      <div class="problem-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg></div>
+      <div><div class="problem-title">No Central Audit Trail</div><div class="problem-desc">Sensitive actions like password resets left no consistent log. No single record of who did what, when.</div></div>
+    </div>
+    <div class="problem-card reveal delay-3">
+      <div class="problem-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+      <div><div class="problem-title">Inconsistent Handling</div><div class="problem-desc">No enforced workflow meant different technicians handled the same requests differently — creating compliance risk.</div></div>
+    </div>
+    <div class="problem-card reveal delay-4">
+      <div class="problem-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <div><div class="problem-title">High Cognitive Load</div><div class="problem-desc">Constant context-switching between Active Directory, event viewer, helpdesk portal, and remote tools increased error rates during peak periods.</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- CORE CAPABILITIES -->
+<section class="capabilities-section">
+  <div class="section-header">
+    <div class="section-label reveal">Core Capabilities</div>
+    <div class="section-title reveal delay-1">Everything IT needs,<br><span class="accent">in one place</span></div>
+    <div class="section-sub reveal delay-2">Core helpdesk capabilities built natively into a single application that connects directly to your existing systems.</div>
+  </div>
+  <div class="cap-grid">
+    <div class="cap-card reveal delay-1">
+      <div class="cap-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg></div>
+      <div class="cap-title">Account Unlocks</div>
+      <div class="cap-desc">Single-click unlock with auto-unlock automation and full logging.</div>
+    </div>
+    <div class="cap-card reveal delay-2">
+      <div class="cap-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div class="cap-title">Password Resets</div>
+      <div class="cap-desc">Policy-enforced resets with a built-in strong password generator.</div>
+    </div>
+    <div class="cap-card reveal delay-3">
+      <div class="cap-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+      <div class="cap-title">Lockout Source</div>
+      <div class="cap-desc">Identify the computer or app causing repeat lockouts instantly via PDC event log.</div>
+    </div>
+    <div class="cap-card reveal delay-4">
+      <div class="cap-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+      <div class="cap-title">Remote PC Tools</div>
+      <div class="cap-desc">Processes, services, software, devices, event logs — without a full remote session.</div>
+    </div>
+    <div class="cap-card reveal delay-5">
+      <div class="cap-icon"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></div>
+      <div class="cap-title">Printer Management</div>
+      <div class="cap-desc">Install, remove, rename, and deploy printer drivers on remote computers.</div>
+    </div>
+    <div class="cap-card reveal delay-6">
+      <div class="cap-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <div class="cap-title">Quick Ticketing</div>
+      <div class="cap-desc">Create Freshservice tickets directly from the app, pre-populated with user and category data.</div>
+    </div>
+    <div class="cap-card reveal delay-7">
+      <div class="cap-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg></div>
+      <div class="cap-title">Asset Lookup</div>
+      <div class="cap-desc">Find computers assigned to any user directly from the Freshservice CMDB.</div>
+    </div>
+    <div class="cap-card reveal delay-8">
+      <div class="cap-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+      <div class="cap-title">Audit Logging</div>
+      <div class="cap-desc">Every action logged with technician identity, target, and outcome. 90-day retention.</div>
+    </div>
+    <div class="cap-card reveal delay-1">
+      <div class="cap-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+      <div class="cap-title">Group Management</div>
+      <div class="cap-desc">View, add, and remove AD group memberships for users and computers with live search.</div>
+    </div>
+    <div class="cap-card reveal delay-2">
+      <div class="cap-icon"><svg viewBox="0 0 24 24"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/><path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/><path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/><path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"/></svg></div>
+      <div class="cap-title">Ticket Feed</div>
+      <div class="cap-desc">View a user's recent Freshservice tickets color-coded by status and priority.</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ADVANCED CAPABILITIES -->
+<section class="advanced-section">
+  <div class="section-header">
+    <div class="section-label reveal">Advanced Capabilities</div>
+    <div class="section-title reveal delay-1">Beyond the basics —<br><span class="accent">powerful tools built in</span></div>
+    <div class="section-sub reveal delay-2">Capabilities that go well beyond a standard helpdesk tool, built natively without additional cost or infrastructure.</div>
+  </div>
+  <div class="adv-grid">
+    <div class="adv-card reveal delay-1">
+      <div class="adv-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+      <div>
+        <div class="adv-title">Last Logon Location Finder</div>
+        <div class="adv-desc">Query the PDC Emulator for a user's most recent remote logon event (ID 4624) to identify the IP address and hostname of the last machine they authenticated from — essential for tracing stale credential sources causing repeat lockouts.</div>
+      </div>
+    </div>
+    <div class="adv-card reveal delay-2">
+      <div class="adv-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></div>
+      <div>
+        <div class="adv-title">Remote BIOS Password Provisioning</div>
+        <div class="adv-desc">Set the BIOS/UEFI administrator password on Lenovo, Dell, and HP machines using manufacturer WMI providers — remotely, without opening a session. Checks current status first and only acts when no password is set, preventing lockouts.</div>
+      </div>
+    </div>
+    <div class="adv-card reveal delay-3">
+      <div class="adv-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+      <div>
+        <div class="adv-title">Remote Quick Actions</div>
+        <div class="adv-desc">One-click remote operations from the context menu: Force Group Policy Update, Restart Print Spooler, Flush DNS, Send popup message to the active user, and remote Reboot or Shutdown — all without a full remote desktop session.</div>
+      </div>
+    </div>
+    <div class="adv-card reveal delay-4">
+      <div class="adv-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M2 10h20"/></svg></div>
+      <div>
+        <div class="adv-title">Modern App (AppX) Software Management</div>
+        <div class="adv-desc">The software inventory enumerates both traditional Win32 apps and modern AppX/UWP packages on remote machines, with silent uninstall support for both — without triggering WinRM WinRT crashes common in other remote management tools.</div>
+      </div>
+    </div>
+    <div class="adv-card reveal delay-5">
+      <div class="adv-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <div>
+        <div class="adv-title">Real-Time Printer Health Checks</div>
+        <div class="adv-desc">The Printer Manager runs parallel ping and port-9100 TCP health checks against every printer's IP simultaneously, stamping each row with Online, Ping OK, or Offline status so you know printer reachability before starting any work.</div>
+      </div>
+    </div>
+    <div class="adv-card reveal delay-6">
+      <div class="adv-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+      <div>
+        <div class="adv-title">In-App Management Dashboard</div>
+        <div class="adv-desc">An analytics dashboard built directly into the application shows current-month KPIs, a 14-day unlock trend chart, and a top-5 most-locked users chart — all computed live from the same audit logs, no external reporting tool needed.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- EFFICIENCY -->
+<section class="efficiency-section">
+  <div class="section-header">
+    <div class="section-label reveal">Time Savings</div>
+    <div class="section-title reveal delay-1">Measurable impact on<br><span class="accent">resolution speed</span></div>
+    <div class="section-sub reveal delay-2">Estimated time comparisons based on observed helpdesk workflows before and after adoption.</div>
+  </div>
+  <div class="eff-grid">
+    <div class="eff-item reveal delay-1">
+      <div class="eff-item-task">Account lockout resolution</div>
+      <div class="eff-bar-row eff-bar-before"><span class="eff-bar-label">Before</span><div class="eff-bar-track"><div class="eff-bar-fill"></div></div><span class="eff-bar-time">4–6 min</span></div>
+      <div class="eff-bar-row eff-bar-after"><span class="eff-bar-label">After</span><div class="eff-bar-track"><div class="eff-bar-fill" style="width:14%"></div></div><span class="eff-bar-time">&lt;1 min</span></div>
+      <div class="eff-saving">↓ ~80% faster</div>
+    </div>
+    <div class="eff-item reveal delay-2">
+      <div class="eff-item-task">Password reset with policy check</div>
+      <div class="eff-bar-row eff-bar-before"><span class="eff-bar-label">Before</span><div class="eff-bar-track"><div class="eff-bar-fill"></div></div><span class="eff-bar-time">5–8 min</span></div>
+      <div class="eff-bar-row eff-bar-after"><span class="eff-bar-label">After</span><div class="eff-bar-track"><div class="eff-bar-fill" style="width:18%"></div></div><span class="eff-bar-time">1–2 min</span></div>
+      <div class="eff-saving">↓ ~75% faster</div>
+    </div>
+    <div class="eff-item reveal delay-3">
+      <div class="eff-item-task">Identify lockout source computer</div>
+      <div class="eff-bar-row eff-bar-before"><span class="eff-bar-label">Before</span><div class="eff-bar-track"><div class="eff-bar-fill"></div></div><span class="eff-bar-time">10–20 min</span></div>
+      <div class="eff-bar-row eff-bar-after"><span class="eff-bar-label">After</span><div class="eff-bar-track"><div class="eff-bar-fill" style="width:10%"></div></div><span class="eff-bar-time">&lt;2 min</span></div>
+      <div class="eff-saving">↓ ~90% faster</div>
+    </div>
+    <div class="eff-item reveal delay-4">
+      <div class="eff-item-task">Remote printer installation</div>
+      <div class="eff-bar-row eff-bar-before"><span class="eff-bar-label">Before</span><div class="eff-bar-track"><div class="eff-bar-fill"></div></div><span class="eff-bar-time">15–30 min</span></div>
+      <div class="eff-bar-row eff-bar-after"><span class="eff-bar-label">After</span><div class="eff-bar-track"><div class="eff-bar-fill" style="width:16%"></div></div><span class="eff-bar-time">3–5 min</span></div>
+      <div class="eff-saving">↓ ~85% faster</div>
+    </div>
+    <div class="eff-item reveal delay-5">
+      <div class="eff-item-task">Log a Freshservice ticket</div>
+      <div class="eff-bar-row eff-bar-before"><span class="eff-bar-label">Before</span><div class="eff-bar-track"><div class="eff-bar-fill"></div></div><span class="eff-bar-time">3–5 min</span></div>
+      <div class="eff-bar-row eff-bar-after"><span class="eff-bar-label">After</span><div class="eff-bar-track"><div class="eff-bar-fill" style="width:15%"></div></div><span class="eff-bar-time">&lt;1 min</span></div>
+      <div class="eff-saving">↓ ~75% faster</div>
+    </div>
+    <div class="eff-item reveal delay-6">
+      <div class="eff-item-task">Remote machine investigation</div>
+      <div class="eff-bar-row eff-bar-before"><span class="eff-bar-label">Before</span><div class="eff-bar-track"><div class="eff-bar-fill"></div></div><span class="eff-bar-time">10–20 min</span></div>
+      <div class="eff-bar-row eff-bar-after"><span class="eff-bar-label">After</span><div class="eff-bar-track"><div class="eff-bar-fill" style="width:20%"></div></div><span class="eff-bar-time">2–4 min</span></div>
+      <div class="eff-saving">↓ ~80% faster</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- MANAGEMENT DASHBOARD -->
+<section class="dashboard-section">
+  <div class="section-header">
+    <div class="section-label reveal">Leadership Visibility</div>
+    <div class="section-title reveal delay-1">Live management<br><span class="accent">dashboard included</span></div>
+    <div class="section-sub reveal delay-2">A self-refreshing HTML dashboard gives IT leadership real-time and historical visibility into helpdesk activity — generated automatically from the same audit logs, with no additional infrastructure.</div>
+  </div>
+  <div class="dash-grid">
+    <div class="dash-panel reveal delay-1">
+      <div class="dash-panel-title"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Real-Time KPIs</div>
+      <div class="dash-feature"><div class="dash-dot"></div><div class="dash-feature-text"><strong>Active lockouts</strong> — live AD query showing currently locked accounts with lockout time and source computer.</div></div>
+      <div class="dash-feature"><div class="dash-dot"></div><div class="dash-feature-text"><strong>YTD unlock counts</strong> — agent-performed vs. automated, with estimated technician time-cost calculation.</div></div>
+      <div class="dash-feature"><div class="dash-dot"></div><div class="dash-feature-text"><strong>Password resets, printer ops, and Freshservice ticket counts</strong> for the current calendar month.</div></div>
+      <div class="dash-feature"><div class="dash-dot"></div><div class="dash-feature-text"><strong>All-time history toggle</strong> to see full trends beyond the current year without losing your filter state.</div></div>
+    </div>
+    <div class="dash-panel reveal delay-2">
+      <div class="dash-panel-title"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Trend Charts &amp; Log Table</div>
+      <div class="dash-feature"><div class="dash-dot"></div><div class="dash-feature-text"><strong>14-day lockout trend chart</strong> — click any bar to filter the log table to that specific date's events.</div></div>
+      <div class="dash-feature"><div class="dash-dot"></div><div class="dash-feature-text"><strong>Top 10 most-locked users</strong> horizontal bar chart — click any bar to filter the log table by that user.</div></div>
+      <div class="dash-feature"><div class="dash-dot"></div><div class="dash-feature-text"><strong>Recent log activity table</strong> with all lock and unlock events, operator attribution, and active filter badge.</div></div>
+      <div class="dash-feature"><div class="dash-dot"></div><div class="dash-feature-text"><strong>Auto-refreshes every 120 seconds</strong> in the browser. The polling generator updates the file every 5 seconds when log changes are detected.</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- COMPLIANCE -->
+<section class="compliance-section">
+  <div class="section-header">
+    <div class="section-label reveal">Compliance &amp; Audit</div>
+    <div class="section-title reveal delay-1">Every action.<br><span class="accent">Permanently recorded.</span></div>
+    <div class="section-sub reveal delay-2">All privileged IT operations are attributed, timestamped, and preserved — with zero additional configuration required.</div>
+  </div>
+  <div class="comp-grid">
+    <div class="comp-col">
+      <div class="comp-card reveal delay-1">
+        <div class="comp-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div><div class="comp-text-title">Account Unlocks Logged</div><div class="comp-text-desc">Manual and automated unlocks captured with technician identity and timestamp.</div></div>
+      </div>
+      <div class="comp-card reveal delay-2">
+        <div class="comp-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div><div class="comp-text-title">Password Resets Tracked</div><div class="comp-text-desc">Every reset recorded with the target account and force-change-at-logon flag status.</div></div>
+      </div>
+      <div class="comp-card reveal delay-3">
+        <div class="comp-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div><div class="comp-text-title">Remote Actions Attributed</div><div class="comp-text-desc">Process kills, service changes, software removals — all attributed to the performing technician.</div></div>
+      </div>
+      <div class="comp-card reveal delay-4">
+        <div class="comp-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div><div class="comp-text-title">Printer Operations Recorded</div><div class="comp-text-desc">All installs, removals, renames, and driver deployments logged with target computer.</div></div>
+      </div>
+      <div class="comp-card reveal delay-5">
+        <div class="comp-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div><div class="comp-text-title">Freshservice Events Captured</div><div class="comp-text-desc">Ticket creation, asset lookups, and record access attributed to the acting technician.</div></div>
+      </div>
+      <div class="comp-card reveal delay-6">
+        <div class="comp-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div><div class="comp-text-title">Lockout Event Detection</div><div class="comp-text-desc">The refresh cycle automatically identifies and logs new lockout events and clears, with built-in duplicate suppression.</div></div>
+      </div>
+    </div>
+    <div class="comp-right-panel reveal delay-2">
+      <div class="comp-retention">
+        <div class="comp-retention-val">90</div>
+        <div class="comp-retention-label">Days of log retention (configurable)</div>
+      </div>
+      <div class="comp-divider"></div>
+      <div style="font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px;">CSV Log Fields</div>
+      <div class="comp-log-fields">
+        <div class="comp-log-field"><span class="comp-log-field-dot"></span><span class="comp-log-field-name">Timestamp</span><span class="comp-log-field-desc"> — ISO 8601 datetime</span></div>
+        <div class="comp-log-field"><span class="comp-log-field-dot"></span><span class="comp-log-field-name">Event</span><span class="comp-log-field-desc"> — Action category</span></div>
+        <div class="comp-log-field"><span class="comp-log-field-dot"></span><span class="comp-log-field-name">Username</span><span class="comp-log-field-desc"> — Target AD account</span></div>
+        <div class="comp-log-field"><span class="comp-log-field-dot"></span><span class="comp-log-field-name">Details</span><span class="comp-log-field-desc"> — Description / error</span></div>
+        <div class="comp-log-field"><span class="comp-log-field-dot"></span><span class="comp-log-field-name">Status</span><span class="comp-log-field-desc"> — Success / Error / Info</span></div>
+        <div class="comp-log-field"><span class="comp-log-field-dot"></span><span class="comp-log-field-name">Operator</span><span class="comp-log-field-desc"> — Technician Windows username</span></div>
+        <div class="comp-log-field"><span class="comp-log-field-dot"></span><span class="comp-log-field-name">MachineName</span><span class="comp-log-field-desc"> — Technician's workstation</span></div>
+      </div>
+      <div class="comp-divider"></div>
+      <div style="font-size: 13px; color: var(--muted); text-align: center; line-height: 1.6;">Logs stored as industry-standard CSV on the IT network share. Accessible to IT management for review at any time.</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- COST -->
+<section class="cost-section">
+  <div class="section-header">
+    <div class="section-label reveal">Operational Cost</div>
+    <div class="section-title reveal delay-1">Built in-house.<br><span class="accent">Zero added overhead.</span></div>
+    <div class="section-sub reveal delay-2">HelpDesk Companion was developed entirely by internal IT staff using existing Microsoft technology at no additional cost.</div>
+  </div>
+  <div class="cost-grid">
+    <div class="cost-card reveal delay-1">
+      <div class="cost-icon">💰</div>
+      <div class="cost-val">$0</div>
+      <div class="cost-label">Software Licensing</div>
+      <div class="cost-desc">Built on PowerShell and WPF — technologies already included with Windows.</div>
+    </div>
+    <div class="cost-card reveal delay-2">
+      <div class="cost-icon">🖥️</div>
+      <div class="cost-val">None</div>
+      <div class="cost-label">New Infrastructure</div>
+      <div class="cost-desc">Runs on technician workstations. Logs and config stored on the existing IT network share.</div>
+    </div>
+    <div class="cost-card reveal delay-3">
+      <div class="cost-icon">🚀</div>
+      <div class="cost-val">Simple</div>
+      <div class="cost-label">Deployment</div>
+      <div class="cost-desc">A file copy to technician workstations or a shared network folder. No installer required.</div>
+    </div>
+    <div class="cost-card reveal delay-4">
+      <div class="cost-icon">🔧</div>
+      <div class="cost-val">Internal</div>
+      <div class="cost-label">Maintenance</div>
+      <div class="cost-desc">Managed entirely by IT engineering staff. Updates deploy by replacing files on the network share.</div>
+    </div>
+    <div class="cost-card reveal delay-5">
+      <div class="cost-icon">⚙️</div>
+      <div class="cost-val">Centralized</div>
+      <div class="cost-label">Configuration</div>
+      <div class="cost-desc">One JSON config file on the network share controls all settings for all users simultaneously.</div>
+    </div>
+    <div class="cost-card reveal delay-6">
+      <div class="cost-icon">👤</div>
+      <div class="cost-val">Per-User</div>
+      <div class="cost-label">Preferences</div>
+      <div class="cost-desc">Each technician can customize theme, font size, accent color, and layout independently.</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ROADMAP -->
+<section class="roadmap-section">
+  <div class="section-header">
+    <div class="section-label reveal">What's Next</div>
+    <div class="section-title reveal delay-1">Planned <span class="accent">improvements</span></div>
+    <div class="section-sub reveal delay-2">The IT engineering team has identified the following enhancements for upcoming development cycles.</div>
+  </div>
+  <div class="roadmap-list">
+    <div class="roadmap-item reveal delay-1">
+      <div class="roadmap-line"><div class="roadmap-dot" style="background:var(--teal);box-shadow:0 0 10px rgba(0,191,165,.4)"></div><div class="roadmap-connector"></div></div>
+      <div><div class="roadmap-title">Management Reporting Export</div><div class="roadmap-desc">Add weekly and monthly summary report exports showing unlock counts, incident metrics, and technician activity for IT leadership. The in-app dashboard already computes these metrics; a PDF/CSV export button is the primary remaining work.</div></div>
+    </div>
+    <div class="roadmap-item reveal delay-2">
+      <div class="roadmap-line"><div class="roadmap-dot" style="background:var(--teal);box-shadow:0 0 10px rgba(0,191,165,.4)"></div><div class="roadmap-connector"></div></div>
+      <div><div class="roadmap-title">Ticket Feed Enhancements</div><div class="roadmap-desc">Expand the Recent Tickets panel with ticket detail view, ability to add a public note directly from the feed, and inline status change without opening the Freshservice web interface.</div></div>
+    </div>
+    <div class="roadmap-item reveal delay-3">
+      <div class="roadmap-line"><div class="roadmap-dot" style="background:var(--gold);box-shadow:0 0 10px rgba(255,197,61,.4)"></div><div class="roadmap-connector"></div></div>
+      <div><div class="roadmap-title">Remote Screenshot</div><div class="roadmap-desc">Capture the active desktop of a remote machine without a full remote session. Currently blocked by Windows Session 0 isolation — WinRM runs in a non-interactive context with no display handle. Under evaluation for alternative approaches.</div></div>
+    </div>
+    <div class="roadmap-item reveal delay-4">
+      <div class="roadmap-line"><div class="roadmap-dot"></div><div class="roadmap-connector"></div></div>
+      <div><div class="roadmap-title">Splashtop SOS Integration</div><div class="roadmap-desc">Add a quick-launch button to initiate Splashtop SOS remote support sessions directly from the computer context menu. The UI placeholder is already in place.</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+<section class="cta-section">
+  <div class="cta-title reveal">HelpDesk Companion is live.</div>
+  <div class="cta-sub reveal delay-1">In active daily use by the IT helpdesk team. No additional cost.<br>No new infrastructure. Built and maintained entirely in-house.</div>
+  <div class="cta-footer-line reveal delay-2">PELICAN CREDIT UNION · INFORMATION TECHNOLOGY DEPARTMENT · 2026 · INTERNAL USE ONLY</div>
+</section>
+
+<script>
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+}, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

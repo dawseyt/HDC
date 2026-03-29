@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HelpDesk Companion — User Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f6f8fc;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --border: #e2e8f0;
+  --border-subtle: #f1f5f9;
+  --accent: #2563eb;
+  --accent-soft: #eff6ff;
+  --accent-mid: #bfdbfe;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #94a3b8;
+  --success: #059669;
+  --success-soft: #ecfdf5;
+  --warning: #d97706;
+  --warning-soft: #fffbeb;
+  --danger: #dc2626;
+  --danger-soft: #fef2f2;
+  --sidebar-w: 280px;
+  --header-h: 60px;
+  --radius: 10px;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.06);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Figtree', sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-size: 15px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── TOP HEADER ── */
+.top-bar {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--header-h);
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 24px;
+  z-index: 100;
+  gap: 16px;
+}
+.top-bar-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 700; font-size: 16px; color: var(--text-primary);
+  text-decoration: none;
+}
+.top-bar-logo-dot {
+  width: 28px; height: 28px; border-radius: 7px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.top-bar-logo-dot svg { width: 16px; height: 16px; fill: white; }
+.top-bar-badge {
+  font-size: 11px; font-weight: 600; color: var(--text-tertiary);
+  background: var(--border-subtle); padding: 2px 8px; border-radius: 20px;
+  border: 1px solid var(--border); letter-spacing: .3px;
+}
+.top-bar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.top-bar-tag {
+  font-size: 12px; color: var(--text-tertiary); font-weight: 500;
+  padding: 4px 10px; border-radius: 6px; background: var(--border-subtle);
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  position: fixed; top: var(--header-h); left: 0; bottom: 0;
+  width: var(--sidebar-w);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  overflow-y: auto; overflow-x: hidden;
+  padding: 20px 0;
+  scroll-behavior: smooth;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.nav-section-label {
+  font-size: 11px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text-tertiary);
+  padding: 12px 20px 6px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 20px; font-size: 13.5px; font-weight: 500;
+  color: var(--text-secondary); text-decoration: none;
+  border-radius: 0; transition: all .15s; cursor: pointer;
+  border-left: 2px solid transparent;
+}
+.nav-item:hover { color: var(--accent); background: var(--accent-soft); }
+.nav-item.active { color: var(--accent); background: var(--accent-soft); border-left-color: var(--accent); font-weight: 600; }
+.nav-item svg { width: 15px; height: 15px; flex-shrink: 0; opacity: .7; }
+.nav-item.active svg { opacity: 1; }
+.nav-divider { height: 1px; background: var(--border); margin: 8px 20px; }
+
+/* ── MAIN CONTENT ── */
+.main {
+  margin-left: var(--sidebar-w);
+  margin-top: var(--header-h);
+  padding: 48px 56px 80px;
+  max-width: 900px;
+}
+
+/* ── PAGE HERO ── */
+.hero {
+  margin-bottom: 48px;
+  padding: 40px 44px;
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 60%, #3b82f6 100%);
+  border-radius: 16px;
+  color: white;
+  position: relative; overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute; top: -40px; right: -40px;
+  width: 220px; height: 220px; border-radius: 50%;
+  background: rgba(255,255,255,.06);
+}
+.hero::before {
+  content: '';
+  position: absolute; bottom: -60px; right: 80px;
+  width: 300px; height: 300px; border-radius: 50%;
+  background: rgba(255,255,255,.04);
+}
+.hero-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; opacity: .7; margin-bottom: 10px; }
+.hero-title { font-size: 32px; font-weight: 700; line-height: 1.2; margin-bottom: 12px; position: relative; }
+.hero-sub { font-size: 16px; opacity: .8; max-width: 560px; font-weight: 400; position: relative; }
+.hero-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; position: relative; }
+.hero-chip {
+  font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px;
+  background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.2);
+}
+
+/* ── SECTION HEADING ── */
+.section-anchor { display: block; height: 80px; margin-top: -80px; pointer-events: none; visibility: hidden; }
+
+h1.section-title {
+  font-size: 22px; font-weight: 700; color: var(--text-primary);
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px; margin-top: 52px;
+  display: flex; align-items: center; gap: 10px;
+}
+h1.section-title:first-of-type { margin-top: 0; }
+h1.section-title .section-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--accent-soft); border: 1px solid var(--accent-mid);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+h1.section-title .section-icon svg { width: 16px; height: 16px; stroke: var(--accent); fill: none; stroke-width: 2; }
+
+h2.sub-title {
+  font-size: 17px; font-weight: 700; color: var(--text-primary);
+  margin: 28px 0 10px;
+}
+h3.minor-title {
+  font-size: 14px; font-weight: 700; color: var(--text-secondary);
+  margin: 20px 0 8px; text-transform: uppercase; letter-spacing: .05em;
+}
+
+p { color: var(--text-secondary); margin-bottom: 12px; }
+
+/* ── CALLOUT BOXES ── */
+.callout {
+  display: flex; gap: 14px; padding: 14px 16px; border-radius: var(--radius);
+  margin: 16px 0; border: 1px solid;
+}
+.callout-info { background: var(--accent-soft); border-color: var(--accent-mid); }
+.callout-warning { background: var(--warning-soft); border-color: #fde68a; }
+.callout-tip { background: var(--success-soft); border-color: #a7f3d0; }
+.callout-danger { background: var(--danger-soft); border-color: #fecaca; }
+.callout-icon { flex-shrink: 0; margin-top: 2px; }
+.callout-icon svg { width: 18px; height: 18px; stroke-width: 2; fill: none; }
+.callout-info .callout-icon svg { stroke: var(--accent); }
+.callout-warning .callout-icon svg { stroke: var(--warning); }
+.callout-tip .callout-icon svg { stroke: var(--success); }
+.callout-danger .callout-icon svg { stroke: var(--danger); }
+.callout-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 3px; }
+.callout-info .callout-label { color: var(--accent); }
+.callout-warning .callout-label { color: var(--warning); }
+.callout-tip .callout-label { color: var(--success); }
+.callout-danger .callout-label { color: var(--danger); }
+.callout-body { font-size: 13.5px; color: var(--text-secondary); }
+
+/* ── TABLES ── */
+.data-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13.5px; }
+.data-table th {
+  background: #1e293b; color: white; font-weight: 600; font-size: 12px;
+  text-align: left; padding: 10px 14px; letter-spacing: .02em;
+}
+.data-table th:first-child { border-radius: 8px 0 0 0; }
+.data-table th:last-child { border-radius: 0 8px 0 0; }
+.data-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text-secondary); vertical-align: top; }
+.data-table tr:nth-child(even) td { background: #fafbfd; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:last-child td:first-child { border-radius: 0 0 0 8px; }
+.data-table tr:last-child td:last-child { border-radius: 0 0 8px 0; }
+.data-table td:first-child { font-weight: 600; color: var(--text-primary); white-space: nowrap; }
+.table-wrapper { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); margin: 16px 0; }
+.table-wrapper .data-table { margin: 0; }
+
+/* ── STEP LIST ── */
+.step-list { margin: 16px 0; display: flex; flex-direction: column; gap: 10px; }
+.step-item { display: flex; gap: 14px; align-items: flex-start; }
+.step-num {
+  flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--accent); color: white;
+  font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 1px;
+}
+.step-text { color: var(--text-secondary); font-size: 14px; padding-top: 3px; }
+
+/* ── BULLET LIST ── */
+.bullet-list { list-style: none; margin: 12px 0; display: flex; flex-direction: column; gap: 7px; }
+.bullet-list li { display: flex; gap: 10px; color: var(--text-secondary); font-size: 14px; }
+.bullet-list li::before {
+  content: ''; flex-shrink: 0; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); margin-top: 8px;
+}
+
+/* ── FEATURE GRID ── */
+.feature-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 16px 0; }
+.feature-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px;
+  box-shadow: var(--shadow); transition: box-shadow .2s, transform .2s;
+}
+.feature-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.feature-card-icon {
+  width: 36px; height: 36px; border-radius: 9px;
+  background: var(--accent-soft); border: 1px solid var(--accent-mid);
+  display: flex; align-items: center; justify-content: center; margin-bottom: 10px;
+}
+.feature-card-icon svg { width: 18px; height: 18px; stroke: var(--accent); fill: none; stroke-width: 2; }
+.feature-card-title { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 5px; }
+.feature-card-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+/* ── BADGE ── */
+.badge {
+  display: inline-block; font-size: 11px; font-weight: 700;
+  padding: 2px 8px; border-radius: 20px; letter-spacing: .03em;
+}
+.badge-blue { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent-mid); }
+.badge-green { background: var(--success-soft); color: var(--success); border: 1px solid #a7f3d0; }
+.badge-amber { background: var(--warning-soft); color: var(--warning); border: 1px solid #fde68a; }
+.badge-red { background: var(--danger-soft); color: var(--danger); border: 1px solid #fecaca; }
+
+/* ── INLINE CODE ── */
+code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px; background: #f1f5f9; color: #1d4ed8;
+  padding: 1px 6px; border-radius: 4px; border: 1px solid #e2e8f0;
+}
+
+/* ── TOC (SIDEBAR) ACTIVE SCROLL ── */
+.scroll-fade-in { opacity: 0; transform: translateY(12px); transition: opacity .4s ease, transform .4s ease; }
+.scroll-fade-in.visible { opacity: 1; transform: none; }
+
+/* ── SHORTCUT TABLE ── */
+.shortcut-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+.shortcut-item { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; }
+.kbd { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; background: #1e293b; color: #e2e8f0; padding: 3px 9px; border-radius: 5px; white-space: nowrap; font-weight: 500; }
+.shortcut-desc { font-size: 13px; color: var(--text-secondary); }
+
+@media (max-width: 900px) {
+  .sidebar { transform: translateX(-100%); }
+  .main { margin-left: 0; padding: 32px 24px; }
+  .feature-grid { grid-template-columns: 1fr; }
+  .shortcut-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="top-bar">
+  <a href="#" class="top-bar-logo">
+    <div class="top-bar-logo-dot">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    HelpDesk Companion
+  </a>
+  <span class="top-bar-badge">User Guide</span>
+  <div class="top-bar-right">
+    <span class="top-bar-tag">Pelican State Credit Union — IT</span>
+    <span class="top-bar-tag">v1.1 · 2026</span>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="nav-section-label">Getting Started</div>
+  <a href="#intro" class="nav-item active" onclick="setActive(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+    Introduction
+  </a>
+  <a href="#main-window" class="nav-item" onclick="setActive(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+    The Main Window
+  </a>
+
+  <div class="nav-divider"></div>
+  <div class="nav-section-label">User Accounts</div>
+  <a href="#unlock" class="nav-item" onclick="setActive(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+    Unlocking Accounts
+  </a>
+  <a href="#password" class="nav-item" onclick="setActive(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    Password Reset
+  </a>
+  <a href="#lockout-source" class="nav-item" onclick="setActive(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    Lockout Source
+  </a>
+  <a href="#groups" class="nav-item" onclick="setActive(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Group Membership
+  </a>
+  <a href="#account-details" class="nav-item" onclick="setActive(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Account Details
+  </a>
+
+  <div class="nav-divider"></div>
+  <div class="nav-section-label">Computers</div>
+  <a href="#computers" class="nav-item" onclick="setActive(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+    Computer Tools
+  </a>
+  <a href="#process-mgr" class="nav-item" onclick="setActive(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    Process Manager
+  </a>
+
+  <div class="nav-divider"></div>
+  <div class="nav-section-label">Tools</div>
+  <a href="#printers" class="nav-item" onclick="setActive(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    Printer Manager
+  </a>
+  <a href="#ticket-feed" class="nav-item" onclick="setActive(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/><path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/><path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/><path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"/></svg>
+    Recent Ticket Feed
+  </a>
+  <a href="#freshservice" class="nav-item" onclick="setActive(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/><path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/><path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/><path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"/></svg>
+    Freshservice
+  </a>
+  <a href="#automation" class="nav-item" onclick="setActive(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+    Automation
+  </a>
+  <a href="#customize" class="nav-item" onclick="setActive(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    Customization
+  </a>
+
+  <div class="nav-divider"></div>
+  <div class="nav-section-label">Reference</div>
+  <a href="#logs" class="nav-item" onclick="setActive(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    Viewing Logs
+  </a>
+  <a href="#troubleshoot" class="nav-item" onclick="setActive(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    Troubleshooting
+  </a>
+  <a href="#shortcuts" class="nav-item" onclick="setActive(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg>
+    Shortcuts
+  </a>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- HERO -->
+  <div class="hero scroll-fade-in visible">
+    <div class="hero-eyebrow">Pelican State Credit Union · IT Department</div>
+    <div class="hero-title">HelpDesk Companion<br>User Guide</div>
+    <div class="hero-sub">Everything you need to manage accounts, computers, printers, and helpdesk tickets — all from one place.</div>
+    <div class="hero-chips">
+      <span class="hero-chip">Account Management</span>
+      <span class="hero-chip">Remote Computer Tools</span>
+      <span class="hero-chip">Printer Manager</span>
+      <span class="hero-chip">Freshservice Integration</span>
+    </div>
+  </div>
+
+  <!-- INTRO -->
+  <span class="section-anchor" id="intro"></span>
+  <h1 class="section-title scroll-fade-in">
+    <span class="section-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h-2v6h2zm0-8h-2V7h2v2z"/></svg></span>
+    Introduction
+  </h1>
+  <p class="scroll-fade-in">Welcome to HelpDesk Companion — the IT team's central tool for managing Active Directory users, remote computers, printers, and helpdesk ticketing from a single, fast interface.</p>
+  <div class="feature-grid scroll-fade-in">
+    <div class="feature-card">
+      <div class="feature-card-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg></div>
+      <div class="feature-card-title">Account Unlocks</div>
+      <div class="feature-card-desc">Unlock individual or all accounts instantly, with optional auto-unlock automation.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div class="feature-card-title">Password Resets</div>
+      <div class="feature-card-desc">Reset AD passwords with built-in complexity enforcement and a strong password generator.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+      <div class="feature-card-title">Remote Computer Tools</div>
+      <div class="feature-card-desc">Processes, services, software, devices, event logs, disk space — all remotely accessible.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></div>
+      <div class="feature-card-title">Printer Manager</div>
+      <div class="feature-card-desc">Install, remove, and manage remote printers including driver deployment.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
+      <div class="feature-card-title">Freshservice Integration</div>
+      <div class="feature-card-desc">Create tickets, open user records, and look up assigned computers without leaving the app.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <div class="feature-card-title">Audit Logging</div>
+      <div class="feature-card-desc">Every action is logged with timestamp, technician, and target to a shared CSV on the network.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+      <div class="feature-card-title">Group Management</div>
+      <div class="feature-card-desc">View current AD group memberships and add or remove groups without leaving the app.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon"><svg viewBox="0 0 24 24"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/><path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/><path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/><path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"/></svg></div>
+      <div class="feature-card-title">Ticket Feed</div>
+      <div class="feature-card-desc">See a user's last 8 Freshservice tickets at a glance, color-coded by status and priority.</div>
+    </div>
+  </div>
+  <div class="callout callout-info scroll-fade-in">
+    <div class="callout-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+    <div><div class="callout-label">Note</div><div class="callout-body">HelpDesk Companion is an internal IT tool. It requires access to the Pelican State Credit Union network and appropriate Active Directory permissions.</div></div>
+  </div>
+
+  <!-- MAIN WINDOW -->
+  <span class="section-anchor" id="main-window"></span>
+  <h1 class="section-title scroll-fade-in">
+    <span class="section-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></span>
+    The Main Window
+  </h1>
+  <p class="scroll-fade-in">The main window is divided into two areas: the <strong>Sidebar</strong> on the left and the <strong>Content Panel</strong> on the right.</p>
+  <h2 class="sub-title scroll-fade-in">Sidebar Controls</h2>
+  <div class="table-wrapper scroll-fade-in">
+    <table class="data-table">
+      <thead><tr><th>Element</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>Refresh List</td><td>Queries Active Directory for all currently locked accounts and updates the list.</td></tr>
+        <tr><td>Unlock Selected</td><td>Unlocks the account(s) currently selected in the list.</td></tr>
+        <tr><td>Unlock All</td><td>Unlocks every account currently shown in the list after confirmation.</td></tr>
+        <tr><td>Search Box</td><td>Type a username or computer name to search Active Directory. Click the dropdown arrow to recall previous searches. History is saved across sessions.</td></tr>
+        <tr><td>Auto-Refresh Dropdown</td><td>Sets how often the list refreshes automatically (30 seconds to 30 minutes).</td></tr>
+        <tr><td>Auto-Unlock Checkbox</td><td>When checked, automatically unlocks locked accounts on a timer (default: every 5 minutes).</td></tr>
+        <tr><td>Send Email Alerts</td><td>When checked, emails configured recipients when an account is unlocked.</td></tr>
+        <tr><td>View Logs</td><td>Opens the full event log viewer.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h2 class="sub-title scroll-fade-in">Event Log</h2>
+  <p class="scroll-fade-in">The event log at the bottom records every action during your session. Entries are color-coded: <span class="badge badge-green">green</span> for success, <span class="badge badge-red">red</span> for errors, <span class="badge badge-blue">blue</span> for informational events. All entries are also saved to a daily CSV on the network share.</p>
+
+  <!-- UNLOCK -->
+  <span class="section-anchor" id="unlock"></span>
+  <h1 class="section-title scroll-fade-in">
+    <span class="section-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg></span>
+    Unlocking Accounts
+  </h1>
+  <h2 class="sub-title scroll-fade-in">Unlock a Single Account</h2>
+  <div class="step-list scroll-fade-in">
+    <div class="step-item"><div class="step-num">1</div><div class="step-text">Click the account in the results list to select it.</div></div>
+    <div class="step-item"><div class="step-num">2</div><div class="step-text">Click <strong>Unlock Selected</strong> in the sidebar, or right-click the row and choose <strong>Unlock Account</strong>.</div></div>
+    <div class="step-item"><div class="step-num">3</div><div class="step-text">Confirm the action in the dialog that appears.</div></div>
+    <div class="step-item"><div class="step-num">4</div><div class="step-text">The account is unlocked and the event is logged.</div></div>
+  </div>
+  <h2 class="sub-title scroll-fade-in">Unlock Multiple Accounts</h2>
+  <p class="scroll-fade-in">Hold <code>Ctrl</code> and click each account you want to unlock, then click <strong>Unlock Selected</strong>.</p>
+  <h2 class="sub-title scroll-fade-in">Unlock All Accounts</h2>
+  <p class="scroll-fade-in">Click <strong>Unlock All</strong> in the sidebar. A confirmation dialog asks you to verify before all listed accounts are unlocked.</p>
+  <div class="callout callout-warning scroll-fade-in">
+    <div class="callout-icon"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+    <div><div class="callout-label">Warning</div><div class="callout-body">Use Unlock All with care. It will unlock every listed account, including ones you may not have reviewed individually.</div></div>
+  </div>
+
+  <!-- PASSWORD -->
+  <span class="section-anchor" id="password"></span>
+  <h1 class="section-title scroll-fade-in">
+    <span class="section-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+    Password Reset
+  </h1>
+  <div class="step-list scroll-fade-in">
+    <div class="step-item"><div class="step-num">1</div><div class="step-text">Right-click a user in the results list.</div></div>
+    <div class="step-item"><div class="step-num">2</div><div class="step-text">Select <strong>Reset Password</strong> from the context menu.</div></div>
+    <div class="step-item"><div class="step-num">3</div><div class="step-text">Type a new password and confirm it. Use <strong>Generate Strong</strong> to auto-generate a secure 16-character password.</div></div>
+    <div class="step-item"><div class="step-num">4</div><div class="step-text">Leave <strong>User must change password at next logon</strong> checked (recommended) or uncheck if not required.</div></div>
+    <div class="step-item"><div class="step-num">5</div><div class="step-text">Click <strong>Reset Password</strong>.</div></div>
+  </div>
+  <div class="callout callout-warning scroll-fade-in">
+    <div class="callout-icon"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+    <div><div class="callout-label">Password Requirements</div><div class="callout-body">Passwords must be at least <strong>16 characters</strong> and include at least one uppercase letter, one number, and one special character.</div></div>
+  </div>
+
+  <!-- LOCKOUT SOURCE -->
+  <span class="section-anchor" id="lockout-source"></span>
+  <h1 class="section-title scroll-fade-in">
+    <span class="section-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+    Lockout Source Finder
+  </h1>
+  <p class="scroll-fade-in">Use this when a user keeps getting locked out and you need to find which computer or application is causing it.</p>
+  <div class="step-list scroll-fade-in">
+    <div class="step-item"><div class="step-num">1</div><div class="step-text">Right-click the locked user in the results list.</div></div>
+    <div class="step-item"><div class="step-num">2</div><div class="step-text">Select <strong>Find Lockout Source</strong>.</div></div>
+    <div class="step-item"><div class="step-num">3</div><div class="step-text">The app searches the PDC Emulator for the most recent lockout event (Event ID 4740).</div></div>
+    <div class="step-item"><div class="step-num">4</div><div class="step-text">A dialog shows the <strong>source computer name</strong> and the time of the lockout.</div></div>
+  </div>
+  <div class="callout callout-info scroll-fade-in">
+    <div class="callout-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+    <div><div class="callout-label">Note</div><div class="callout-body">If no event is found, the lockout may have been cleared from the domain controller's security log. Try unlocking and waiting to see if it re-locks.</div></div>
+  </div>
+
+  <!-- GROUPS -->
+  <span class="section-anchor" id="groups"></span>
+  <h1 class="section-title scroll-fade-in">
+    <span class="section-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+    Group Membership
+  </h1>
+  <p class="scroll-fade-in">Right-click any user or computer and select <strong>Group Membership</strong>. A window opens listing every Active Directory group the account belongs to, including scope and category.</p>
+  <h2 class="sub-title scroll-fade-in">Adding to a Group</h2>
+  <div class="step-list scroll-fade-in">
+    <div class="step-item"><div class="step-num">1</div><div class="step-text">Type part of the group name in the search box at the bottom of the window.</div></div>
+    <div class="step-item"><div class="step-num">2</div><div class="step-text">Click <strong>Search Groups</strong> (or press Enter). Matching groups appear in the results list below.</div></div>
+    <div class="step-item"><div class="step-num">3</div><div class="step-text">Select the desired group from the results, then click <strong>Add to Group</strong>.</div></div>
+    <div class="step-item"><div class="step-num">4</div><div class="step-text">Confirm the action. The membership list refreshes automatically.</div></div>
+  </div>
+  <h2 class="sub-title scroll-fade-in">Removing from a Group</h2>
+  <div class="step-list scroll-fade-in">
+    <div class="step-item"><div class="step-num">1</div><div class="step-text">Select the group you want to remove the account from in the membership list.</div></div>
+    <div class="step-item"><div class="step-num">2</div><div class="step-text">Click the <strong>Remove from Selected Group</strong> button in the header (highlighted in red).</div></div>
+    <div class="step-item"><div class="step-num">3</div><div class="step-text">Confirm the action. The list refreshes to reflect the change.</div></div>
+  </div>
+  <div class="callout callout-warning scroll-fade-in">
+    <div class="callout-icon"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+    <div><div class="callout-label">Permissions Required</div><div class="callout-body">Adding and removing group members requires you to have sufficient Active Directory delegation rights. Contact your domain administrator if the action fails with an access error.</div></div>
+  </div>
+
+  <!-- ACCOUNT DETAILS PANEL -->
+  <span class="section-anchor" id="account-details"></span>
+  <h1 class="section-title scroll-fade-in">
+    <span class="section-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+    Account Details Panel
+  </h1>
+  <p class="scroll-fade-in">Double-click any user or computer in the list, or right-click and choose <strong>View Details</strong>, to open the Account Details panel. The panel slides in from the right side of the window without replacing the main list.</p>
+  <div class="table-wrapper scroll-fade-in">
+    <table class="data-table">
+      <thead><tr><th>Field</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>Display Name / SAM Account</td><td>The user's full name and login account name.</td></tr>
+        <tr><td>Employee ID / Employee Number</td><td>HR identifiers from Active Directory.</td></tr>
+        <tr><td>Email / Department / Title</td><td>Contact and organizational details.</td></tr>
+        <tr><td>Manager / Phone</td><td>Reporting chain and contact number.</td></tr>
+        <tr><td>Account Status</td><td>Color-coded: green = Active, amber = Disabled, red = Locked Out.</td></tr>
+        <tr><td>Last Logon / Pwd Last Set</td><td>Security-relevant timestamps.</td></tr>
+        <tr><td>Pwd Expires</td><td>Computed from domain MaxPasswordAge. Color-coded: red &lt;7 days, amber &lt;14 days, green otherwise.</td></tr>
+        <tr><td>Account Expiry</td><td>When the AD account expires, if set.</td></tr>
+        <tr><td>OU / Path</td><td>The account's Distinguished Name showing its location in AD.</td></tr>
+        <tr><td>All AD Properties</td><td>Expandable section with the full raw AD attribute dump.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="scroll-fade-in">Click <strong>Close Panel</strong> at the top or bottom of the panel, press <kbd>Escape</kbd>, or click the dimmed background to dismiss it. Drag the left edge of the panel to resize it.</p>
+
+  <!-- COMPUTERS -->
+  <span class="section-anchor" id="computers"></span>
+  <h1 class="section-title scroll-fade-in">
+    <span class="section-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+    Computer Tools
+  </h1>
+  <p class="scroll-fade-in">Type a computer name in the Search box and click Search. Results show each machine with an online/offline status. Right-click any computer for the full action menu:</p>
+  <div class="table-wrapper scroll-fade-in">
+    <table class="data-table">
+      <thead><tr><th>Menu Option</th><th>What It Does</th></tr></thead>
+      <tbody>
+        <tr><td>View Processes / System Info</td><td>Opens the Process Manager with full remote system data.</td></tr>
+        <tr><td>Device Info</td><td>Shows a card-view popup with hardware details: manufacturer, model, serial number, BIOS version, battery status, and admin password status.</td></tr>
+        <tr><td>Manage Printers</td><td>Launches the Printer Manager for the selected computer.</td></tr>
+        <tr><td>Get Uptime</td><td>Queries and displays the computer's current uptime.</td></tr>
+        <tr><td>Active Users</td><td>Shows current logged-on users with option to log them off.</td></tr>
+        <tr><td>GPResult</td><td>Generates and displays a Group Policy report for the computer.</td></tr>
+        <tr><td>Power Options → Restart</td><td>Remotely restarts the computer after confirmation.</td></tr>
+        <tr><td>Power Options → Shutdown</td><td>Remotely shuts down the computer after confirmation.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout callout-warning scroll-fade-in">
+    <div class="callout-icon"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+    <div><div class="callout-label">Permissions Required</div><div class="callout-body">Remote tools require WinRM to be enabled on target computers and that you have local administrator rights on the target.</div></div>
+  </div>
+
+  <!-- PROCESS MGR -->
+  <span class="section-anchor" id="process-mgr"></span>
+  <h1 class="section-title scroll-fade-in">
+    <span class="section-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+    Process Manager
+  </h1>
+  <p class="scroll-fade-in">A multi-tab window providing deep visibility into any remote computer. Open it via right-click → <strong>View Processes / System Info</strong>.</p>
+  <div class="table-wrapper scroll-fade-in">
+    <table class="data-table">
+      <thead><tr><th>Tab</th><th>Contents</th></tr></thead>
+      <tbody>
+        <tr><td>System Info</td><td>Hostname, OS, version, model, RAM.</td></tr>
+        <tr><td>Processes</td><td>All running processes with CPU and memory. Right-click to kill.</td></tr>
+        <tr><td>Services</td><td>Windows services with state and start mode. Right-click to Start, Stop, or Restart.</td></tr>
+        <tr><td>Disk</td><td>C: drive total and free space.</td></tr>
+        <tr><td>Software</td><td>All installed apps with version and publisher. Right-click to uninstall silently.</td></tr>
+        <tr><td>Devices</td><td>PnP devices with status. Right-click to Enable or Disable.</td></tr>
+        <tr><td>Event Log</td><td>Last 150 System and Application errors and warnings.</td></tr>
+        <tr><td>Profiles</td><td>Local user profiles with last-used date. Right-click to delete.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PRINTERS -->
+  <span class="section-anchor" id="printers"></span>
+  <h1 class="section-title scroll-fade-in">
+    <span class="section-icon"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></span>
+    Printer Manager
+  </h1>
+  <p class="scroll-fade-in">The Printer Manager opens as a separate window. Right-click a computer → <strong>Manage Printers</strong>.</p>
+  <h2 class="sub-title scroll-fade-in">Installing a Printer</h2>
+  <div class="step-list scroll-fade-in">
+    <div class="step-item"><div class="step-num">1</div><div class="step-text">Click <strong>Install Printer</strong>.</div></div>
+    <div class="step-item"><div class="step-num">2</div><div class="step-text">Enter the printer name, select a driver from the dropdown, and enter the printer's IP address.</div></div>
+    <div class="step-item"><div class="step-num">3</div><div class="step-text">If the driver isn't installed remotely, click <strong>Upload Local Driver</strong> to select a <code>.INF</code> file. The app copies and installs it remotely.</div></div>
+    <div class="step-item"><div class="step-num">4</div><div class="step-text">Click <strong>Install</strong>. A progress dialog tracks the installation.</div></div>
+  </div>
+  <div class="callout callout-info scroll-fade-in">
+    <div class="callout-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+    <div><div class="callout-label">Driver Deployment</div><div class="callout-body">Drivers are copied to <code>C:\Temp\HDC_Drivers</code> on the remote computer and installed via PnPUtil. This may take a minute for large driver packages.</div></div>
+  </div>
+  <h2 class="sub-title scroll-fade-in">Other Printer Actions</h2>
+  <ul class="bullet-list scroll-fade-in">
+    <li><strong>Remove Printer</strong> — Select the printer, click Remove, confirm.</li>
+    <li><strong>Rename Printer</strong> — Right-click → Rename Printer, enter new name.</li>
+    <li><strong>Printer Details</strong> — Select and click Printer Details, or double-click the row.</li>
+    <li><strong>Restart Spooler</strong> — Stops and restarts the Windows Print Spooler service remotely.</li>
+  </ul>
+
+  <!-- TICKET FEED -->
+  <span class="section-anchor" id="ticket-feed"></span>
+  <h1 class="section-title scroll-fade-in">
+    <span class="section-icon"><svg viewBox="0 0 24 24"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/><path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/><path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/><path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"/></svg></span>
+    Recent Ticket Feed
+  </h1>
+  <p class="scroll-fade-in">Right-click any user with an email address in AD and select <strong>Recent Tickets</strong> to see their last 8 Freshservice tickets in a card view.</p>
+  <div class="table-wrapper scroll-fade-in">
+    <table class="data-table">
+      <thead><tr><th>Badge</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-blue">Open</span></td><td>Ticket is open and actively being worked.</td></tr>
+        <tr><td><span class="badge badge-amber">Pending</span></td><td>Waiting on the user or a third party.</td></tr>
+        <tr><td><span class="badge badge-green">Resolved</span></td><td>Solution has been provided.</td></tr>
+        <tr><td>Closed</td><td>Ticket is closed and archived.</td></tr>
+        <tr><td><span class="badge badge-red">Urgent / High</span></td><td>Priority indicators — red for Urgent, amber for High.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="scroll-fade-in">Click <strong>Open in Freshservice</strong> to jump directly to the user's requester profile in the browser.</p>
+  <div class="callout callout-info scroll-fade-in">
+    <div class="callout-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+    <div><div class="callout-label">Requirement</div><div class="callout-body">The user must have an email address populated in Active Directory. The Freshservice API key must also be configured in Windows Credential Manager.</div></div>
+  </div>
+
+  <!-- FRESHSERVICE -->
+  <span class="section-anchor" id="freshservice"></span>
+  <h1 class="section-title scroll-fade-in">
+    <span class="section-icon"><svg viewBox="0 0 24 24"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/><path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/><path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/><path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"/></svg></span>
+    Freshservice Integration
+  </h1>
+  <div class="table-wrapper scroll-fade-in">
+    <table class="data-table">
+      <thead><tr><th>Action</th><th>How to Access</th></tr></thead>
+      <tbody>
+        <tr><td>Create Quick Ticket</td><td>Right-click a user → Log Quick Ticket. Fill in subject, description, category, assignee, then Submit.</td></tr>
+        <tr><td>Open User's FS Record</td><td>Right-click a user → Open Freshservice Record. Opens their requester/agent profile in Edge.</td></tr>
+        <tr><td>Find Assigned Computers</td><td>Right-click a user → Find Assigned Computers. Lists all Freshservice assets assigned to them.</td></tr>
+        <tr><td>View Computer in CMDB</td><td>Right-click a computer → View in Freshservice Inventory. Opens the CMDB record in Edge.</td></tr>
+        <tr><td>Recent Ticket Feed</td><td>Right-click a user → Recent Tickets. Shows the last 8 tickets color-coded by status and priority.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- AUTOMATION -->
+  <span class="section-anchor" id="automation"></span>
+  <h1 class="section-title scroll-fade-in">
+    <span class="section-icon"><svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></span>
+    Automation Features
+  </h1>
+  <h2 class="sub-title scroll-fade-in">Auto-Refresh</h2>
+  <p class="scroll-fade-in">Use the dropdown in the sidebar to set how often the locked accounts list refreshes automatically. Options range from 30 seconds to 30 minutes.</p>
+  <h2 class="sub-title scroll-fade-in">Auto-Unlock</h2>
+  <p class="scroll-fade-in">Check <strong>Auto-Unlock accounts</strong> to automatically unlock any locked accounts on a regular schedule (default: every 5 minutes). Useful for overnight shifts or when resolving cached credential issues.</p>
+  <div class="callout callout-warning scroll-fade-in">
+    <div class="callout-icon"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+    <div><div class="callout-label">Use With Care</div><div class="callout-body">Auto-Unlock may mask underlying lockout causes. All auto-unlock events are logged. Investigate repeated lockouts rather than relying solely on automation.</div></div>
+  </div>
+
+  <!-- CUSTOMIZE -->
+  <span class="section-anchor" id="customize"></span>
+  <h1 class="section-title scroll-fade-in">
+    <span class="section-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+    Customizing the Application
+  </h1>
+  <p class="scroll-fade-in">Click the <strong>Preferences</strong> button (gear icon) to open the Theme Customizer. Your preferences are saved locally and persist across sessions.</p>
+  <div class="table-wrapper scroll-fade-in">
+    <table class="data-table">
+      <thead><tr><th>Setting</th><th>Options</th></tr></thead>
+      <tbody>
+        <tr><td>Theme</td><td>Light or Dark mode.</td></tr>
+        <tr><td>Accent Color</td><td>Azure, Rustic, Emerald, Amethyst, or Custom (enter a hex color or double-click to open color picker).</td></tr>
+        <tr><td>Density</td><td>Comfortable (spacious) or Compact (tight rows).</td></tr>
+        <tr><td>Font Size</td><td>Small, Default, or Large.</td></tr>
+        <tr><td>Glass Effect</td><td>Slight window transparency for a modern look.</td></tr>
+        <tr><td>Background Image</td><td>Set a custom background image via Browse, or Clear to remove.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout callout-tip scroll-fade-in">
+    <div class="callout-icon"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+    <div><div class="callout-label">Tip</div><div class="callout-body">Theme preferences are saved to your Windows user profile and do not affect other users on the same machine.</div></div>
+  </div>
+
+  <!-- LOGS -->
+  <span class="section-anchor" id="logs"></span>
+  <h1 class="section-title scroll-fade-in">
+    <span class="section-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
+    Viewing Logs
+  </h1>
+  <p class="scroll-fade-in">Click <strong>View Logs</strong> in the sidebar to open the Log Viewer. Browse logs by date, filter by event type, search for a specific username, and export filtered views. Logs are retained for 90 days on the network share.</p>
+
+  <!-- TROUBLESHOOT -->
+  <span class="section-anchor" id="troubleshoot"></span>
+  <h1 class="section-title scroll-fade-in">
+    <span class="section-icon"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+    Troubleshooting
+  </h1>
+  <div class="table-wrapper scroll-fade-in">
+    <table class="data-table">
+      <thead><tr><th>Problem</th><th>Solution</th></tr></thead>
+      <tbody>
+        <tr><td>List is empty after launch</td><td>Click Refresh List. If still empty, there may be no locked accounts. Confirm AD connectivity.</td></tr>
+        <tr><td>Search returns no results</td><td>Check spelling. The search matches partial names but the account must exist in AD.</td></tr>
+        <tr><td>Unlock fails with access error</td><td>You may lack sufficient AD permissions. Contact your domain administrator.</td></tr>
+        <tr><td>Password reset fails</td><td>Ensure complexity requirements are met (16+ chars, uppercase, number, special). Check event log for details.</td></tr>
+        <tr><td>Remote computer tools unavailable</td><td>Target may be offline, WinRM may not be enabled, or you lack admin rights.</td></tr>
+        <tr><td>Printer Manager doesn't open</td><td>Verify PrinterManager.ps1 is in the app folder and PowerShell execution policy allows scripts.</td></tr>
+        <tr><td>Freshservice actions fail</td><td>Verify connectivity to freshservice.com port 443. Run <code>Set-FSApiKey</code> in PowerShell to re-enter the API key into Credential Manager.</td></tr>
+        <tr><td>Ticket Feed shows no results</td><td>Confirm the user has an email address in AD and that a Freshservice requester account exists with that email.</td></tr>
+        <tr><td>Device Info fails on Lenovo</td><td>This is a known WMI issue with Lenovo firmware. Should be resolved automatically — if it persists, ensure WinRM is enabled and you have admin rights on the target.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SHORTCUTS -->
+  <span class="section-anchor" id="shortcuts"></span>
+  <h1 class="section-title scroll-fade-in">
+    <span class="section-icon"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg></span>
+    Keyboard Shortcuts &amp; Tips
+  </h1>
+  <div class="shortcut-grid scroll-fade-in">
+    <div class="shortcut-item"><span class="kbd">Click</span><span class="shortcut-desc">Select a single item</span></div>
+    <div class="shortcut-item"><span class="kbd">Ctrl+Click</span><span class="shortcut-desc">Select multiple items</span></div>
+    <div class="shortcut-item"><span class="kbd">Shift+Click</span><span class="shortcut-desc">Select a range</span></div>
+    <div class="shortcut-item"><span class="kbd">Double-Click</span><span class="shortcut-desc">Open detail view</span></div>
+    <div class="shortcut-item"><span class="kbd">Right-Click</span><span class="shortcut-desc">Context menu for all actions</span></div>
+    <div class="shortcut-item"><span class="kbd">F5</span><span class="shortcut-desc">Refresh the account list</span></div>
+    <div class="shortcut-item"><span class="kbd">Ctrl+F</span><span class="shortcut-desc">Focus the search box</span></div>
+    <div class="shortcut-item"><span class="kbd">Escape</span><span class="shortcut-desc">Close any open panel or overlay</span></div>
+    <div class="shortcut-item"><span class="kbd">Dbl-Click Hex Field</span><span class="shortcut-desc">Open color picker in Preferences</span></div>
+  </div>
+
+</main>
+
+<script>
+function setActive(el) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// Scroll-triggered fade-in
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.scroll-fade-in').forEach(el => observer.observe(el));
+
+// Active nav on scroll
+const sections = document.querySelectorAll('.section-anchor');
+const navLinks = document.querySelectorAll('.nav-item');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 120) current = s.id; });
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+    if (link.getAttribute('href') === '#' + current) link.classList.add('active');
+  });
+}, { passive: true });
+</script>
+</body>
+</html>
