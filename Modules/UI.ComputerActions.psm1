@@ -1257,13 +1257,26 @@ function Register-ComputerUIEvents {
                 if ($btnStartProcess) {
                     $btnStartProcess.Add_Click({
                         $inputXaml = @"
-                        <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Run Task" Width="380" SizeToContent="Height" WindowStartupLocation="CenterOwner" WindowStyle="None" AllowsTransparency="True" Background="Transparent" FontFamily="Segoe UI Variable Display, Segoe UI, sans-serif">
+                        <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" Title="Run Task" Width="380" SizeToContent="Height" WindowStartupLocation="CenterOwner" WindowStyle="None" AllowsTransparency="True" Background="Transparent" FontFamily="Segoe UI Variable Display, Segoe UI, sans-serif">
                             <Border Background="{Theme_Bg}" CornerRadius="8" BorderBrush="{Theme_BtnBorder}" BorderThickness="1" Margin="15">
                                 <Border.Effect><DropShadowEffect BlurRadius="20" ShadowDepth="5" Opacity="0.3"/></Border.Effect>
                                 <Grid>
                                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                     <Border Grid.Row="0" Background="Transparent" Padding="16,16,16,8"><TextBlock Text="Run New Task on $($comp)" FontSize="15" FontWeight="SemiBold" Foreground="{Theme_Fg}"/></Border>
-                                    <StackPanel Grid.Row="1" Margin="16,8,16,16"><TextBlock Text="Executable or Command Line:" FontSize="12" Foreground="{Theme_SecFg}" Margin="0,0,0,4"/><TextBox x:Name="txtCmd" Height="30" Background="{Theme_BtnBg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1" Padding="6,4" VerticalContentAlignment="Center"/></StackPanel>
+                                    <StackPanel Grid.Row="1" Margin="16,8,16,16">
+                                        <TextBlock Text="Select Task to Run:" FontSize="12" Foreground="{Theme_SecFg}" Margin="0,0,0,4"/>
+                                        <ComboBox x:Name="txtCmd" Height="30" Background="{Theme_BtnBg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1" Padding="6,4" VerticalContentAlignment="Center" SelectedIndex="0">
+                                            <s:String>gpupdate /force</s:String>
+                                            <s:String>ipconfig /flushdns</s:String>
+                                            <s:String>taskmgr.exe</s:String>
+                                            <s:String>eventvwr.msc</s:String>
+                                            <s:String>services.msc</s:String>
+                                            <s:String>compmgmt.msc</s:String>
+                                            <s:String>appwiz.cpl</s:String>
+                                            <s:String>cleanmgr.exe</s:String>
+                                            <s:String>control.exe</s:String>
+                                        </ComboBox>
+                                    </StackPanel>
                                     <Border Grid.Row="2" Background="{Theme_BtnBg}" CornerRadius="0,0,8,8" Padding="16,12" BorderThickness="0,1,0,0" BorderBrush="{Theme_BtnBorder}"><StackPanel Orientation="Horizontal" HorizontalAlignment="Right"><Button x:Name="btnOk" Content="Run" Width="80" Height="28" Margin="0,0,8,0" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0" IsDefault="True"/><Button x:Name="btnCancel" Content="Cancel" Width="80" Height="28" Background="{Theme_Bg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1" IsCancel="True"/></StackPanel></Border>
                                 </Grid>
                             </Border>
@@ -1276,8 +1289,27 @@ function Register-ComputerUIEvents {
                         if ($btnCancel) { $btnCancel.Add_Click({ $inpWin.Close() }.GetNewClosure()) }
                         if ($btnOk) {
                             $btnOk.Add_Click({
-                                $cmd = $txtCmd.Text; $inpWin.Close()
+                                $cmd = if ($txtCmd.SelectedItem) { $txtCmd.SelectedItem } else { $txtCmd.Text }
+                                $inpWin.Close()
                                 if ([string]::IsNullOrWhiteSpace($cmd)) { return }
+
+                                $allowedCmds = @(
+                                    "gpupdate /force",
+                                    "ipconfig /flushdns",
+                                    "taskmgr.exe",
+                                    "eventvwr.msc",
+                                    "services.msc",
+                                    "compmgmt.msc",
+                                    "appwiz.cpl",
+                                    "cleanmgr.exe",
+                                    "control.exe"
+                                )
+
+                                if ($allowedCmds -notcontains $cmd) {
+                                    Show-AppMessageBox -Message "Command '$cmd' is not explicitly permitted for execution." -Title "Security Restriction" -IconType "Error" -OwnerWindow $procWin -ThemeColors $colors | Out-Null
+                                    return
+                                }
+
                                 try { Start-RemoteProcess -ComputerName $comp -CommandLine $cmd; Add-AppLog -Event "Task Started" -Username "System" -Details "Executed '$cmd' on $comp." -Config $Config -State $State -Status "Success"; & $DoRefresh } 
                                 catch { Show-AppMessageBox -Message "Failed to start task:`n$($_.Exception.Message)" -Title "Error" -IconType "Error" -OwnerWindow $procWin -ThemeColors $colors }
                             }.GetNewClosure())
