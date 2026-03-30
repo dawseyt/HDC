@@ -95,6 +95,16 @@ public struct CREDENTIAL {
     }
 }
 
+<#
+.SYNOPSIS
+    Cleans a string by removing characters that are invalid for WMI/XML.
+#>
+function Clean-WmiString {
+    param([string]$Value)
+    if ([string]::IsNullOrEmpty($Value)) { return $Value }
+    return [regex]::Replace($Value, '[^\x09\x0A\x0D\x20-\uD7FF\uE000-\uFFFD]', '')
+}
+
 function Get-AppConfig {
     $centralConfigPath = "\\vm-isserver\toolkit\[it toolkit]\hdcompanion\hdcompanioncfg.json"
     $localConfigPath = Join-Path (Split-Path $PSScriptRoot -Parent) "hdcompanioncfg.json"
@@ -511,4 +521,4 @@ function Load-XamlWindow {
     }
 }
 
-Export-ModuleMember -Function Get-AppConfig, Initialize-LogDirectory, Add-AppLog, Get-AppLogFiles, Get-FSAssetDetails, Get-FSUserAsset, Get-FSUserRecord, Get-FluentThemeColors, Load-XamlWindow, Get-FSApiKey, Set-FSApiKey
+Export-ModuleMember -Function Get-AppConfig, Initialize-LogDirectory, Add-AppLog, Get-AppLogFiles, Get-FSAssetDetails, Get-FSUserAsset, Get-FSUserRecord, Get-FluentThemeColors, Load-XamlWindow, Get-FSApiKey, Set-FSApiKey, Clean-WmiString
