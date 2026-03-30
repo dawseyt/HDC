@@ -317,6 +317,7 @@ function Register-ComputerUIEvents {
         $ctxGPResult.Add_Click({
             if ($lvData.SelectedItem -and $lvData.SelectedItem.Type -eq "Computer") {
                 $comp = $lvData.SelectedItem.Name
+                $localAppRoot = $AppRoot
                 $colors = Get-FluentThemeColors $State
                 
                 $loadingXaml = @"
@@ -1614,7 +1615,7 @@ function Register-ComputerUIEvents {
                 $comp = $lvData.SelectedItem.Name
                 $colors = Get-FluentThemeColors $State
 
-                $swmWin = Load-XamlWindow -XamlPath (Join-Path $AppRoot "UI\Windows\SoftwareManager.xaml") -ThemeColors $colors
+                $swmWin = Load-XamlWindow -XamlPath (Join-Path $localAppRoot "UI\Windows\SoftwareManager.xaml") -ThemeColors $colors
                 $swmWin.Owner = $Window
 
                 $txtTargetComputer = $swmWin.FindName("TextBlock_TargetComputer")
@@ -1629,11 +1630,12 @@ function Register-ComputerUIEvents {
                 $swmWinState = [PSCustomObject]@{ IsClosed = $false }
                 $swmWin.Add_Closed({ $swmWinState.IsClosed = $true }.GetNewClosure())
 
-                if ($btnClose) { $btnClose.Add_Click({ $swmWin.Close() }) }
-                if ($btnCloseIcon) { $btnCloseIcon.Add_Click({ $swmWin.Close() }) }
+                if ($btnClose) { $btnClose.Add_Click({ $swmWin.Close() }.GetNewClosure()) }
+                if ($btnCloseIcon) { $btnCloseIcon.Add_Click({ $swmWin.Close() }.GetNewClosure()) }
 
                 if ($btnRefresh -and $dgSoftware) {
                     $btnRefresh.Add_Click({
+                        $comp = $comp; $localAppRoot = $localAppRoot; $txtTargetComputer = $txtTargetComputer; $dgSoftware = $dgSoftware; $btnRefresh = $btnRefresh; $swmWinState = $swmWinState; $colors = $colors; $swmWin = $swmWin
                         $btnRefresh.IsEnabled = $false
                         $dgSoftware.ItemsSource = $null
                         $txtTargetComputer.Text = "$comp (Loading...)"
@@ -1645,12 +1647,14 @@ function Register-ComputerUIEvents {
                             $resSoft = @()
                             if ($rawSoft) { foreach ($r in $rawSoft) { $resSoft += [PSCustomObject]@{ Name = $r.Name; Version = $r.Version; Type = $r.Type; Identifier = $r.Identifier } } }
                             return $resSoft | Sort-Object Name
-                        } -ArgumentList $comp, (Join-Path $AppRoot "Modules\RemoteManagement.psm1")
+                        } -ArgumentList $comp, (Join-Path $localAppRoot "Modules\RemoteManagement.psm1")
 
                         $timer = New-Object System.Windows.Threading.DispatcherTimer
                         $timer.Interval = [TimeSpan]::FromMilliseconds(500)
                         $startTime = Get-Date
 
+
+                        $swmWinState = $swmWinState; $timer = $timer; $job = $job; $startTime = $startTime; $txtTargetComputer = $txtTargetComputer; $comp = $comp; $dgSoftware = $dgSoftware; $swmWin = $swmWin; $colors = $colors; $btnRefresh = $btnRefresh
                         $timerTick = {
                             if ($swmWinState.IsClosed) {
                                 $timer.Stop()
@@ -1678,6 +1682,7 @@ function Register-ComputerUIEvents {
 
                 if ($btnUninstall -and $dgSoftware) {
                     $btnUninstall.Add_Click({
+                        $comp = $comp; $localAppRoot = $localAppRoot; $txtTargetComputer = $txtTargetComputer; $dgSoftware = $dgSoftware; $btnUninstall = $btnUninstall; $swmWinState = $swmWinState; $colors = $colors; $swmWin = $swmWin; $btnRefresh = $btnRefresh
                         $selItem = $dgSoftware.SelectedItem
                         if (-not $selItem) { Show-AppMessageBox -Message "Please select a software package to uninstall." -Title "Selection Required" -IconType "Warning" -OwnerWindow $swmWin -ThemeColors $colors | Out-Null; return }
 
@@ -1691,12 +1696,14 @@ function Register-ComputerUIEvents {
                                 Import-Module $modPath -Force
                                 $res = Uninstall-HDRemoteSoftware -ComputerName $c -AppName $appName -AppIdentifier $appId -AppType $appType
                                 return $res
-                            } -ArgumentList $comp, $selItem.Name, $selItem.Identifier, $selItem.Type, (Join-Path $AppRoot "Modules\RemoteManagement.psm1")
+                            } -ArgumentList $comp, $selItem.Name, $selItem.Identifier, $selItem.Type, (Join-Path $localAppRoot "Modules\RemoteManagement.psm1")
 
                             $uTimer = New-Object System.Windows.Threading.DispatcherTimer
                             $uTimer.Interval = [TimeSpan]::FromMilliseconds(500)
                             $uStart = Get-Date
 
+
+                            $swmWinState = $swmWinState; $uTimer = $uTimer; $job = $job; $uStart = $uStart; $txtTargetComputer = $txtTargetComputer; $comp = $comp; $swmWin = $swmWin; $colors = $colors; $btnUninstall = $btnUninstall; $btnRefresh = $btnRefresh
                             $uTick = {
                                 if ($swmWinState.IsClosed) {
                                     $uTimer.Stop()
