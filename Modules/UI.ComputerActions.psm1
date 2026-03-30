@@ -836,6 +836,23 @@ function Register-ComputerUIEvents {
                                 default { if ($null -ne $cs.AdminPasswordStatus) { "Unknown ($($cs.AdminPasswordStatus))" } else { "Unknown" } }
                             }
 
+                            $disk = Get-CimInstance Win32_LogicalDisk -Filter "DeviceID='C:'" -ErrorAction SilentlyContinue
+                            $freeGB = if ($disk) { [math]::Round($disk.FreeSpace / 1GB, 1) } else { 0 }
+                            $sizeGB = if ($disk) { [math]::Round($disk.Size / 1GB, 1) } else { 0 }
+                            $freePct = if ($sizeGB -gt 0) { [math]::Round(($freeGB / $sizeGB) * 100, 1) } else { 0 }
+
+                            $os = Get-CimInstance Win32_OperatingSystem -ErrorAction SilentlyContinue
+                            $uptimeDays = if ($os) { ([math]::Round(((Get-Date) - $os.LastBootUpTime).TotalDays, 1)) } else { 0 }
+
+                            $pendingReboot = $false
+                            try {
+                                if (Test-Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired') { $pendingReboot = $true }
+                                if (-not $pendingReboot) {
+                                    $sm = Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager' -Name 'PendingFileRenameOperations' -ErrorAction SilentlyContinue
+                                    if ($null -ne $sm) { $pendingReboot = $true }
+                                }
+                            } catch {}
+
                             return [PSCustomObject]@{
                                 ComputerName        = Clean-WmiString $cs.Name
                                 Manufacturer        = Clean-WmiString $cs.Manufacturer
@@ -846,6 +863,9 @@ function Register-ComputerUIEvents {
                                 BatteryStatus       = Clean-WmiString $batteryStatus
                                 AdminPasswordStatus = $adminPwdStatus
                                 QueryTime           = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+                                CDriveFreePct       = $freePct
+                                UptimeDays          = $uptimeDays
+                                PendingReboot       = $pendingReboot
                             }
                         } -ArgumentList $CleanWmiStringFn -ErrorAction Stop
                         return [PSCustomObject]@{ Success = $true
@@ -858,6 +878,9 @@ function Register-ComputerUIEvents {
                             BatteryStatus       = $result.BatteryStatus
                             AdminPasswordStatus = $result.AdminPasswordStatus
                             QueryTime           = $result.QueryTime
+                            CDriveFreePct       = $result.CDriveFreePct
+                            UptimeDays          = $result.UptimeDays
+                            PendingReboot       = $result.PendingReboot
                         }
                     } catch {
                         return [PSCustomObject]@{ Success = $false; ErrorMessage = $_.Exception.Message }
