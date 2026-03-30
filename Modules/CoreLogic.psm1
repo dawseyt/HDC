@@ -284,10 +284,11 @@ function Get-AppLogFiles {
     $logDir = $Config.GeneralSettings.LogDirectoryUNC
     $allLogs = @()
     if (Test-Path -LiteralPath $logDir) {
-        # Bypassing PowerShell Path Bug:
+        # Bypassing PowerShell Path Bug while maintaining performance:
         # When a LiteralPath contains brackets (e.g., [toolkit]), the -Filter parameter breaks and returns nothing.
-        # Using Where-Object instead guarantees we actually capture the log files.
-        $files = Get-ChildItem -LiteralPath $logDir | Where-Object { $_.Name -like "UnlockLog_*.csv" }
+        # Using an escaped path with -Path allows -Filter to work, drastically improving performance over Where-Object.
+        $escapedPath = [System.Management.Automation.WildcardPattern]::Escape($logDir)
+        $files = Get-ChildItem -Path $escapedPath -Filter "UnlockLog_*.csv" -ErrorAction SilentlyContinue
         foreach ($f in $files) {
             $content = Import-Csv -LiteralPath $f.FullName
             $allLogs += $content
