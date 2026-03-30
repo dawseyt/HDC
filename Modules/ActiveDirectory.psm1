@@ -149,14 +149,37 @@ function New-ComplexPassword {
     $digits = '0123456789'.ToCharArray()
     # REPLACED DOUBLE QUOTES WITH SINGLE QUOTES FOR SAFETY
     $special = '!@#$%^&*()_+-=[]{}|;:,.<>?'.ToCharArray()
+
+    # 🛡️ Sentinel: Replaced weak Get-Random with cryptographically secure RNG
+    $rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+
+    function Get-SecureRandomChar {
+        param($charArray)
+        $bytes = New-Object byte[] 4
+        $rng.GetBytes($bytes)
+        $randInt = [BitConverter]::ToUInt32($bytes, 0)
+        return $charArray[$randInt % $charArray.Length]
+    }
+
     $passwordChars = @()
-    $passwordChars += $upper | Get-Random
-    $passwordChars += $lower | Get-Random
-    $passwordChars += $digits | Get-Random
-    $passwordChars += $special | Get-Random
+    $passwordChars += Get-SecureRandomChar -charArray $upper
+    $passwordChars += Get-SecureRandomChar -charArray $lower
+    $passwordChars += Get-SecureRandomChar -charArray $digits
+    $passwordChars += Get-SecureRandomChar -charArray $special
+
     $allChars = $upper + $lower + $digits + $special
-    1..($len - 4) | ForEach-Object { $passwordChars += $allChars | Get-Random }
-    return -join ($passwordChars | Sort-Object { Get-Random })
+    1..($len - 4) | ForEach-Object {
+        $passwordChars += Get-SecureRandomChar -charArray $allChars
+    }
+
+    $shuffled = $passwordChars | Sort-Object {
+        $b = New-Object byte[] 4
+        $rng.GetBytes($b)
+        [BitConverter]::ToUInt32($b, 0)
+    }
+
+    $rng.Dispose()
+    return -join $shuffled
 }
 
 function Reset-ADUserPassword {
