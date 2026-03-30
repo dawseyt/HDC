@@ -23,7 +23,7 @@ try {
 # Ensure 64-bit execution (Get-PrinterDriver often fails silently in 32-bit processes on 64-bit OS)
 if ([Environment]::Is64BitOperatingSystem -and -not [Environment]::Is64BitProcess) {
     $psExe = "$env:windir\sysnative\WindowsPowerShell\v1.0\powershell.exe"
-    $argList = @("-WindowStyle", "Hidden", "-ExecutionPolicy", "Bypass", "-File", $PSCommandPath, "-ComputerName", $ComputerName, "-Theme", $Theme)
+    $argList = @("-WindowStyle", "Hidden", "-ExecutionPolicy", "Bypass", "-File", "`"$PSCommandPath`"", "-ComputerName", $ComputerName, "-Theme", $Theme)
     Start-Process $psExe -ArgumentList $argList
     exit
 }
