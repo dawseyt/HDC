@@ -1187,8 +1187,10 @@ function Register-ComputerUIEvents {
                             if ($rawDevs) { foreach ($d in $rawDevs) { $resDevs += [PSCustomObject]@{ FriendlyName = $d.FriendlyName; Class = $d.Class; Status = $d.Status; Manufacturer = $d.Manufacturer; InstanceId = $d.InstanceId } } }
                             if ($lvDevices) { if ($State.DevLastSortCol) { $resDevs = $resDevs | Sort-Object -Property $State.DevLastSortCol -Descending:$State.DevSortDesc } else { $resDevs = $resDevs | Sort-Object -Property Class, FriendlyName }; $lvDevices.ItemsSource = $resDevs }
                         } elseif ($idx -eq 6) {
-                            $targetPath = ""
-                            $procWin.Dispatcher.Invoke({ if ($txtFolderPath) { $targetPath = $txtFolderPath.Text } })
+                            $targetPath = $procWin.Dispatcher.Invoke({
+                                if ($txtFolderPath) { return $txtFolderPath.Text }
+                                return ""
+                            })
                             if (-not [string]::IsNullOrWhiteSpace($targetPath)) {
                                 $rawFiles = Invoke-Command -ComputerName $comp -ScriptBlock {
                                     param($p)
