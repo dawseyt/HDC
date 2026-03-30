@@ -1600,13 +1600,125 @@ function Register-ComputerUIEvents {
                 if (-not (Test-Path $pmScript)) { Show-AppMessageBox -Message "Script not found at:`n$pmScript" -Title "Error" -IconType "Error" -OwnerWindow $Window -ThemeColors (Get-FluentThemeColors $State); return }
                 Add-AppLog -Event "Printer Management" -Username "System" -Details "Launching Printer Manager for $targetPC..." -Config $Config -State $State -Status "Info"
                 try {
-                    $argList = @("-WindowStyle", "Hidden", "-ExecutionPolicy", "Bypass", "-File", "`"$pmScript`"", "-ComputerName", $targetPC, "-Theme", $State.CurrentTheme)
+                    $argList = @("-WindowStyle", "Hidden", "-ExecutionPolicy", "Bypass", "-File", "`"$pmScript`"", "-ComputerName", "`"$targetPC`"", "-Theme", "`"$($State.CurrentTheme)`"")
                     Start-Process -FilePath "powershell.exe" -ArgumentList $argList -WindowStyle Hidden
                 }
                 catch { Show-AppMessageBox -Message "Launch Failed:`n$($_.Exception.Message)" -Title "Error" -IconType "Error" -OwnerWindow $Window -ThemeColors (Get-FluentThemeColors $State) }
             }
         }.GetNewClosure())
     }    
+
+    if ($ctxSoftwareManager) {
+        $ctxSoftwareManager.Add_Click({
+            if ($lvData.SelectedItem -and $lvData.SelectedItem.Type -eq "Computer") {
+                $comp = $lvData.SelectedItem.Name
+                $colors = Get-FluentThemeColors $State
+
+                $swmWin = Load-XamlWindow -XamlPath (Join-Path $AppRoot "UI\Windows\SoftwareManager.xaml") -ThemeColors $colors
+                $swmWin.Owner = $Window
+
+                $txtTargetComputer = $swmWin.FindName("TextBlock_TargetComputer")
+                if ($txtTargetComputer) { $txtTargetComputer.Text = $comp }
+
+                $dgSoftware = $swmWin.FindName("DataGrid_Software")
+                $btnRefresh = $swmWin.FindName("Button_RefreshSoftware")
+                $btnUninstall = $swmWin.FindName("Button_UninstallSoftware")
+                $btnClose = $swmWin.FindName("Button_Close")
+                $btnCloseIcon = $swmWin.FindName("Button_CloseIcon")
+
+                if ($btnClose) { $btnClose.Add_Click({ $swmWin.Close() }) }
+                if ($btnCloseIcon) { $btnCloseIcon.Add_Click({ $swmWin.Close() }) }
+
+                if ($btnRefresh -and $dgSoftware) {
+                    $btnRefresh.Add_Click({
+                        $btnRefresh.IsEnabled = $false
+                        $dgSoftware.ItemsSource = $null
+                        $txtTargetComputer.Text = "$comp (Loading...)"
+
+                        $job = Start-Job -ScriptBlock {
+                            param($c, $modPath)
+                            Import-Module $modPath -Force
+                            $rawSoft = Get-HDRemoteSoftware -ComputerName $c
+                            $resSoft = @()
+                            if ($rawSoft) { foreach ($r in $rawSoft) { $resSoft += [PSCustomObject]@{ Name = $r.Name; Version = $r.Version; Type = $r.Type; Identifier = $r.Identifier } } }
+                            return $resSoft | Sort-Object Name
+                        } -ArgumentList $comp, (Join-Path $AppRoot "Modules\RemoteManagement.psm1")
+
+                        $timer = New-Object System.Windows.Threading.DispatcherTimer
+                        $timer.Interval = [TimeSpan]::FromMilliseconds(500)
+                        $startTime = Get-Date
+
+                        $timerTick = {
+                            if ($job.State -ne 'Running' -or ((Get-Date) - $startTime).TotalSeconds -ge 45) {
+                                $timer.Stop()
+                                $txtTargetComputer.Text = $comp
+                                if ($job.State -eq 'Completed') {
+                                    $res = Receive-Job $job -ErrorAction SilentlyContinue
+                                    if ($res) { $dgSoftware.ItemsSource = $res }
+                                } else {
+                                    Show-AppMessageBox -Message "Software query timed out or failed for $comp." -Title "Query Failed" -IconType "Error" -OwnerWindow $swmWin -ThemeColors $colors | Out-Null
+                                }
+                                Remove-Job $job -Force -ErrorAction SilentlyContinue
+                                $btnRefresh.IsEnabled = $true
+                            }
+                        }.GetNewClosure()
+                        $timer.Add_Tick($timerTick)
+                        $timer.Start()
+                    }.GetNewClosure())
+                }
+
+                if ($btnUninstall -and $dgSoftware) {
+                    $btnUninstall.Add_Click({
+                        $selItem = $dgSoftware.SelectedItem
+                        if (-not $selItem) { Show-AppMessageBox -Message "Please select a software package to uninstall." -Title "Selection Required" -IconType "Warning" -OwnerWindow $swmWin -ThemeColors $colors | Out-Null; return }
+
+                        $confirm = Show-AppMessageBox -Message "Are you sure you want to attempt to uninstall '$($selItem.Name)' from $comp?" -Title "Confirm Uninstall" -IconType "Warning" -Buttons "YesNo" -OwnerWindow $swmWin -ThemeColors $colors
+                        if ($confirm -eq "Yes") {
+                            $btnUninstall.IsEnabled = $false
+                            $txtTargetComputer.Text = "$comp (Uninstalling $($selItem.Name)...)"
+
+                            $job = Start-Job -ScriptBlock {
+                                param($c, $appName, $appId, $appType, $modPath)
+                                Import-Module $modPath -Force
+                                $res = Uninstall-HDRemoteSoftware -ComputerName $c -AppName $appName -AppIdentifier $appId -AppType $appType
+                                return $res
+                            } -ArgumentList $comp, $selItem.Name, $selItem.Identifier, $selItem.Type, (Join-Path $AppRoot "Modules\RemoteManagement.psm1")
+
+                            $uTimer = New-Object System.Windows.Threading.DispatcherTimer
+                            $uTimer.Interval = [TimeSpan]::FromMilliseconds(500)
+                            $uStart = Get-Date
+
+                            $uTick = {
+                                if ($job.State -ne 'Running' -or ((Get-Date) - $uStart).TotalSeconds -ge 120) {
+                                    $uTimer.Stop()
+                                    $txtTargetComputer.Text = $comp
+                                    if ($job.State -eq 'Completed') {
+                                        $res = Receive-Job $job -ErrorAction SilentlyContinue
+                                        if ($res) { Show-AppMessageBox -Message "Uninstall signal sent successfully." -Title "Success" -IconType "Information" -OwnerWindow $swmWin -ThemeColors $colors | Out-Null }
+                                        else { Show-AppMessageBox -Message "Uninstall failed. See logs or check manually." -Title "Uninstall Failed" -IconType "Error" -OwnerWindow $swmWin -ThemeColors $colors | Out-Null }
+                                    } else {
+                                        Show-AppMessageBox -Message "Uninstall task timed out or failed." -Title "Error" -IconType "Error" -OwnerWindow $swmWin -ThemeColors $colors | Out-Null
+                                    }
+                                    Remove-Job $job -Force -ErrorAction SilentlyContinue
+                                    $btnUninstall.IsEnabled = $true
+                                    if ($btnRefresh) { $btnRefresh.RaiseEvent((New-Object System.Windows.RoutedEventArgs([System.Windows.Controls.Button]::ClickEvent))) }
+                                }
+                            }.GetNewClosure()
+                            $uTimer.Add_Tick($uTick)
+                            $uTimer.Start()
+                        }
+                    }.GetNewClosure())
+                }
+
+                $swmWin.Show()
+
+                # Auto-trigger refresh on load
+                if ($btnRefresh) {
+                    $btnRefresh.RaiseEvent((New-Object System.Windows.RoutedEventArgs([System.Windows.Controls.Button]::ClickEvent)))
+                }
+            }
+        }.GetNewClosure())
+    }
 
     if ($ctxActiveUsers) {
         $ctxActiveUsers.Add_SubmenuOpened({
