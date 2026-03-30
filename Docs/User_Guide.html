@@ -425,7 +425,7 @@ code {
     <div class="feature-card">
       <div class="feature-card-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
       <div class="feature-card-title">Remote Computer Tools</div>
-      <div class="feature-card-desc">Processes, services, software, devices, event logs, disk space — all remotely accessible.</div>
+      <div class="feature-card-desc">Processes, services, software repair, file explorer, devices, event logs, disk space — all remotely accessible.</div>
     </div>
     <div class="feature-card">
       <div class="feature-card-icon"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></div>
@@ -495,7 +495,7 @@ code {
     <div class="step-item"><div class="step-num">1</div><div class="step-text">Click the account in the results list to select it.</div></div>
     <div class="step-item"><div class="step-num">2</div><div class="step-text">Click <strong>Unlock Selected</strong> in the sidebar, or right-click the row and choose <strong>Unlock Account</strong>.</div></div>
     <div class="step-item"><div class="step-num">3</div><div class="step-text">Confirm the action in the dialog that appears.</div></div>
-    <div class="step-item"><div class="step-num">4</div><div class="step-text">The account is unlocked and the event is logged.</div></div>
+    <div class="step-item"><div class="step-num">4</div><div class="step-text">The account is unlocked and the event is logged. You will be prompted with the <strong>Unlock Analyzer</strong> to automatically locate the source of the lockout to prevent it from happening again.</div></div>
   </div>
   <h2 class="sub-title scroll-fade-in">Unlock Multiple Accounts</h2>
   <p class="scroll-fade-in">Hold <code>Ctrl</code> and click each account you want to unlock, then click <strong>Unlock Selected</strong>.</p>
@@ -605,7 +605,8 @@ code {
       <thead><tr><th>Menu Option</th><th>What It Does</th></tr></thead>
       <tbody>
         <tr><td>View Processes / System Info</td><td>Opens the Process Manager with full remote system data.</td></tr>
-        <tr><td>Device Info</td><td>Shows a card-view popup with hardware details: manufacturer, model, serial number, BIOS version, battery status, and admin password status.</td></tr>
+        <tr><td>Remote Quick Actions</td><td>Self-healing automated macros for <strong>Fix Network Drops</strong>, <strong>Fix Printer Spooler</strong>, and <strong>Clean Temp Files</strong>.</td></tr>
+        <tr><td>Device Info</td><td>Shows a card-view popup with hardware details and a <strong>Health Check Dashboard</strong> monitoring C: Drive Space, Uptime, and Pending Reboot statuses.</td></tr>
         <tr><td>Manage Printers</td><td>Launches the Printer Manager for the selected computer.</td></tr>
         <tr><td>Get Uptime</td><td>Queries and displays the computer's current uptime.</td></tr>
         <tr><td>Active Users</td><td>Shows current logged-on users with option to log them off.</td></tr>
@@ -631,17 +632,20 @@ code {
     <table class="data-table">
       <thead><tr><th>Tab</th><th>Contents</th></tr></thead>
       <tbody>
-        <tr><td>System Info</td><td>Hostname, OS, version, model, RAM.</td></tr>
+        <tr><td>Device Info</td><td>Hostname, OS, version, model, RAM, Health Check metrics.</td></tr>
+        <tr><td>Overview</td><td>Disk space status and installed Software inventory. Right-click an app to automatically <strong>Repair</strong> or Uninstall it.</td></tr>
         <tr><td>Processes</td><td>All running processes with CPU and memory. Right-click to kill.</td></tr>
         <tr><td>Services</td><td>Windows services with state and start mode. Right-click to Start, Stop, or Restart.</td></tr>
-        <tr><td>Disk</td><td>C: drive total and free space.</td></tr>
-        <tr><td>Software</td><td>All installed apps with version and publisher. Right-click to uninstall silently.</td></tr>
+        <tr><td>Profiles</td><td>Local user profiles with last-used date. Right-click to delete or perform a <strong>Fix Corrupt Profile</strong> cleanup.</td></tr>
         <tr><td>Devices</td><td>PnP devices with status. Right-click to Enable or Disable.</td></tr>
+        <tr><td>File Browser</td><td>Remote File Explorer to navigate the system, delete items, and download remote files.</td></tr>
         <tr><td>Event Log</td><td>Last 150 System and Application errors and warnings.</td></tr>
-        <tr><td>Profiles</td><td>Local user profiles with last-used date. Right-click to delete.</td></tr>
       </tbody>
     </table>
   </div>
+
+  <h2 class="sub-title scroll-fade-in">Follow the User Troubleshooting</h2>
+  <p class="scroll-fade-in">If you need to perform actions on a specific user's machine but don't know their computer name, right-click their user account and select <strong>Find Active Computers</strong>. This tool will check Active Directory attributes and recent logon logs to instantly link you to their active sessions.</p>
 
   <!-- PRINTERS -->
   <span class="section-anchor" id="printers"></span>
