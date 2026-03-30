@@ -141,8 +141,35 @@
                                 </Grid>
                             </Border>
 
-                            <!-- Query Time -->
+                            <!-- C: Drive -->
                             <Border Margin="0,0,0,6" Padding="14,10" Background="{Theme_BtnBg}" CornerRadius="6" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="200"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="C: Drive Space" FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="txtDI_CDrive" Grid.Column="1" Text="--" Foreground="{Theme_Fg}" FontSize="13" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- Uptime -->
+                            <Border Margin="0,0,0,6" Padding="14,10" Background="{Theme_Bg}" CornerRadius="6" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="200"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Uptime" FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="txtDI_Uptime" Grid.Column="1" Text="--" Foreground="{Theme_Fg}" FontSize="13" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- Pending Reboot -->
+                            <Border Margin="0,0,0,6" Padding="14,10" Background="{Theme_BtnBg}" CornerRadius="6" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="200"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Pending Reboot" FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="txtDI_PendingReboot" Grid.Column="1" Text="--" Foreground="{Theme_Fg}" FontSize="13" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- Query Time -->
+                            <Border Margin="0,0,0,6" Padding="14,10" Background="{Theme_Bg}" CornerRadius="6" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
                                 <Grid>
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="200"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="Last Queried" FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" VerticalAlignment="Center"/>
@@ -209,6 +236,7 @@
                         <ListView.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="Uninstall Software" x:Name="ctxUninstallSoftware"/>
+                                <MenuItem Header="Repair Software" x:Name="ctxRepairSoftware"/>
                             </ContextMenu>
                         </ListView.ContextMenu>
                     </ListView>
@@ -360,6 +388,7 @@
                     <ListView.ContextMenu>
                         <ContextMenu>
                             <MenuItem Header="Delete Profile" x:Name="ctxDeleteProfile"/>
+                            <MenuItem Header="Fix Corrupt Profile (Rename &amp; Reset Registry)" x:Name="ctxFixProfile"/>
                         </ContextMenu>
                     </ListView.ContextMenu>
                 </ListView>
@@ -415,7 +444,78 @@
                 </ListView>
             </TabItem>
             
-            <!-- 6. Events Tab -->
+            <!-- 6. File Explorer Tab -->
+            <TabItem Header="File Browser" FontSize="14">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Margin="0,4,0,8" Padding="10,8" Background="{Theme_BtnBg}" CornerRadius="4" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Path:" VerticalAlignment="Center" Foreground="{Theme_SecFg}" Margin="0,0,8,0" FontWeight="SemiBold"/>
+                            <TextBox x:Name="txtFolderPath" Grid.Column="1" Text="C:\Users\Public\Desktop" Height="26" Background="{Theme_Bg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_GridBorder}" BorderThickness="1" Padding="4,0" VerticalContentAlignment="Center"/>
+                            <Button x:Name="btnBrowseFolder" Grid.Column="2" Content="Go" Width="60" Height="26" Margin="8,0,0,0" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0"/>
+                        </Grid>
+                    </Border>
+
+                    <ListView x:Name="lvFiles" Grid.Row="1" BorderThickness="1" BorderBrush="{Theme_GridBorder}" Background="Transparent" Foreground="{Theme_Fg}" AlternationCount="2">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Height" Value="28"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Foreground" Value="{Theme_Fg}"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListViewItem">
+                                            <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="Transparent" BorderThickness="0" CornerRadius="4" Padding="4,0" Margin="4,1">
+                                                <GridViewRowPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsSelected" Value="true">
+                                                    <Setter TargetName="Bd" Property="Background" Value="{Theme_PrimaryBg}"/>
+                                                    <Setter Property="Foreground" Value="{Theme_PrimaryFg}"/>
+                                                </Trigger>
+                                                <Trigger Property="IsMouseOver" Value="true">
+                                                    <Setter TargetName="Bd" Property="Background" Value="{Theme_HoverBg}"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                        <Setter Property="Background" Value="{Theme_AltRowBg}"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Type" DisplayMemberBinding="{Binding ItemType}" Width="80"/>
+                                <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" Width="350"/>
+                                <GridViewColumn Header="Size" DisplayMemberBinding="{Binding Size}" Width="100"/>
+                                <GridViewColumn Header="Modified" DisplayMemberBinding="{Binding LastWriteTime}" Width="150"/>
+                            </GridView>
+                        </ListView.View>
+                        <ListView.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Open Folder" x:Name="ctxFileOpenFolder"/>
+                                <MenuItem Header="Delete Item" x:Name="ctxFileDelete"/>
+                                <MenuItem Header="Download to Temp" x:Name="ctxFileDownload"/>
+                            </ContextMenu>
+                        </ListView.ContextMenu>
+                    </ListView>
+                </Grid>
+            </TabItem>
+
+            <!-- 7. Events Tab -->
             <TabItem Header="Events" FontSize="14">
                 <ListView x:Name="lvEvents" BorderThickness="1" BorderBrush="{Theme_GridBorder}" Margin="0,4,0,0" Background="Transparent" Foreground="{Theme_Fg}" AlternationCount="2">
                     <ListView.ItemContainerStyle>

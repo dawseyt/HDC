@@ -443,6 +443,46 @@ function Get-RemoteInstalledSoftware {
     } -ErrorAction SilentlyContinue
 }
 
+function Repair-HDRemoteSoftware {
+    param (
+        [Parameter(Mandatory=$true)][string]$ComputerName,
+        [Parameter(Mandatory=$true)][string]$Identifier,
+        [Parameter(Mandatory=$true)][string]$Type
+    )
+
+    $scriptBlock = {
+        param($targetId, $targetType)
+        try {
+            if ($targetType -eq 'AppX') {
+                $safeTargetId = $targetId.Replace("'", "''")
+                # For AppX, a repair is often essentially re-registering the manifest
+                $psCmd = "Get-AppxPackage -Name '*$safeTargetId*' -AllUsers | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register `"`$($_.InstallLocation)\AppXManifest.xml`"}"
+                Start-Process powershell.exe -ArgumentList @("-NonInteractive", "-WindowStyle", "Hidden", "-Command", $psCmd) -Wait -WindowStyle Hidden
+                return $true
+            } else {
+                # Look for MSI product codes which are enclosed in {}
+                if ($targetId -match '\{[a-fA-F0-9-]{36}\}') {
+                    $productCode = $matches[0]
+                    # fa = force repair all
+                    $cmd = "msiexec.exe /fa $productCode /qn /norestart"
+                    Start-Process cmd.exe -ArgumentList @("/c", $cmd) -Wait -WindowStyle Hidden
+                    return $true
+                } else {
+                    throw "Automatic repair is only supported for MSI-based installers (needs a Product Code GUID)."
+                }
+            }
+        } catch { throw $_ }
+    }
+
+    try {
+        Invoke-Command -ComputerName $ComputerName -ArgumentList $Identifier, $Type -ScriptBlock $scriptBlock -ErrorAction Stop
+        return $true
+    } catch {
+        Write-Warning "Failed to repair $Identifier on $($ComputerName): $($_.Exception.Message)"
+        return $false
+    }
+}
+
 function Uninstall-RemoteSoftware {
     param(
         [Parameter(Mandatory=$true)]
@@ -541,6 +581,23 @@ function Get-RemoteDeviceInfo {
                 default { if ($null -ne $cs.AdminPasswordStatus) { "Unknown ($($cs.AdminPasswordStatus))" } else { "Unknown" } }
             }
 
+            $disk = Get-CimInstance Win32_LogicalDisk -Filter "DeviceID='C:'" -ErrorAction SilentlyContinue
+            $freeGB = if ($disk) { [math]::Round($disk.FreeSpace / 1GB, 1) } else { 0 }
+            $sizeGB = if ($disk) { [math]::Round($disk.Size / 1GB, 1) } else { 0 }
+            $freePct = if ($sizeGB -gt 0) { [math]::Round(($freeGB / $sizeGB) * 100, 1) } else { 0 }
+
+            $os = Get-CimInstance Win32_OperatingSystem -ErrorAction SilentlyContinue
+            $uptimeDays = if ($os) { ([math]::Round(((Get-Date) - $os.LastBootUpTime).TotalDays, 1)) } else { 0 }
+
+            $pendingReboot = $false
+            try {
+                if (Test-Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired') { $pendingReboot = $true }
+                if (-not $pendingReboot) {
+                    $sm = Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager' -Name 'PendingFileRenameOperations' -ErrorAction SilentlyContinue
+                    if ($null -ne $sm) { $pendingReboot = $true }
+                }
+            } catch {}
+
             return [PSCustomObject]@{
                 ComputerName        = CleanStr $cs.Name
                 Manufacturer        = CleanStr $cs.Manufacturer
@@ -551,6 +608,9 @@ function Get-RemoteDeviceInfo {
                 BatteryStatus       = CleanStr $batteryStatus
                 AdminPasswordStatus = $adminPwdStatus
                 QueryTime           = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+                CDriveFreePct       = $freePct
+                UptimeDays          = $uptimeDays
+                PendingReboot       = $pendingReboot
             }
         } -ErrorAction Stop
 
@@ -564,6 +624,9 @@ function Get-RemoteDeviceInfo {
             BatteryStatus       = $result.BatteryStatus
             AdminPasswordStatus = $result.AdminPasswordStatus
             QueryTime           = $result.QueryTime
+            CDriveFreePct       = $result.CDriveFreePct
+            UptimeDays          = $result.UptimeDays
+            PendingReboot       = $result.PendingReboot
         }
     } catch {
         Write-Warning "Get-RemoteDeviceInfo failed for $ComputerName`: $($_.Exception.Message)"
