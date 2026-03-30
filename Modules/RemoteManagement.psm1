@@ -518,10 +518,9 @@ function Get-RemoteDeviceInfo {
     )
     try {
         $result = Invoke-Command -ComputerName $ComputerName -ScriptBlock {
-            function CleanStr($v) {
-                if ([string]::IsNullOrEmpty($v)) { return $v }
-                return [regex]::Replace($v, '[^\x09\x0A\x0D\x20-\uD7FF\uE000-\uFFFD]', '')
-            }
+            # Define helper locally within the scriptblock
+            ${function:Clean-WmiString} = $using:function:Clean-WmiString
+
             $cs  = Get-CimInstance Win32_ComputerSystem -ErrorAction Stop
             $bio = Get-CimInstance Win32_BIOS            -ErrorAction Stop
             $bat = Get-CimInstance Win32_Battery          -ErrorAction SilentlyContinue
@@ -542,13 +541,13 @@ function Get-RemoteDeviceInfo {
             }
 
             return [PSCustomObject]@{
-                ComputerName        = CleanStr $cs.Name
-                Manufacturer        = CleanStr $cs.Manufacturer
-                Model               = CleanStr $model
-                SystemFamily        = CleanStr $cs.SystemFamily
-                SerialNumber        = CleanStr $bio.SerialNumber
-                BIOSVersion         = CleanStr $bio.SMBIOSBIOSVersion
-                BatteryStatus       = CleanStr $batteryStatus
+                ComputerName        = Clean-WmiString $cs.Name
+                Manufacturer        = Clean-WmiString $cs.Manufacturer
+                Model               = Clean-WmiString $model
+                SystemFamily        = Clean-WmiString $cs.SystemFamily
+                SerialNumber        = Clean-WmiString $bio.SerialNumber
+                BIOSVersion         = Clean-WmiString $bio.SMBIOSBIOSVersion
+                BatteryStatus       = Clean-WmiString $batteryStatus
                 AdminPasswordStatus = $adminPwdStatus
                 QueryTime           = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
             }

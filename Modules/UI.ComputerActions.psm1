@@ -7,12 +7,6 @@ function Register-ComputerUIEvents {
 
     $AppRoot = Split-Path -Path $PSScriptRoot -Parent
 
-    function Clean-WmiString {
-        param([string]$Value)
-        if ([string]::IsNullOrEmpty($Value)) { return $Value }
-        return [regex]::Replace($Value, '[^\x09\x0A\x0D\x20-\uD7FF\uE000-\uFFFD]', '')
-    }
-
     $lvData = $Window.FindName("lvData")
     $tabQuickAsset = $Window.FindName("tabQuickAsset")
     $txtTabSysInfo = $Window.FindName("txtTabSysInfo")
@@ -817,13 +811,13 @@ function Register-ComputerUIEvents {
                 Add-AppLog -Event "Query" -Username "System" -Details "Querying device info for $computer..." -Config $Config -State $State -Status "Info"
 
                 $job = Start-Job -ScriptBlock {
-                    param($c)
+                    param($c, $CleanWmiStringFn)
                     try {
                         $result = Invoke-Command -ComputerName $c -ScriptBlock {
-                            function CleanStr($v) {
-                                if ([string]::IsNullOrEmpty($v)) { return $v }
-                                return [regex]::Replace($v, '[^\x09\x0A\x0D\x20-\uD7FF\uE000-\uFFFD]', '')
-                            }
+                            param($CleanWmiStringFnLocal)
+                            # Define helper locally within the scriptblock
+                            ${function:Clean-WmiString} = [scriptblock]::Create($CleanWmiStringFnLocal)
+
                             $cs  = Get-CimInstance Win32_ComputerSystem -ErrorAction Stop
                             $bio = Get-CimInstance Win32_BIOS            -ErrorAction Stop
                             $bat = Get-CimInstance Win32_Battery          -ErrorAction SilentlyContinue
@@ -839,17 +833,17 @@ function Register-ComputerUIEvents {
                             }
 
                             return [PSCustomObject]@{
-                                ComputerName        = CleanStr $cs.Name
-                                Manufacturer        = CleanStr $cs.Manufacturer
-                                Model               = CleanStr $model
-                                SystemFamily        = CleanStr $cs.SystemFamily
-                                SerialNumber        = CleanStr $bio.SerialNumber
-                                BIOSVersion         = CleanStr $bio.SMBIOSBIOSVersion
-                                BatteryStatus       = CleanStr $batteryStatus
+                                ComputerName        = Clean-WmiString $cs.Name
+                                Manufacturer        = Clean-WmiString $cs.Manufacturer
+                                Model               = Clean-WmiString $model
+                                SystemFamily        = Clean-WmiString $cs.SystemFamily
+                                SerialNumber        = Clean-WmiString $bio.SerialNumber
+                                BIOSVersion         = Clean-WmiString $bio.SMBIOSBIOSVersion
+                                BatteryStatus       = Clean-WmiString $batteryStatus
                                 AdminPasswordStatus = $adminPwdStatus
                                 QueryTime           = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
                             }
-                        } -ErrorAction Stop
+                        } -ArgumentList $CleanWmiStringFn -ErrorAction Stop
                         return [PSCustomObject]@{ Success = $true
                             ComputerName        = $result.ComputerName
                             Manufacturer        = $result.Manufacturer
@@ -864,7 +858,7 @@ function Register-ComputerUIEvents {
                     } catch {
                         return [PSCustomObject]@{ Success = $false; ErrorMessage = $_.Exception.Message }
                     }
-                } -ArgumentList $computer
+                } -ArgumentList $computer, (${function:Clean-WmiString}.ToString())
 
                 $timer = New-Object System.Windows.Threading.DispatcherTimer
                 $timer.Interval = [TimeSpan]::FromMilliseconds(500)
