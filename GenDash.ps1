@@ -352,15 +352,16 @@ $HtmlTemplate = @'
 
             const limit = currentFilter ? 500 : 100;
 
-            displayData.slice(0, limit).forEach(log => {
+            const htmlParts = displayData.slice(0, limit).map(log => {
                 let color = "bg-slate-100 text-slate-600";
                 const evtLower = log.event.toLowerCase();
                 
                 if (evtLower.includes('locked') || evtLower.includes('lockout detected')) color = "bg-red-50 text-red-600 font-bold";
                 else if (evtLower.includes('unlock') || evtLower.includes('lockout cleared')) color = "bg-green-50 text-green-600";
                 
-                rawBody.innerHTML += `<tr><td class="px-6 py-2 whitespace-nowrap text-slate-500">${log.dateObj.toLocaleString()}</td><td class="px-6 py-2"><span class="${color} px-2 py-0.5 rounded text-[10px] uppercase border border-opacity-20 border-current">${log.event}</span></td><td class="px-6 py-2 font-bold">${log.username}</td><td class="px-6 py-2 text-slate-500">${log.operator}</td></tr>`;
+                return `<tr><td class="px-6 py-2 whitespace-nowrap text-slate-500">${log.dateObj.toLocaleString()}</td><td class="px-6 py-2"><span class="${color} px-2 py-0.5 rounded text-[10px] uppercase border border-opacity-20 border-current">${log.event}</span></td><td class="px-6 py-2 font-bold">${log.username}</td><td class="px-6 py-2 text-slate-500">${log.operator}</td></tr>`;
             });
+            rawBody.innerHTML = htmlParts.join('');
             
             if (displayData.length === 0) {
                 rawBody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-slate-400">No records found for this filter.</td></tr>`;
