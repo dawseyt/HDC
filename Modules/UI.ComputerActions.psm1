@@ -70,8 +70,10 @@ function Register-ComputerUIEvents {
             
             $actions = @(
                 [PSCustomObject]@{ Name = "Force Group Policy Update"; IconCode = [char]0xE895; Script = { gpupdate /force } },
-                [PSCustomObject]@{ Name = "Restart Print Spooler"; IconCode = [char]0xE749; Script = { Restart-Service -Name Spooler -Force } },
                 [PSCustomObject]@{ Name = "Flush DNS Cache"; IconCode = [char]0xE774; Script = { Clear-DnsClientCache -ErrorAction SilentlyContinue; ipconfig /flushdns } },
+                [PSCustomObject]@{ Name = "Fix Network Drops"; IconCode = [char]0xE839; Script = { Start-Process cmd.exe -ArgumentList "/c ipconfig /flushdns & ipconfig /release & ipconfig /renew & powershell -c `"Restart-Service WlanSvc -Force -ErrorAction SilentlyContinue`"" -WindowStyle Hidden } },
+                [PSCustomObject]@{ Name = "Fix Printer Spooler"; IconCode = [char]0xE749; Script = { Stop-Service -Name Spooler -Force; Remove-Item -Path "$env:windir\System32\spool\PRINTERS\*.*" -Force -Recurse -ErrorAction SilentlyContinue; Start-Service -Name Spooler } },
+                [PSCustomObject]@{ Name = "Clean Temp Files"; IconCode = [char]0xE74D; Script = { Remove-Item -Path "$env:TEMP\*.*" -Force -Recurse -ErrorAction SilentlyContinue; Remove-Item -Path "$env:windir\Temp\*.*" -Force -Recurse -ErrorAction SilentlyContinue } },
                 [PSCustomObject]@{ Name = "Send Popup Message"; IconCode = [char]0xE8BD; Script = "MSG" },
                 [PSCustomObject]@{ Name = "Reboot Computer"; IconCode = [char]0xE777; Script = { Restart-Computer -Force } }
             )
@@ -197,8 +199,10 @@ function Register-ComputerUIEvents {
             }
 
             [void]($ctxQuickActions.Items.Add($dynamicItems["Force Group Policy Update"]))
-            [void]($ctxQuickActions.Items.Add($dynamicItems["Restart Print Spooler"]))
             [void]($ctxQuickActions.Items.Add($dynamicItems["Flush DNS Cache"]))
+            [void]($ctxQuickActions.Items.Add($dynamicItems["Fix Network Drops"]))
+            [void]($ctxQuickActions.Items.Add($dynamicItems["Fix Printer Spooler"]))
+            [void]($ctxQuickActions.Items.Add($dynamicItems["Clean Temp Files"]))
             [void]($ctxQuickActions.Items.Add($dynamicItems["Send Popup Message"]))
             
             [void]($ctxQuickActions.Items.Add([System.Windows.Controls.Separator]::new()))
@@ -949,7 +953,22 @@ function Register-ComputerUIEvents {
                                                     <TextBlock Grid.Column="0" Text="Admin Pwd Status" FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" VerticalAlignment="Center"/>
                                                     <TextBlock Grid.Column="1" Text="$($info.AdminPasswordStatus)" Foreground="{Theme_Fg}" FontSize="13" VerticalAlignment="Center"/></Grid>
                                                 </Border>
-                                                <Border Margin="0,0,0,0" Padding="14,9" Background="{Theme_BtnBg}" CornerRadius="6" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
+                                                <Border Margin="0,0,0,5" Padding="14,9" Background="{Theme_BtnBg}" CornerRadius="6" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
+                                                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="160"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="C: Drive Space" FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" VerticalAlignment="Center"/>
+                                                    <TextBlock x:Name="txtDI_CDrive" Grid.Column="1" Text="$($info.CDriveFreePct)% Free" Foreground="{Theme_Fg}" FontSize="13" VerticalAlignment="Center"/></Grid>
+                                                </Border>
+                                                <Border Margin="0,0,0,5" Padding="14,9" Background="{Theme_Bg}" CornerRadius="6" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
+                                                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="160"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="Uptime" FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" VerticalAlignment="Center"/>
+                                                    <TextBlock x:Name="txtDI_Uptime" Grid.Column="1" Text="$($info.UptimeDays) Days" Foreground="{Theme_Fg}" FontSize="13" VerticalAlignment="Center"/></Grid>
+                                                </Border>
+                                                <Border Margin="0,0,0,5" Padding="14,9" Background="{Theme_BtnBg}" CornerRadius="6" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
+                                                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="160"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="Pending Reboot" FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" VerticalAlignment="Center"/>
+                                                    <TextBlock x:Name="txtDI_PendingReboot" Grid.Column="1" Text="$($info.PendingReboot)" Foreground="{Theme_Fg}" FontSize="13" VerticalAlignment="Center"/></Grid>
+                                                </Border>
+                                                <Border Margin="0,0,0,0" Padding="14,9" Background="{Theme_Bg}" CornerRadius="6" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
                                                     <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="160"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0" Text="Queried At" FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="12" FontStyle="Italic" VerticalAlignment="Center"/>
                                                     <TextBlock Grid.Column="1" Text="$($info.QueryTime)" Foreground="{Theme_SecFg}" FontSize="12" FontStyle="Italic" VerticalAlignment="Center"/></Grid>
@@ -1025,11 +1044,17 @@ function Register-ComputerUIEvents {
                 $lvServices = $procWin.FindName("lvServices")
                 $lvProfiles = $procWin.FindName("lvProfiles")
                 $lvDevices = $procWin.FindName("lvDevices")
+                $lvFiles = $procWin.FindName("lvFiles")
                 $lvEvents = $procWin.FindName("lvEvents")
                 $lblProcStatus = $procWin.FindName("lblProcStatus")
                 $lblUptime = $procWin.FindName("lblUptime")
                 
                 $tab0Content = $tabControlMain.Items[0].Content
+                $txtFolderPath = $procWin.FindName("txtFolderPath")
+                $btnBrowseFolder = $procWin.FindName("btnBrowseFolder")
+                $ctxFileOpenFolder = $procWin.FindName("ctxFileOpenFolder")
+                $ctxFileDelete = $procWin.FindName("ctxFileDelete")
+                $ctxFileDownload = $procWin.FindName("ctxFileDownload")
                 $lblDeviceInfoStatus = $tab0Content.FindName("lblDeviceInfoStatus")
                 $btnRefreshDeviceInfo = $tab0Content.FindName("btnRefreshDeviceInfo")
                 
@@ -1043,7 +1068,9 @@ function Register-ComputerUIEvents {
                 $ctxStopService = $procWin.FindName("ctxStopService")
                 $ctxRestartService = $procWin.FindName("ctxRestartService")
                 $ctxDeleteProfile = $procWin.FindName("ctxDeleteProfile")
+                $ctxFixProfile = $procWin.FindName("ctxFixProfile")
                 $ctxUninstallSoftware = $procWin.FindName("ctxUninstallSoftware")
+                $ctxRepairSoftware = $procWin.FindName("ctxRepairSoftware")
                 $ctxEnableDevice = $procWin.FindName("ctxEnableDevice")
                 $ctxDisableDevice = $procWin.FindName("ctxDisableDevice")
                 
@@ -1052,6 +1079,7 @@ function Register-ComputerUIEvents {
                 $State.SvcLastSortCol = $null; $State.SvcSortDesc = $false
                 $State.ProfLastSortCol = $null; $State.ProfSortDesc = $false
                 $State.DevLastSortCol = $null;  $State.DevSortDesc = $false
+                $State.FileLastSortCol = $null; $State.FileSortDesc = $false
                 $State.EvtLastSortCol = $null;  $State.EvtSortDesc = $false
                 $State.IsProcRefreshing = $false; $State.LastTabIndex = 0
 
@@ -1067,7 +1095,8 @@ function Register-ComputerUIEvents {
                         elseif ($idx -eq 3) { $lblProcStatus.Text = "Refreshing services..." }
                         elseif ($idx -eq 4) { $lblProcStatus.Text = "Refreshing user profiles..." }
                         elseif ($idx -eq 5) { $lblProcStatus.Text = "Refreshing hardware devices..." }
-                        elseif ($idx -eq 6) { $lblProcStatus.Text = "Querying recent warnings and errors..." }
+                        elseif ($idx -eq 6) { $lblProcStatus.Text = "Refreshing file list..." }
+                        elseif ($idx -eq 7) { $lblProcStatus.Text = "Querying recent warnings and errors..." }
                     }
                     
                     if ($btnRefreshProcs) { $btnRefreshProcs.IsEnabled = $false }
@@ -1135,6 +1164,31 @@ function Register-ComputerUIEvents {
                             if ($rawDevs) { foreach ($d in $rawDevs) { $resDevs += [PSCustomObject]@{ FriendlyName = $d.FriendlyName; Class = $d.Class; Status = $d.Status; Manufacturer = $d.Manufacturer; InstanceId = $d.InstanceId } } }
                             if ($lvDevices) { if ($State.DevLastSortCol) { $resDevs = $resDevs | Sort-Object -Property $State.DevLastSortCol -Descending:$State.DevSortDesc } else { $resDevs = $resDevs | Sort-Object -Property Class, FriendlyName }; $lvDevices.ItemsSource = $resDevs }
                         } elseif ($idx -eq 6) {
+                            $targetPath = ""
+                            $procWin.Dispatcher.Invoke({ if ($txtFolderPath) { $targetPath = $txtFolderPath.Text } })
+                            if (-not [string]::IsNullOrWhiteSpace($targetPath)) {
+                                $rawFiles = Invoke-Command -ComputerName $comp -ScriptBlock {
+                                    param($p)
+                                    try {
+                                        Get-ChildItem -LiteralPath $p -ErrorAction Stop | Select-Object Name,
+                                            @{Name='ItemType'; Expression={if ($_.PSIsContainer) { 'Folder' } else { 'File' }}},
+                                            @{Name='Size'; Expression={if ($_.PSIsContainer) { '' } else { "$([math]::Round($_.Length / 1KB, 0)) KB" }}},
+                                            LastWriteTime, FullName
+                                    } catch { return @() }
+                                } -ArgumentList $targetPath -ErrorAction SilentlyContinue
+
+                                $resFiles = @()
+                                if ($rawFiles) {
+                                    foreach ($f in $rawFiles) { $resFiles += [PSCustomObject]@{ Name = $f.Name; ItemType = $f.ItemType; Size = $f.Size; LastWriteTime = $f.LastWriteTime; FullName = $f.FullName } }
+                                }
+                                if ($lvFiles) {
+                                    if ($State.FileLastSortCol) { $resFiles = $resFiles | Sort-Object -Property $State.FileLastSortCol -Descending:$State.FileSortDesc }
+                                    else { $resFiles = $resFiles | Sort-Object @{Expression={$_.ItemType}; Descending=$true}, Name }
+                                    $procWin.Dispatcher.Invoke({ $lvFiles.ItemsSource = $resFiles })
+                                }
+                            }
+                        }
+                        elseif ($idx -eq 7) {
                             $rawEvts = Get-RemoteEventLogs -ComputerName $comp; $resEvts = @()
                             if ($rawEvts) { foreach ($e in $rawEvts) { $resEvts += [PSCustomObject]@{ TimeCreated = $e.TimeCreated; Level = $e.LevelDisplayName; Id = $e.Id; Source = $e.ProviderName; Message = if ($e.Message) { $e.Message -replace "`r", "" -replace "`n", "  " } else { "" } } } }
                             if ($lvEvents) { if ($State.EvtLastSortCol) { $resEvts = $resEvts | Sort-Object -Property $State.EvtLastSortCol -Descending:$State.EvtSortDesc }; $lvEvents.ItemsSource = $resEvts }
@@ -1182,6 +1236,7 @@ function Register-ComputerUIEvents {
                             elseif ($sender.Name -eq "lvServices") { if ($State.SvcLastSortCol -eq $sortBy) { $State.SvcSortDesc = -not $State.SvcSortDesc } else { $State.SvcSortDesc = $false; $State.SvcLastSortCol = $sortBy }; $isDesc = $State.SvcSortDesc }
                             elseif ($sender.Name -eq "lvProfiles") { if ($State.ProfLastSortCol -eq $sortBy) { $State.ProfSortDesc = -not $State.ProfSortDesc } else { $State.ProfSortDesc = $false; $State.ProfLastSortCol = $sortBy }; $isDesc = $State.ProfSortDesc }
                             elseif ($sender.Name -eq "lvDevices") { if ($State.DevLastSortCol -eq $sortBy) { $State.DevSortDesc = -not $State.DevSortDesc } else { $State.DevSortDesc = $false; $State.DevLastSortCol = $sortBy }; $isDesc = $State.DevSortDesc }
+                            elseif ($sender.Name -eq "lvFiles") { if ($State.FileLastSortCol -eq $sortBy) { $State.FileSortDesc = -not $State.FileSortDesc } else { $State.FileSortDesc = $false; $State.FileLastSortCol = $sortBy }; $isDesc = $State.FileSortDesc }
                             elseif ($sender.Name -eq "lvEvents") { if ($State.EvtLastSortCol -eq $sortBy) { $State.EvtSortDesc = -not $State.EvtSortDesc } else { $State.EvtSortDesc = $false; $State.EvtLastSortCol = $sortBy }; $isDesc = $State.EvtSortDesc }
 
                             if ($sender.ItemsSource) { $items = @($sender.ItemsSource); if ($items.Count -gt 0) { $sorted = $items | Sort-Object -Property $sortBy -Descending:$isDesc; $sender.ItemsSource = @($sorted) } }
@@ -1194,6 +1249,7 @@ function Register-ComputerUIEvents {
                 if ($lvServices) { $lvServices.AddHandler([System.Windows.Controls.Primitives.ButtonBase]::ClickEvent, [System.Windows.RoutedEventHandler]$ListSortAction) }
                 if ($lvProfiles) { $lvProfiles.AddHandler([System.Windows.Controls.Primitives.ButtonBase]::ClickEvent, [System.Windows.RoutedEventHandler]$ListSortAction) }
                 if ($lvDevices) { $lvDevices.AddHandler([System.Windows.Controls.Primitives.ButtonBase]::ClickEvent, [System.Windows.RoutedEventHandler]$ListSortAction) }
+                if ($lvFiles) { $lvFiles.AddHandler([System.Windows.Controls.Primitives.ButtonBase]::ClickEvent, [System.Windows.RoutedEventHandler]$ListSortAction) }
                 if ($lvEvents) { $lvEvents.AddHandler([System.Windows.Controls.Primitives.ButtonBase]::ClickEvent, [System.Windows.RoutedEventHandler]$ListSortAction) }
 
                 if ($btnRefreshDeviceInfo) {
@@ -1213,6 +1269,23 @@ function Register-ComputerUIEvents {
                                         $tab0Content.FindName("txtDI_BatteryStatus").Text       = if ($info.BatteryStatus)       { $info.BatteryStatus }       else { "-" }
                                         $tab0Content.FindName("txtDI_AdminPasswordStatus").Text = if ($null -ne $info.AdminPasswordStatus) { "$($info.AdminPasswordStatus)" } else { "-" }
                                         $tab0Content.FindName("txtDI_QueryTime").Text           = $info.QueryTime
+
+                                        $txtDrive = $tab0Content.FindName("txtDI_CDrive")
+                                        if ($txtDrive) {
+                                            $txtDrive.Text = "$($info.CDriveFreePct)% Free"
+                                            if ($info.CDriveFreePct -lt 10) { $txtDrive.Foreground = [System.Windows.Media.Brushes]::Red }
+                                        }
+                                        $txtUptime = $tab0Content.FindName("txtDI_Uptime")
+                                        if ($txtUptime) {
+                                            $txtUptime.Text = "$($info.UptimeDays) Days"
+                                            if ($info.UptimeDays -gt 14) { $txtUptime.Foreground = [System.Windows.Media.Brushes]::Red }
+                                        }
+                                        $txtPending = $tab0Content.FindName("txtDI_PendingReboot")
+                                        if ($txtPending) {
+                                            $txtPending.Text = if ($info.PendingReboot) { "Yes" } else { "No" }
+                                            if ($info.PendingReboot) { $txtPending.Foreground = [System.Windows.Media.Brushes]::Red }
+                                        }
+
                                         if ($lblDeviceInfoStatus) { $lblDeviceInfoStatus.Text = "Hardware information loaded for $comp." }
                                     } else {
                                         if ($lblDeviceInfoStatus) { $lblDeviceInfoStatus.Text = "No data returned. Computer may be offline or access denied." }
@@ -1243,6 +1316,32 @@ function Register-ComputerUIEvents {
                                     }
                                 }
                                 catch { Show-AppMessageBox -Message "Uninstall failed:`n$($_.Exception.Message)" -Title "Error" -IconType "Error" -ThemeColors $colors | Out-Null }
+                            }
+                        }
+                    }.GetNewClosure())
+                }
+
+                if ($ctxRepairSoftware) {
+                    $ctxRepairSoftware.Add_Click({
+                        if ($lvSoftware -and $lvSoftware.SelectedItem) {
+                            $app = $lvSoftware.SelectedItem; $dispName = $app.DisplayName
+                            $conf = Show-AppMessageBox -Message "Attempt automatic repair of '$dispName' on $comp?" -Title "Confirm Repair" -ButtonType "YesNo" -IconType "Warning" -OwnerWindow $procWin -ThemeColors $colors
+                            if ($conf -eq "Yes") {
+                                [System.Windows.Input.Mouse]::OverrideCursor = [System.Windows.Input.Cursors]::Wait
+                                try {
+                                    $success = Repair-HDRemoteSoftware -ComputerName $comp -Identifier $app.QuietUninstallString -Type $app.Type
+                                    [System.Windows.Input.Mouse]::OverrideCursor = $null
+                                    if ($success) {
+                                        Show-AppMessageBox -Message "Repair command triggered successfully." -Title "Success" -ThemeColors $colors | Out-Null
+                                        & $DoRefresh
+                                    } else {
+                                        Show-AppMessageBox -Message "Repair failed. The app may not support automated repair via MSI/AppX." -Title "Error" -IconType "Error" -ThemeColors $colors | Out-Null
+                                    }
+                                }
+                                catch {
+                                    [System.Windows.Input.Mouse]::OverrideCursor = $null
+                                    Show-AppMessageBox -Message "Repair failed:`n$($_.Exception.Message)" -Title "Error" -IconType "Error" -ThemeColors $colors | Out-Null
+                                }
                             }
                         }
                     }.GetNewClosure())
@@ -1315,6 +1414,42 @@ function Register-ComputerUIEvents {
                 if ($ctxKillProcess) { $ctxKillProcess.Add_Click({ if ($lvProcesses -and $lvProcesses.SelectedItem) { $pidToKill = $lvProcesses.SelectedItem.Id; $procName = $lvProcesses.SelectedItem.Name; $conf = Show-AppMessageBox -Message "Kill process '$procName' (PID: $pidToKill) on $comp?" -Title "Confirm" -ButtonType "YesNo" -IconType "Warning" -OwnerWindow $procWin -ThemeColors $colors; if ($conf -eq "Yes") { try { Stop-RemoteProcess -ComputerName $comp -ProcessId $pidToKill; Show-AppMessageBox -Message "Process killed." -Title "Success" -ThemeColors $colors; & $DoRefresh } catch { Show-AppMessageBox -Message "Failed to kill process: $($_.Exception.Message)" -Title "Error" -IconType "Error" -ThemeColors $colors } } } }.GetNewClosure()) }
                 if ($ctxDeleteProfile) { $ctxDeleteProfile.Add_Click({ if ($lvProfiles -and $lvProfiles.SelectedItem) { $pPath = $lvProfiles.SelectedItem.LocalPath; $pSID = $lvProfiles.SelectedItem.SID; $conf = Show-AppMessageBox -Message "Permanently delete user profile '$pPath' on $comp?`n`nThis cannot be undone." -Title "Confirm Delete" -ButtonType "YesNo" -IconType "Error" -OwnerWindow $procWin -ThemeColors $colors; if ($conf -eq "Yes") { try { Remove-RemoteUserProfile -ComputerName $comp -SID $pSID; Show-AppMessageBox -Message "Profile deleted." -Title "Success" -ThemeColors $colors; & $DoRefresh } catch { Show-AppMessageBox -Message "Failed to delete profile: $($_.Exception.Message)" -Title "Error" -IconType "Error" -ThemeColors $colors } } } }.GetNewClosure()) }
 
+                if ($ctxFixProfile) {
+                    $ctxFixProfile.Add_Click({
+                        if ($lvProfiles -and $lvProfiles.SelectedItem) {
+                            $pPath = $lvProfiles.SelectedItem.LocalPath
+                            $pSID = $lvProfiles.SelectedItem.SID
+                            $conf = Show-AppMessageBox -Message "Attempt to fix corrupt profile for '$pPath'?`n`nThis will rename the folder to .bak and delete the ProfileList registry key so a new profile is generated on next login." -Title "Confirm Fix Profile" -ButtonType "YesNo" -IconType "Warning" -OwnerWindow $procWin -ThemeColors $colors
+                            if ($conf -eq "Yes") {
+                                [System.Windows.Input.Mouse]::OverrideCursor = [System.Windows.Input.Cursors]::Wait
+                                try {
+                                    Invoke-Command -ComputerName $comp -ScriptBlock {
+                                        param($sid, $path)
+
+                                        $bakPath = "$path.bak"
+                                        if (Test-Path $path) {
+                                            if (Test-Path $bakPath) { Remove-Item -Path $bakPath -Recurse -Force -ErrorAction SilentlyContinue }
+                                            Rename-Item -Path $path -NewName "$([System.IO.Path]::GetFileName($path)).bak" -Force -ErrorAction Stop
+                                        }
+
+                                        $regPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$sid"
+                                        if (Test-Path $regPath) { Remove-Item -Path $regPath -Recurse -Force -ErrorAction Stop }
+                                        $bakRegPath = "$regPath.bak"
+                                        if (Test-Path $bakRegPath) { Remove-Item -Path $bakRegPath -Recurse -Force -ErrorAction SilentlyContinue }
+                                    } -ArgumentList $pSID, $pPath -ErrorAction Stop
+
+                                    [System.Windows.Input.Mouse]::OverrideCursor = $null
+                                    Show-AppMessageBox -Message "Profile reset successfully. Have the user log in again." -Title "Success" -ThemeColors $colors | Out-Null
+                                    & $DoRefresh
+                                } catch {
+                                    [System.Windows.Input.Mouse]::OverrideCursor = $null
+                                    Show-AppMessageBox -Message "Failed to fix profile. Ensure the user is completely logged off.`n`nError: $($_.Exception.Message)" -Title "Error" -IconType "Error" -ThemeColors $colors | Out-Null
+                                }
+                            }
+                        }
+                    }.GetNewClosure())
+                }
+
                 $ExecuteServiceAction = { param($ActionName) if ($lvServices -and $lvServices.SelectedItem) { $svcName = $lvServices.SelectedItem.Name; $dispName = $lvServices.SelectedItem.DisplayName; $conf = Show-AppMessageBox -Message "Are you sure you want to $ActionName the service '$dispName' on $comp?" -Title "Confirm $ActionName" -ButtonType "YesNo" -IconType "Warning" -OwnerWindow $procWin -ThemeColors $colors; if ($conf -eq "Yes") { [System.Windows.Input.Mouse]::OverrideCursor = [System.Windows.Input.Cursors]::Wait; try { Invoke-RemoteServiceAction -ComputerName $comp -ServiceName $svcName -Action $ActionName; [System.Windows.Input.Mouse]::OverrideCursor = $null; Show-AppMessageBox -Message "Service command sent successfully." -Title "Success" -ThemeColors $colors; & $DoRefresh } catch { [System.Windows.Input.Mouse]::OverrideCursor = $null; Show-AppMessageBox -Message "Service error:`n$($_.Exception.Message)" -Title "Error" -IconType "Error" -ThemeColors $colors } } } }.GetNewClosure()
                 if ($ctxStartService) { $ctxStartService.Add_Click({ & $ExecuteServiceAction "Start" }.GetNewClosure()) }
                 if ($ctxStopService) { $ctxStopService.Add_Click({ & $ExecuteServiceAction "Stop" }.GetNewClosure()) }
@@ -1323,6 +1458,72 @@ function Register-ComputerUIEvents {
                 $ExecuteDeviceAction = { param($ActionName) if ($lvDevices -and $lvDevices.SelectedItem) { $devName = $lvDevices.SelectedItem.FriendlyName; $devId = $lvDevices.SelectedItem.InstanceId; $conf = Show-AppMessageBox -Message "Are you sure you want to $ActionName the device '$devName' on $comp?" -Title "Confirm $ActionName" -ButtonType "YesNo" -IconType "Warning" -OwnerWindow $procWin -ThemeColors $colors; if ($conf -eq "Yes") { [System.Windows.Input.Mouse]::OverrideCursor = [System.Windows.Input.Cursors]::Wait; try { Set-RemoteDeviceState -ComputerName $comp -InstanceId $devId -Action $ActionName; [System.Windows.Input.Mouse]::OverrideCursor = $null; Show-AppMessageBox -Message "Device $ActionName command sent successfully." -Title "Success" -ThemeColors $colors; & $DoRefresh } catch { [System.Windows.Input.Mouse]::OverrideCursor = $null; Show-AppMessageBox -Message "Device error:`n$($_.Exception.Message)" -Title "Error" -IconType "Error" -ThemeColors $colors } } } }.GetNewClosure()
                 if ($ctxEnableDevice) { $ctxEnableDevice.Add_Click({ & $ExecuteDeviceAction "Enable" }.GetNewClosure()) }
                 if ($ctxDisableDevice) { $ctxDisableDevice.Add_Click({ & $ExecuteDeviceAction "Disable" }.GetNewClosure()) }
+
+                if ($btnBrowseFolder) {
+                    $btnBrowseFolder.Add_Click({ & $DoRefresh }.GetNewClosure())
+                }
+                if ($txtFolderPath) {
+                    $txtFolderPath.Add_KeyDown({ param($s,$e); if ($e.Key -eq 'Enter') { $e.Handled = $true; & $DoRefresh } }.GetNewClosure())
+                }
+
+                if ($lvFiles) {
+                    $lvFiles.Add_MouseDoubleClick({
+                        param($s,$e)
+                        if ($lvFiles.SelectedItem -and $lvFiles.SelectedItem.ItemType -eq 'Folder') {
+                            $txtFolderPath.Text = $lvFiles.SelectedItem.FullName
+                            & $DoRefresh
+                        }
+                    }.GetNewClosure())
+                }
+
+                if ($ctxFileOpenFolder) {
+                    $ctxFileOpenFolder.Add_Click({
+                        if ($lvFiles.SelectedItem -and $lvFiles.SelectedItem.ItemType -eq 'Folder') {
+                            $txtFolderPath.Text = $lvFiles.SelectedItem.FullName
+                            & $DoRefresh
+                        }
+                    }.GetNewClosure())
+                }
+
+                if ($ctxFileDelete) {
+                    $ctxFileDelete.Add_Click({
+                        if ($lvFiles.SelectedItem) {
+                            $target = $lvFiles.SelectedItem.FullName
+                            $conf = Show-AppMessageBox -Message "Are you sure you want to permanently delete '$target' on $comp?" -Title "Confirm Delete" -ButtonType "YesNo" -IconType "Warning" -OwnerWindow $procWin -ThemeColors $colors
+                            if ($conf -eq "Yes") {
+                                try {
+                                    Invoke-Command -ComputerName $comp -ScriptBlock { param($p) Remove-Item -LiteralPath $p -Recurse -Force -ErrorAction Stop } -ArgumentList $target -ErrorAction Stop
+                                    & $DoRefresh
+                                } catch { Show-AppMessageBox -Message "Failed to delete item:`n$($_.Exception.Message)" -Title "Error" -IconType "Error" -ThemeColors $colors | Out-Null }
+                            }
+                        }
+                    }.GetNewClosure())
+                }
+
+                if ($ctxFileDownload) {
+                    $ctxFileDownload.Add_Click({
+                        if ($lvFiles.SelectedItem -and $lvFiles.SelectedItem.ItemType -eq 'File') {
+                            $target = $lvFiles.SelectedItem.FullName
+                            $localDest = Join-Path $env:TEMP $lvFiles.SelectedItem.Name
+                            [System.Windows.Input.Mouse]::OverrideCursor = [System.Windows.Input.Cursors]::Wait
+                            try {
+                                $fileInfo = Invoke-Command -ComputerName $comp -ScriptBlock { param($p) Get-Item -LiteralPath $p -ErrorAction Stop } -ArgumentList $target -ErrorAction Stop
+                                if ($fileInfo.Length -gt 10MB) {
+                                    [System.Windows.Input.Mouse]::OverrideCursor = $null
+                                    Show-AppMessageBox -Message "File size ($([math]::Round($fileInfo.Length / 1MB, 2)) MB) exceeds the 10MB limit for remote WinRM downloads. Transfer aborted to prevent memory crashes." -Title "File Too Large" -IconType "Warning" -OwnerWindow $procWin -ThemeColors $colors | Out-Null
+                                    return
+                                }
+                                $bytes = Invoke-Command -ComputerName $comp -ScriptBlock { param($p) [System.IO.File]::ReadAllBytes($p) } -ArgumentList $target -ErrorAction Stop
+                                [System.IO.File]::WriteAllBytes($localDest, $bytes)
+                                [System.Windows.Input.Mouse]::OverrideCursor = $null
+                                Show-AppMessageBox -Message "File downloaded to $localDest" -Title "Success" -ThemeColors $colors | Out-Null
+                            } catch {
+                                [System.Windows.Input.Mouse]::OverrideCursor = $null
+                                Show-AppMessageBox -Message "Failed to download file:`n$($_.Exception.Message)" -Title "Error" -IconType "Error" -ThemeColors $colors | Out-Null
+                            }
+                        }
+                    }.GetNewClosure())
+                }
 
                 & $DoRefresh
                 $procAutoTimer = New-Object System.Windows.Threading.DispatcherTimer

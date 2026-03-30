@@ -19,6 +19,7 @@ function Register-UserUIEvents {
     $ctxGroups = $Window.FindName("ctxGroups")
     $ctxTicketFeed = $Window.FindName("ctxTicketFeed")
     $ctxLastLogonLocation = $Window.FindName("MenuItem_LastLogonLocation")
+    $ctxActiveComputers = $Window.FindName("MenuItem_ActiveComputers")
     
     $overlayReset = $Window.FindName("overlayReset")
     $txtPwdTitle = $Window.FindName("txtPwdTitle")
@@ -65,6 +66,35 @@ function Register-UserUIEvents {
             if (-not $inserted) { [void]($lvData.ContextMenu.Items.Add($ctxLastLogonLocation)) }
         }
 
+        foreach ($item in $lvData.ContextMenu.Items) {
+            if ($item -is [System.Windows.Controls.MenuItem] -and ($item.Name -eq "MenuItem_ActiveComputers" -or $item.Header -match "Find Active Computers")) {
+                $ctxActiveComputers = $item; break
+            }
+        }
+
+        if (-not $ctxActiveComputers) {
+            $ctxActiveComputers = New-Object System.Windows.Controls.MenuItem
+            $ctxActiveComputers.Name = "MenuItem_ActiveComputers"
+            $ctxActiveComputers.Header = "Find Active Computers"
+            $acIcon = New-Object System.Windows.Controls.TextBlock
+            $acIcon.FontFamily = [System.Windows.Media.FontFamily]::new("Segoe Fluent Icons, Segoe MDL2 Assets")
+            $acIcon.Text = [char]0xE7F4 # Eye icon
+            $acIcon.FontSize = 14
+            $acIcon.FontWeight = [System.Windows.FontWeights]::Bold
+            $acIcon.SetResourceReference([System.Windows.Controls.TextBlock]::ForegroundProperty, "AccentFill")
+            $ctxActiveComputers.Icon = $acIcon
+
+            $insertedAC = $false
+            if ($ctxLastLogonLocation) {
+                $idxAC = $lvData.ContextMenu.Items.IndexOf($ctxLastLogonLocation)
+                if ($idxAC -ge 0) {
+                    $lvData.ContextMenu.Items.Insert($idxAC + 1, $ctxActiveComputers)
+                    $insertedAC = $true
+                }
+            }
+            if (-not $insertedAC) { [void]($lvData.ContextMenu.Items.Add($ctxActiveComputers)) }
+        }
+
         $lvData.AddHandler([System.Windows.Controls.Control]::ContextMenuOpeningEvent, [System.Windows.Controls.ContextMenuEventHandler]{
             $sel = $lvData.SelectedItem
             $isUser = ($sel -and $sel.Type -eq "User")
@@ -74,6 +104,7 @@ function Register-UserUIEvents {
             if ($ctxDetails)           { $ctxDetails.Visibility           = $vis }
             if ($ctxLockoutSource)     { $ctxLockoutSource.Visibility     = $vis }
             if ($ctxLastLogonLocation) { $ctxLastLogonLocation.Visibility = $vis }
+            if ($ctxActiveComputers)   { $ctxActiveComputers.Visibility   = $vis }
             if ($ctxGroups)            { $ctxGroups.Visibility            = $vis }
             if ($ctxTicketFeed)        { $ctxTicketFeed.Visibility        = $vis }
         }.GetNewClosure())
@@ -91,6 +122,15 @@ function Register-UserUIEvents {
             if ($confirm -eq "Yes") {
                 Unlock-ADUsers -Usernames $users -Config $Config -State $State
                 if ($State.Actions.RefreshData) { & $State.Actions.RefreshData }
+
+                # Single user unlock analyzer
+                if ($users.Count -eq 1 -and $ctxLockoutSource) {
+                    $analyze = Show-AppMessageBox -Message "Account unlocked. Would you like to locate the source of the lockout to prevent it from happening again?" -Title "Analyze Lockout" -ButtonType "YesNo" -IconType "Question" -OwnerWindow $Window -ThemeColors (Get-FluentThemeColors $State)
+                    if ($analyze -eq "Yes") {
+                        # Trigger the lockout source context menu item's click logic programmatically
+                        $ctxLockoutSource.RaiseEvent([System.Windows.RoutedEventArgs]::new([System.Windows.Controls.MenuItem]::ClickEvent))
+                    }
+                }
             }
         } else {
             Show-AppMessageBox -Message "Selected item(s) are not Users or cannot be unlocked." -Title "Info" -IconType "Information" -OwnerWindow $Window -ThemeColors (Get-FluentThemeColors $State)
@@ -514,6 +554,111 @@ function Register-UserUIEvents {
                         } else {
                             $reason = if ($job.ChildJobs[0].JobStateInfo.Reason) { $job.ChildJobs[0].JobStateInfo.Reason.Message } else { "Unknown error" }
                             Show-AppMessageBox -Message "Failed to query lockout source:`n$reason" -Title "Error" -IconType "Error" -OwnerWindow $Window -ThemeColors $colors
+                        }
+                        Remove-Job $job -Force
+                    }
+                }.GetNewClosure()
+                $timer.Add_Tick($timerTick)
+                $timer.Start()
+            }
+        }.GetNewClosure())
+    }
+
+    # --- Find Active Computers ---
+    if ($ctxActiveComputers) {
+        $ctxActiveComputers.Add_Click({
+            if ($lvData.SelectedItem -and $lvData.SelectedItem.Type -eq "User") {
+                $user = $lvData.SelectedItem.Name
+                $colors = Get-FluentThemeColors $State
+
+                $loadingXaml = @"
+                <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Processing" Width="380" Height="120" WindowStartupLocation="CenterOwner" WindowStyle="None" AllowsTransparency="True" Background="Transparent" FontFamily="Segoe UI Variable Display, Segoe UI, sans-serif">
+                    <Border Background="{Theme_Bg}" CornerRadius="8" BorderBrush="{Theme_BtnBorder}" BorderThickness="1" Margin="15">
+                        <Border.Effect><DropShadowEffect BlurRadius="15" ShadowDepth="4" Opacity="0.3"/></Border.Effect>
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <TextBlock Text="Searching network for active sessions for $user..." FontSize="14" FontWeight="SemiBold" Foreground="{Theme_Fg}" HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                            <ProgressBar IsIndeterminate="True" Width="300" Height="4" Foreground="{Theme_PrimaryBg}" Background="{Theme_BtnBg}" BorderThickness="0"/>
+                        </StackPanel>
+                    </Border>
+                </Window>
+"@
+                $xamlText = $loadingXaml; foreach ($key in $colors.Keys) { $xamlText = $xamlText.Replace("{Theme_$key}", $colors[$key]) }
+                $reader = [System.Xml.XmlReader]::Create([System.IO.StringReader]::new($xamlText))
+                $loadWin = [System.Windows.Markup.XamlReader]::Load($reader); $loadWin.Owner = $Window; $loadWin.Show()
+
+                Add-AppLog -Event "Query" -Username "System" -Details "Searching network for active sessions of $user..." -Config $Config -State $State -Status "Info"
+
+                $job = Start-Job -ScriptBlock {
+                    param($u)
+                    try {
+                        # First, attempt to locate via ManagedBy
+                        $targetUser = Get-ADUser -Identity $u -Properties DistinguishedName -ErrorAction SilentlyContinue
+                        $managed = @()
+
+                        if ($targetUser) {
+                            $userDN = $targetUser.DistinguishedName
+                            # Use server-side filtering for efficiency
+                            $comps = Get-ADComputer -Filter "ManagedBy -eq '$userDN'" -ErrorAction SilentlyContinue
+                            if ($comps) {
+                                foreach ($c in $comps) { $managed += $c.Name }
+                            }
+                        }
+
+                        if ($managed.Count -gt 0) {
+                            $active = @()
+                            foreach ($m in $managed) {
+                                $out = quser /server:$m 2>&1
+                                if ($LASTEXITCODE -eq 0 -and $out -match $u) { $active += $m }
+                            }
+                            if ($active.Count -gt 0) { return [PSCustomObject]@{ Found = $true; Type = "Managed/Active"; Computers = $active } }
+                            return [PSCustomObject]@{ Found = $true; Type = "Managed/Offline"; Computers = $managed }
+                        }
+
+                        # Fallback: Query PDC for last logon
+                        $pdc = (Get-ADDomain).PDCEmulator
+                        $events = Get-WinEvent -ComputerName $pdc -FilterHashtable @{LogName='Security'; Id=4624; Data=$u} -MaxEvents 10 -ErrorAction SilentlyContinue
+                        foreach ($evt in $events) {
+                            $xml = [xml]$evt.ToXml()
+                            $nsmgr = New-Object System.Xml.XmlNamespaceManager($xml.NameTable)
+                            $nsmgr.AddNamespace("ns", "http://schemas.microsoft.com/win/2004/08/events/event")
+                            $ipNode = $xml.SelectSingleNode("//ns:Data[@Name='IpAddress']", $nsmgr)
+                            $ip = if ($ipNode) { $ipNode.InnerText.Trim() } else { "" }
+                            if (-not [string]::IsNullOrWhiteSpace($ip) -and $ip -ne "-" -and $ip -ne "::1" -and $ip -ne "127.0.0.1") {
+                                $hostName = "Unknown"
+                                try {
+                                    $hostEntry = [System.Net.Dns]::GetHostEntry($ip)
+                                    if ($hostEntry -and $hostEntry.HostName) { $hostName = $hostEntry.HostName -replace "\..*", "" }
+                                } catch {}
+
+                                if ($hostName -ne "Unknown") {
+                                    $out = quser /server:$hostName 2>&1
+                                    if ($LASTEXITCODE -eq 0 -and $out -match $u) {
+                                        return [PSCustomObject]@{ Found = $true; Type = "Recent Logon/Active"; Computers = @($hostName) }
+                                    }
+                                }
+                            }
+                        }
+
+                        return [PSCustomObject]@{ Found = $false }
+                    } catch { throw $_.Exception.Message }
+                } -ArgumentList $user
+
+                $timer = New-Object System.Windows.Threading.DispatcherTimer
+                $timer.Interval = [TimeSpan]::FromMilliseconds(500)
+                $timerTick = {
+                    if ($job.State -ne 'Running') {
+                        $timer.Stop(); $loadWin.Close()
+                        if ($job.State -eq 'Completed') {
+                            $result = Receive-Job $job -ErrorAction SilentlyContinue
+                            if ($result.Found) {
+                                $compList = $result.Computers -join ", "
+                                Show-AppMessageBox -Message "Found associated computers for $user!`n`nType: $($result.Type)`nComputers: $compList" -Title "Active Computers" -IconType "Information" -OwnerWindow $Window -ThemeColors $colors | Out-Null
+                            } else {
+                                Show-AppMessageBox -Message "Could not find any active or managed computers for $user on the network." -Title "Not Found" -IconType "Information" -OwnerWindow $Window -ThemeColors $colors | Out-Null
+                            }
+                        } else {
+                            $reason = if ($job.ChildJobs[0].JobStateInfo.Reason) { $job.ChildJobs[0].JobStateInfo.Reason.Message } else { "Unknown error" }
+                            Show-AppMessageBox -Message "Failed to find active computers:`n$reason" -Title "Error" -IconType "Error" -OwnerWindow $Window -ThemeColors $colors | Out-Null
                         }
                         Remove-Job $job -Force
                     }
