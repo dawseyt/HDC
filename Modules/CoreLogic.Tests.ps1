@@ -1,9 +1,6 @@
-$here = Split-Path -Parent $MyInvocation.MyCommand.Path
-$modulePath = Join-Path $here "CoreLogic.psm1"
-
 Describe "Clean-WmiString" {
     BeforeAll {
-        Import-Module $modulePath -Force
+        Import-Module "$PSScriptRoot/CoreLogic.psm1" -Force
     }
 
     It "Should return null when input is null" {

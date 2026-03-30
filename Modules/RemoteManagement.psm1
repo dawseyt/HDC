@@ -557,9 +557,11 @@ function Get-RemoteDeviceInfo {
         [string]$ComputerName
     )
     try {
+        $cleanFnString = ${function:Clean-WmiString}.ToString()
         $result = Invoke-Command -ComputerName $ComputerName -ScriptBlock {
+            param($cleanFnStringLocal)
             # Define helper locally within the scriptblock
-            ${function:Clean-WmiString} = $using:function:Clean-WmiString
+            ${function:Clean-WmiString} = [scriptblock]::Create($cleanFnStringLocal)
 
             $cs  = Get-CimInstance Win32_ComputerSystem -ErrorAction Stop
             $bio = Get-CimInstance Win32_BIOS            -ErrorAction Stop
@@ -611,7 +613,7 @@ function Get-RemoteDeviceInfo {
                 UptimeDays          = $uptimeDays
                 PendingReboot       = $pendingReboot
             }
-        } -ErrorAction Stop
+        } -ArgumentList $cleanFnString -ErrorAction Stop
 
         return [PSCustomObject]@{
             ComputerName        = $result.ComputerName
