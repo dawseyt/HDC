@@ -1626,6 +1626,9 @@ function Register-ComputerUIEvents {
                 $btnClose = $swmWin.FindName("Button_Close")
                 $btnCloseIcon = $swmWin.FindName("Button_CloseIcon")
 
+                $swmWinState = [PSCustomObject]@{ IsClosed = $false }
+                $swmWin.Add_Closed({ $swmWinState.IsClosed = $true }.GetNewClosure())
+
                 if ($btnClose) { $btnClose.Add_Click({ $swmWin.Close() }) }
                 if ($btnCloseIcon) { $btnCloseIcon.Add_Click({ $swmWin.Close() }) }
 
@@ -1649,6 +1652,12 @@ function Register-ComputerUIEvents {
                         $startTime = Get-Date
 
                         $timerTick = {
+                            if ($swmWinState.IsClosed) {
+                                $timer.Stop()
+                                if ($job -and $job.State -eq 'Running') { Stop-Job $job -Force -ErrorAction SilentlyContinue }
+                                Remove-Job $job -Force -ErrorAction SilentlyContinue
+                                return
+                            }
                             if ($job.State -ne 'Running' -or ((Get-Date) - $startTime).TotalSeconds -ge 45) {
                                 $timer.Stop()
                                 $txtTargetComputer.Text = $comp
@@ -1689,6 +1698,12 @@ function Register-ComputerUIEvents {
                             $uStart = Get-Date
 
                             $uTick = {
+                                if ($swmWinState.IsClosed) {
+                                    $uTimer.Stop()
+                                    if ($job -and $job.State -eq 'Running') { Stop-Job $job -Force -ErrorAction SilentlyContinue }
+                                    Remove-Job $job -Force -ErrorAction SilentlyContinue
+                                    return
+                                }
                                 if ($job.State -ne 'Running' -or ((Get-Date) - $uStart).TotalSeconds -ge 120) {
                                     $uTimer.Stop()
                                     $txtTargetComputer.Text = $comp
