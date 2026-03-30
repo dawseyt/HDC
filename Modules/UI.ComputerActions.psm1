@@ -1614,6 +1614,7 @@ function Register-ComputerUIEvents {
             if ($lvData.SelectedItem -and $lvData.SelectedItem.Type -eq "Computer") {
                 $comp = $lvData.SelectedItem.Name
                 $colors = Get-FluentThemeColors $State
+                $localAppRoot = $AppRoot
 
                 $swmWin = Load-XamlWindow -XamlPath (Join-Path $localAppRoot "UI\Windows\SoftwareManager.xaml") -ThemeColors $colors
                 $swmWin.Owner = $Window
