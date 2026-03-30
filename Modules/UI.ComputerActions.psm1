@@ -1575,7 +1575,7 @@ function Register-ComputerUIEvents {
                 if (-not (Test-Path $pmScript)) { Show-AppMessageBox -Message "Script not found at:`n$pmScript" -Title "Error" -IconType "Error" -OwnerWindow $Window -ThemeColors (Get-FluentThemeColors $State); return }
                 Add-AppLog -Event "Printer Management" -Username "System" -Details "Launching Printer Manager for $targetPC..." -Config $Config -State $State -Status "Info"
                 try {
-                    $argList = @("-WindowStyle", "Hidden", "-ExecutionPolicy", "Bypass", "-File", $pmScript, "-ComputerName", $targetPC, "-Theme", $State.CurrentTheme)
+                    $argList = @("-WindowStyle", "Hidden", "-ExecutionPolicy", "Bypass", "-File", "`"$pmScript`"", "-ComputerName", $targetPC, "-Theme", $State.CurrentTheme)
                     Start-Process -FilePath "powershell.exe" -ArgumentList $argList -WindowStyle Hidden
                 }
                 catch { Show-AppMessageBox -Message "Launch Failed:`n$($_.Exception.Message)" -Title "Error" -IconType "Error" -OwnerWindow $Window -ThemeColors (Get-FluentThemeColors $State) }
