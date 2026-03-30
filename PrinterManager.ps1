@@ -501,7 +501,7 @@ $RefreshPrinters = {
             try {
                 $r = Receive-Job $healthJobs[$ip] -ErrorAction SilentlyContinue
                 if ($r) { $healthResults[$ip] = $r }
-            } catch { Write-Debug "Failed to receive job for $ip: $($_.Exception.Message)" }
+            } catch { Write-Warning "Failed to receive job for $ip: $($_.Exception.Message)" }
             Stop-Job  $healthJobs[$ip] -ErrorAction SilentlyContinue
             Remove-Job $healthJobs[$ip] -Force -ErrorAction SilentlyContinue
         }
