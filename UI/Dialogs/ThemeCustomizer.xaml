@@ -96,8 +96,8 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBox x:Name="txtAppImage" Grid.Column="0" Height="28" VerticalContentAlignment="Center" Margin="0,0,8,0"/>
-                        <Button x:Name="btnBrowseApp" Grid.Column="1" Content="..." Width="30" Height="28" Background="{Theme_BtnBg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1" Margin="0,0,4,0"/>
-                        <Button x:Name="btnClearApp" Grid.Column="2" Content="X" Width="30" Height="28" Background="{Theme_BtnBg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1"/>
+                        <Button x:Name="btnBrowseApp" Grid.Column="1" Content="..." Width="30" Height="28" Background="{Theme_BtnBg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1" Margin="0,0,4,0" ToolTip="Browse for background image" AutomationProperties.Name="Browse for background image"/>
+                        <Button x:Name="btnClearApp" Grid.Column="2" Content="X" Width="30" Height="28" Background="{Theme_BtnBg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1" ToolTip="Clear background image" AutomationProperties.Name="Clear background image"/>
                     </Grid>
 
                     <Separator Background="{Theme_BtnBorder}" Margin="0,10,0,20"/>
