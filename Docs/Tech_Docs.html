@@ -422,6 +422,7 @@ td:first-child { color: var(--text-primary); font-weight: 500; font-family: 'IBM
     <tbody>
       <tr><td>Get-RemoteInstalledSoftware</td><td>Legacy method — queries both HKLM Uninstall registry paths via Invoke-Command. Filters out system components.</td></tr>
       <tr><td>Get-HDRemoteSoftware</td><td>Enhanced method — queries both registry Uninstall keys AND <code>HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Appx\AppxAllUserStore\Applications</code> to enumerate AppX/UWP packages. Bypasses WinRM WinRT loading crashes. Filters system frameworks and language packs.</td></tr>
+      <tr><td>Repair-HDRemoteSoftware</td><td>Attempts to automatically repair installed software over WinRM. For MSI applications, it parses the GUID from the uninstall string and executes <code>msiexec /fa &lt;guid&gt; /qn</code>. For AppX packages, it re-registers the manifest XML file in the install directory.</td></tr>
       <tr><td>Uninstall-HDRemoteSoftware</td><td>Silently uninstalls Win32 apps (MSI/EXE with auto-detected arguments) or AppX packages (via spawned powershell.exe process) on the remote machine. Returns $true on success.</td></tr>
       <tr><td>Uninstall-RemoteSoftware</td><td>Legacy uninstall method for Win32 apps. Use Get-HDRemoteSoftware / Uninstall-HDRemoteSoftware for new code.</td></tr>
     </tbody>
@@ -442,14 +443,16 @@ td:first-child { color: var(--text-primary); font-weight: 500; font-family: 'IBM
     </tbody>
   </table></div>
 
-  <h2 class="sh2 fade-in">Hardware &amp; Profile Management</h2>
+  <h2 class="sh2 fade-in">Hardware, Files, &amp; Profile Management</h2>
   <div class="tbl-wrap fade-in"><table>
     <thead><tr><th>Function</th><th>Transport</th><th>Timeout</th></tr></thead>
     <tbody>
-      <tr><td>Get-RemoteDeviceInfo</td><td>Invoke-Command (WinRM) with on-remote CleanStr sanitiser</td><td>15s</td></tr>
+      <tr><td>Get-RemoteDeviceInfo</td><td>Invoke-Command (WinRM) with on-remote CleanStr sanitiser. Also includes extended WMI and Registry checks for C: drive space, Uptime, and Pending Reboots for the Health Check Dashboard.</td><td>15s</td></tr>
       <tr><td>Get-RemoteUserProfiles</td><td>Invoke-Command + Win32_UserProfile CIM</td><td>—</td></tr>
       <tr><td>Remove-RemoteUserProfile</td><td>Invoke-Command + Win32_UserProfile.Delete() CIM</td><td>—</td></tr>
       <tr><td>Get-RemoteEventLogs</td><td>Invoke-Command + Get-WinEvent (last 150 System/App errors &amp; warnings)</td><td>—</td></tr>
+      <tr><td>Remote File Explorer (Inline)</td><td>File Browser operations are handled inline inside <code>UI_ComputerActions.psm1</code> via <code>Invoke-Command</code>. Safe limits are enforced (e.g. 10MB limit on <code>[System.IO.File]::ReadAllBytes()</code>) to prevent WinRM from encountering OutOfMemory crashes when serializing file arrays.</td><td>—</td></tr>
+      <tr><td>Remote Network Fix (Inline)</td><td>The 'Fix Network Drops' quick action uses a detached <code>Start-Process cmd.exe</code> block over WinRM to execute <code>ipconfig /release</code> and <code>/renew</code>, guaranteeing that dropping the network adapter doesn't lock up the calling PowerShell process.</td><td>—</td></tr>
     </tbody>
   </table></div>
 
@@ -483,12 +486,12 @@ td:first-child { color: var(--text-primary); font-weight: 500; font-family: 'IBM
     </div>
     <div class="module-card">
       <div class="module-card-name">UI_UserActions.psm1</div>
-      <div class="module-card-desc">Unlock (single + all), auto-unlock DispatcherTimer, password reset overlay, group membership window (async load, sort, add/remove with live search), lockout source finder (PDC Event 4740), last logon location finder (PDC Event 4624 + reverse DNS).</div>
+      <div class="module-card-desc">Unlock (single + all), Unlock Analyzer, auto-unlock DispatcherTimer, password reset overlay, group membership window (async load, sort, add/remove with live search), lockout source finder (PDC Event 4740), last logon location finder (PDC Event 4624 + reverse DNS), and Find Active Computers (AD ManagedBy + PDC Event tracking).</div>
       <div class="module-card-tag"><span class="badge badge-blue">User Actions</span></div>
     </div>
     <div class="module-card">
       <div class="module-card-name">UI_ComputerActions.psm1</div>
-      <div class="module-card-desc">Computer context menu (GPResult, Uptime, Device Info popup, Printer Manager launch, Active Sessions sub-menu, PowerShell session), System Manager (multi-tab: Device Info, Software, Processes, Services, Profiles, Devices, Events), Remote Quick Actions sub-menu (injected at runtime), BIOS Password dialog, all lazy-loaded via <code>BeginInvoke(Background)</code>.</div>
+      <div class="module-card-desc">Computer context menu (GPResult, Uptime, Device Info popup with Health Dashboard, Printer Manager launch, Active Sessions sub-menu, PowerShell session), System Manager (multi-tab: Device Info, Software, Processes, Services, Profiles, Devices, File Explorer, Events), Remote Quick Actions sub-menu (Self-Healing macros injected at runtime), BIOS Password dialog, all lazy-loaded via <code>BeginInvoke(Background)</code>.</div>
       <div class="module-card-tag"><span class="badge badge-blue">Computer Actions</span></div>
     </div>
     <div class="module-card">
