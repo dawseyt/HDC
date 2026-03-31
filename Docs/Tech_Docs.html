@@ -680,7 +680,7 @@ td:first-child { color: var(--text-primary); font-weight: 500; font-family: 'IBM
 
   <div class="callout callout-note fade-in">
     <div class="callout-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div>
-    <div><div class="callout-label">PowerShell Path Bug — Also Affects GenDash</div><div class="callout-body">GenDash.ps1 uses <code>Get-ChildItem -LiteralPath $LogPath -Recurse | Where-Object { $_.Name -like "UnlockLog_*.csv" }</code> throughout, bypassing the broken <code>-Filter</code> parameter which returns zero results for paths containing square brackets.</div></div>
+    <div><div class="callout-label">PowerShell Path Bug — Also Affects GenDash</div><div class="callout-body">GenDash.ps1 uses <code>[System.Management.Automation.WildcardPattern]::Escape($LogPath)</code> with <code>-Path</code> and <code>-Filter</code> throughout, bypassing the broken <code>-Filter</code> parameter with <code>-LiteralPath</code> which returns zero results for paths containing square brackets.</div></div>
   </div>
 
   <!-- §11 STATE -->
