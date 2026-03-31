@@ -513,7 +513,7 @@ function Update-Dashboard {
             # When a LiteralPath contains brackets (e.g., [toolkit]), the -Filter parameter breaks and returns nothing.
             # Using an escaped path with -Path allows -Filter to work, drastically improving performance over Where-Object.
             $EscapedPath = [System.Management.Automation.WildcardPattern]::Escape($LogPath)
-            $CsvFiles = Get-ChildItem -Path $EscapedPath -Filter "UnlockLog_*.csv" -Recurse -ErrorAction SilentlyContinue |
+            $CsvFiles = Get-ChildItem -Path $EscapedPath -Filter "UnlockLog_*.csv" -Recurse -File -ErrorAction SilentlyContinue |
                         Sort-Object LastWriteTime
             
             if ($CsvFiles) {
@@ -611,10 +611,16 @@ function Check-For-Updates {
     if (Test-Path -LiteralPath $LogPath) {
         # Bypassing PowerShell Path Bug here as well using escaped path and -Filter for better performance
         $EscapedPath = [System.Management.Automation.WildcardPattern]::Escape($LogPath)
-        $CurrentSignature = Get-ChildItem -Path $EscapedPath -Filter "UnlockLog_*.csv" -Recurse -ErrorAction SilentlyContinue |
-                            Sort-Object Name |
-                            ForEach-Object { "$($_.Name)|$($_.LastWriteTime.Ticks)|$($_.Length)" } |
-                            Out-String
+        $Files = Get-ChildItem -Path $EscapedPath -Filter "UnlockLog_*.csv" -Recurse -File -ErrorAction SilentlyContinue
+
+        $CurrentSignature = ""
+        if ($Files) {
+            $Arr = [System.Collections.Generic.List[string]]::new($Files.Count)
+            foreach ($F in ($Files | Sort-Object Name)) {
+                $Arr.Add("$($F.Name)|$($F.LastWriteTime.Ticks)|$($F.Length)")
+            }
+            $CurrentSignature = ($Arr -join "`n") + "`n"
+        }
         
         if ($CurrentSignature -ne $Global:LastSignature) {
             $Global:LastSignature = $CurrentSignature
