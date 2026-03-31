@@ -402,7 +402,7 @@ $HtmlTemplate = @'
             if (activeCount === 0) {
                 activeTableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-slate-400 bg-green-50">No active lockouts in Active Directory.</td></tr>`;
             } else {
-                adLockouts.forEach(item => {
+                const rowsHtml = adLockouts.map(item => {
                     const lockoutTime = item.LockoutTime || "Unknown";
                     
                     const userLogs = globalLogData.filter(l => {
@@ -417,7 +417,7 @@ $HtmlTemplate = @'
                         lockoutSource = userLogs[0].details || "N/A";
                     }
 
-                    activeTableBody.innerHTML += `<tr class="hover:bg-slate-50">
+                    return `<tr class="hover:bg-slate-50">
                         <td class="px-6 py-4 font-bold text-slate-800">${item.SamAccountName}</td>
                         <td class="px-6 py-4 text-slate-600">${lockoutTime}</td>
                         <td class="px-6 py-4">
@@ -428,7 +428,9 @@ $HtmlTemplate = @'
                         <td class="px-6 py-4 text-xs text-slate-400 italic">Real-time AD Status</td>
                         <td class="px-6 py-4"><span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">LOCKED</span></td>
                     </tr>`;
-                });
+                }).join("");
+
+                activeTableBody.innerHTML = rowsHtml;
             }
 
             renderLogTable();
@@ -486,7 +488,10 @@ $HtmlTemplate = @'
             renderDashboard(true);
         } catch(e) {
             console.error("Dashboard Rendering Error:", e);
-            document.body.innerHTML += `<div class='fixed bottom-0 w-full bg-red-600 text-white p-2 text-center'>Error rendering dashboard: ${e.message}</div>`;
+            const errorDiv = document.createElement("div");
+            errorDiv.className = "fixed bottom-0 w-full bg-red-600 text-white p-2 text-center";
+            errorDiv.textContent = `Error rendering dashboard: ${e.message}`;
+            document.body.appendChild(errorDiv);
         }
     </script>
 </body>
