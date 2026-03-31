@@ -554,9 +554,8 @@ function Register-CoreUIEvents {
                     }
                     
                     # 2. Remove from UI (ComboBox Dropdown)
-                    if ($txtSearch.Items.Contains($itemToRemove)) {
-                        $txtSearch.Items.Remove($itemToRemove)
-                    }
+                    $txtSearch.ItemsSource = $null
+                    $txtSearch.ItemsSource = $State.SearchHistory
 
                     # 3. Remove from userprefs.json file
                     try {
