@@ -1191,7 +1191,7 @@ function Register-ComputerUIEvents {
                             $targetPath = $procWin.Dispatcher.Invoke({
                                 if ($txtFolderPath) { return $txtFolderPath.Text }
                                 return ""
-                            })
+                            }.GetNewClosure())
                             if (-not [string]::IsNullOrWhiteSpace($targetPath)) {
                                 $rawFiles = Invoke-Command -ComputerName $comp -ScriptBlock {
                                     param($p)
@@ -1210,7 +1210,7 @@ function Register-ComputerUIEvents {
                                 if ($lvFiles) {
                                     if ($State.FileLastSortCol) { $resFiles = $resFiles | Sort-Object -Property $State.FileLastSortCol -Descending:$State.FileSortDesc }
                                     else { $resFiles = $resFiles | Sort-Object @{Expression={$_.ItemType}; Descending=$true}, Name }
-                                    $procWin.Dispatcher.Invoke({ $lvFiles.ItemsSource = $resFiles })
+                                    $procWin.Dispatcher.Invoke({ $lvFiles.ItemsSource = $resFiles }.GetNewClosure())
                                 }
                             }
                         }
