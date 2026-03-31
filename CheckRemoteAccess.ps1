@@ -1,10 +1,9 @@
 #						Example To Check Remote Access:
 $PC = "HD-Teller02"
 
-(Get-WmiObject win32_service -ComputerName $pc | Where-Object {$_.Name -eq "RemoteRegistry"}).StartService()
-ForEach ($Service in "RemoteRegistry", "RPCSS", "WinMgmt"){(Get-WmiObject win32_service -ComputerName $pc | Where-Object {$_.Name -eq $Service}).StartService()}
+Get-WmiObject win32_service -ComputerName $pc -Filter "Name='RemoteRegistry' OR Name='RPCSS' OR Name='WinMgmt'" | ForEach-Object { $_.StartService() }
 
-(Get-WmiObject win32_service -ComputerName $PC | Where-Object {$_.Name -eq "RemoteAccess"}).EnableService()
+(Get-WmiObject win32_service -ComputerName $PC -Filter "Name='RemoteAccess'").EnableService()
 
 Get-Service -ComputerName $PC -Name RemoteRegistry
 Get-Service -ComputerName $PC -Name RemoteAccess
