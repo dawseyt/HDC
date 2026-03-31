@@ -69,13 +69,38 @@ function Register-ComputerUIEvents {
             $ctxQuickActions.Icon = $qaIcon
             
             $actions = @(
-                [PSCustomObject]@{ Name = "Force Group Policy Update"; IconCode = [char]0xE895; Script = { gpupdate /force } },
-                [PSCustomObject]@{ Name = "Flush DNS Cache"; IconCode = [char]0xE774; Script = { Clear-DnsClientCache -ErrorAction SilentlyContinue; ipconfig /flushdns } },
-                [PSCustomObject]@{ Name = "Fix Network Drops"; IconCode = [char]0xE839; Script = { Start-Process cmd.exe -ArgumentList "/c ipconfig /flushdns & ipconfig /release & ipconfig /renew & powershell -c `"Restart-Service WlanSvc -Force -ErrorAction SilentlyContinue`"" -WindowStyle Hidden } },
-                [PSCustomObject]@{ Name = "Fix Printer Spooler"; IconCode = [char]0xE749; Script = { Stop-Service -Name Spooler -Force; Remove-Item -Path "$env:windir\System32\spool\PRINTERS\*.*" -Force -Recurse -ErrorAction SilentlyContinue; Start-Service -Name Spooler } },
-                [PSCustomObject]@{ Name = "Clean Temp Files"; IconCode = [char]0xE74D; Script = { Remove-Item -Path "$env:TEMP\*.*" -Force -Recurse -ErrorAction SilentlyContinue; Remove-Item -Path "$env:windir\Temp\*.*" -Force -Recurse -ErrorAction SilentlyContinue } },
+                [PSCustomObject]@{ Name = "Force Group Policy Update"; IconCode = [char]0xE895; Script = { gpupdate /force; return "Group Policy update requested successfully." } },
+                [PSCustomObject]@{ Name = "Flush DNS Cache"; IconCode = [char]0xE774; Script = { Clear-DnsClientCache -ErrorAction SilentlyContinue; $out = ipconfig /flushdns; return ($out | Out-String).Trim() } },
+                [PSCustomObject]@{ Name = "Fix Network Drops"; IconCode = [char]0xE839; Script = { Start-Process cmd.exe -ArgumentList "/c ipconfig /flushdns & ipconfig /release & ipconfig /renew & powershell -c `"Restart-Service WlanSvc -Force -ErrorAction SilentlyContinue`"" -WindowStyle Hidden; return "Network reset commands dispatched." } },
+                [PSCustomObject]@{ Name = "Fix Printer Spooler"; IconCode = [char]0xE749; Script = {
+                    Stop-Service -Name Spooler -Force
+                    $spoolPath = "$env:windir\System32\spool\PRINTERS"
+                    $filesBefore = @(Get-ChildItem -Path $spoolPath -File -ErrorAction SilentlyContinue).Count
+                    Remove-Item -Path "$spoolPath\*.*" -Force -Recurse -ErrorAction SilentlyContinue
+                    $filesAfter = @(Get-ChildItem -Path $spoolPath -File -ErrorAction SilentlyContinue).Count
+                    Start-Service -Name Spooler
+                    return "Spooler service restarted. Removed $($filesBefore - $filesAfter) stuck print jobs."
+                } },
+                [PSCustomObject]@{ Name = "Clean Temp Files"; IconCode = [char]0xE74D; Script = {
+                    $paths = @("$env:TEMP", "$env:windir\Temp")
+                    $sizeBefore = 0; $sizeAfter = 0; $filesRemoved = 0
+
+                    foreach ($p in $paths) {
+                        $itemsBefore = Get-ChildItem -Path $p -Recurse -File -ErrorAction SilentlyContinue
+                        $sizeBefore += ($itemsBefore | Measure-Object -Property Length -Sum).Sum
+
+                        Remove-Item -Path "$p\*.*" -Force -Recurse -ErrorAction SilentlyContinue
+
+                        $itemsAfter = Get-ChildItem -Path $p -Recurse -File -ErrorAction SilentlyContinue
+                        $sizeAfter += ($itemsAfter | Measure-Object -Property Length -Sum).Sum
+                        $filesRemoved += ($itemsBefore.Count - $itemsAfter.Count)
+                    }
+
+                    $savedMB = [math]::Round(($sizeBefore - $sizeAfter) / 1MB, 2)
+                    return "Removed $filesRemoved temporary files, freeing $savedMB MB of disk space."
+                } },
                 [PSCustomObject]@{ Name = "Send Popup Message"; IconCode = [char]0xE8BD; Script = "MSG" },
-                [PSCustomObject]@{ Name = "Reboot Computer"; IconCode = [char]0xE777; Script = { Restart-Computer -Force } }
+                [PSCustomObject]@{ Name = "Reboot Computer"; IconCode = [char]0xE777; Script = { Restart-Computer -Force; return "Reboot command sent to computer." } }
             )
 
             $dynamicItems = @{}
@@ -167,8 +192,9 @@ function Register-ComputerUIEvents {
                         if ($job.State -ne 'Running') {
                             $timer.Stop(); $loadWin.Close()
                             if ($job.State -eq 'Completed') {
-                                Receive-Job $job -ErrorAction SilentlyContinue | Out-Null
-                                Show-AppMessageBox -Message "Action '$actionName' completed successfully on $comp." -Title "Success" -IconType "Information" -OwnerWindow $Window -ThemeColors $colors | Out-Null
+                                $jobOutput = Receive-Job $job -ErrorAction SilentlyContinue | Out-String
+                                $outputMsg = if ([string]::IsNullOrWhiteSpace($jobOutput)) { "" } else { "`n`nResult:`n$($jobOutput.Trim())" }
+                                Show-AppMessageBox -Message "Action '$actionName' completed successfully on ${comp}.$outputMsg" -Title "Success" -IconType "Information" -OwnerWindow $Window -ThemeColors $colors | Out-Null
                                 Add-AppLog -Event "Quick Action" -Username $comp -Details "Executed: $actionName" -Config $Config -State $State -Status "Success" -Color "Green"
                             } else {
                                 $reason = if ($job.ChildJobs[0].JobStateInfo.Reason) { $job.ChildJobs[0].JobStateInfo.Reason.Message } else { "Host unreachable, Access Denied, or job canceled." }
