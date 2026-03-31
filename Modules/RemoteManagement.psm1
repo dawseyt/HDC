@@ -494,14 +494,70 @@ function Uninstall-RemoteSoftware {
     if ([string]::IsNullOrWhiteSpace($cmd)) {
         $cmd = $UninstallString
         if ([string]::IsNullOrWhiteSpace($cmd)) { throw "No uninstall string found for this application." }
-        if ($cmd -match '(?i)msiexec') {
-            $cmd = $cmd -replace '(?i)/I', '/X'
-            if ($cmd -notmatch '(?i)/q') { $cmd += ' /qn /norestart' }
-        } elseif ($cmd -match '(?i)unins\d{3}\.exe') {
-            $cmd += ' /VERYSILENT /SUPPRESSMSGBOXES /NORESTART'
-        } elseif ($cmd -match '(?i)uninstall\.exe') {
-            $cmd += ' /S'
+
+        $exe = ''
+        $argsString = ''
+
+        if ($cmd -match '^\s*"([^"]+)"(.*)$') {
+            $exe = $matches[1]
+            $argsString = $matches[2].Trim()
+        } else {
+            $possibleExe = ''
+            $remainingArgs = ''
+            $parts = $cmd -split '\s+'
+
+            for ($i = 0; $i -lt $parts.Count; $i++) {
+                if ($i -gt 0) { $possibleExe += ' ' }
+                $possibleExe += $parts[$i]
+
+                if ($possibleExe -match '(?i)\.exe$') {
+                    $exe = $possibleExe
+                    if ($i + 1 -lt $parts.Count) {
+                        $remainingArgs = ($parts[($i+1)..($parts.Count-1)]) -join ' '
+                    }
+                    break
+                }
+            }
+
+            if (-not $exe) {
+                $parts = $cmd -split '\s+', 2
+                $exe = $parts[0]
+                if ($parts.Count -gt 1) {
+                    $remainingArgs = $parts[1]
+                }
+            }
+            $argsString = $remainingArgs
         }
+
+        $argsArray = @()
+        if (-not [string]::IsNullOrWhiteSpace($argsString)) {
+            $regex = '(?:[^\s"]|"[^"]*")+'
+            $matchesArg = [regex]::Matches($argsString, $regex)
+            foreach ($m in $matchesArg) {
+                $argsArray += $m.Value
+            }
+        }
+
+        if ($exe -match '(?i)msiexec(\.exe)?$') {
+            for ($i = 0; $i -lt $argsArray.Count; $i++) {
+                $argsArray[$i] = $argsArray[$i] -replace '(?i)/I', '/X'
+            }
+            $joinedArgs = $argsArray -join ' '
+            if ($joinedArgs -notmatch '(?i)/q') {
+                $argsArray += '/qn'
+                $argsArray += '/norestart'
+            }
+        } elseif ($exe -match '(?i)unins\d{3}\.exe$') {
+            $joinedArgs = $argsArray -join ' '
+            if ($joinedArgs -notmatch '(?i)/VERYSILENT') { $argsArray += '/VERYSILENT' }
+            if ($joinedArgs -notmatch '(?i)/SUPPRESSMSGBOXES') { $argsArray += '/SUPPRESSMSGBOXES' }
+            if ($joinedArgs -notmatch '(?i)/NORESTART') { $argsArray += '/NORESTART' }
+        } elseif ($exe -match '(?i)uninstall\.exe$') {
+            $joinedArgs = $argsArray -join ' '
+            if ($joinedArgs -notmatch '(?i)/S') { $argsArray += '/S' }
+        }
+
+        $cmd = "`"$exe`" $($argsArray -join ' ')"
     }
     Start-RemoteProcess -ComputerName $ComputerName -CommandLine $cmd
 }
@@ -801,20 +857,73 @@ function Uninstall-HDRemoteSoftware {
                 Start-Process powershell.exe -ArgumentList @("-NonInteractive", "-WindowStyle", "Hidden", "-Command", $psCmd) -Wait -WindowStyle Hidden
             } else {
                 $cmd = $targetId
-                # Attempt to convert MSIs to silent execution
-                if ($cmd -match '(?i)msiexec') {
-                    $cmd = $cmd -replace '(?i)/I', '/X'
-                    if ($cmd -notmatch '(?i)/q') { $cmd += ' /qn /norestart' }
-                    Start-Process cmd.exe -ArgumentList @("/c", $cmd) -Wait -WindowStyle Hidden
-                } elseif ($cmd -match '(?i)unins\d{3}\.exe') {
-                    $cmd += ' /VERYSILENT /SUPPRESSMSGBOXES /NORESTART'
-                    Start-Process cmd.exe -ArgumentList @("/c", $cmd) -Wait -WindowStyle Hidden
-                } elseif ($cmd -match '(?i)uninstall\.exe') {
-                    $cmd += ' /S'
-                    Start-Process cmd.exe -ArgumentList @("/c", $cmd) -Wait -WindowStyle Hidden
+                $exe = ''
+                $argsString = ''
+
+                # Safely parse the uninstaller string to separate executable from arguments
+                if ($cmd -match '^\s*"([^"]+)"(.*)$') {
+                    $exe = $matches[1]
+                    $argsString = $matches[2].Trim()
                 } else {
-                    Start-Process cmd.exe -ArgumentList @("/c", $cmd) -Wait -WindowStyle Hidden
+                    $possibleExe = ''
+                    $remainingArgs = ''
+                    $parts = $cmd -split '\s+'
+
+                    for ($i = 0; $i -lt $parts.Count; $i++) {
+                        if ($i -gt 0) { $possibleExe += ' ' }
+                        $possibleExe += $parts[$i]
+
+                        if ($possibleExe -match '(?i)\.exe$') {
+                            $exe = $possibleExe
+                            if ($i + 1 -lt $parts.Count) {
+                                $remainingArgs = ($parts[($i+1)..($parts.Count-1)]) -join ' '
+                            }
+                            break
+                        }
+                    }
+
+                    if (-not $exe) {
+                        $parts = $cmd -split '\s+', 2
+                        $exe = $parts[0]
+                        if ($parts.Count -gt 1) {
+                            $remainingArgs = $parts[1]
+                        }
+                    }
+                    $argsString = $remainingArgs
                 }
+
+                $argsArray = @()
+                if (-not [string]::IsNullOrWhiteSpace($argsString)) {
+                    # Split arguments by spaces, keeping quoted strings intact
+                    $regex = '(?:[^\s"]|"[^"]*")+'
+                    $matchesArg = [regex]::Matches($argsString, $regex)
+                    foreach ($m in $matchesArg) {
+                        $argsArray += $m.Value
+                    }
+                }
+
+                # Attempt to convert known installers to silent execution
+                if ($exe -match '(?i)msiexec(\.exe)?$') {
+                    for ($i = 0; $i -lt $argsArray.Count; $i++) {
+                        $argsArray[$i] = $argsArray[$i] -replace '(?i)/I', '/X'
+                    }
+                    $joinedArgs = $argsArray -join ' '
+                    if ($joinedArgs -notmatch '(?i)/q') {
+                        $argsArray += '/qn'
+                        $argsArray += '/norestart'
+                    }
+                } elseif ($exe -match '(?i)unins\d{3}\.exe$') {
+                    $joinedArgs = $argsArray -join ' '
+                    if ($joinedArgs -notmatch '(?i)/VERYSILENT') { $argsArray += '/VERYSILENT' }
+                    if ($joinedArgs -notmatch '(?i)/SUPPRESSMSGBOXES') { $argsArray += '/SUPPRESSMSGBOXES' }
+                    if ($joinedArgs -notmatch '(?i)/NORESTART') { $argsArray += '/NORESTART' }
+                } elseif ($exe -match '(?i)uninstall\.exe$') {
+                    $joinedArgs = $argsArray -join ' '
+                    if ($joinedArgs -notmatch '(?i)/S') { $argsArray += '/S' }
+                }
+
+                # Start the process directly to avoid cmd.exe injection vulnerabilities
+                Start-Process -FilePath $exe -ArgumentList $argsArray -Wait -WindowStyle Hidden
             }
             return $true
         } catch {
