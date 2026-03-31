@@ -86,11 +86,11 @@
                         <TextBlock x:Name="lblSubtitle" Text="Search less. Solve more." FontSize="12" Foreground="{DynamicResource TextSecondary}" Margin="0,4,0,25"/>
                         
                         <!-- Main Action Buttons -->
-                        <Button x:Name="btnRefresh" Content="Refresh List" Height="40" Background="{DynamicResource AccentFill}" Foreground="White" BorderThickness="0" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,15"/>
+                        <Button x:Name="btnRefresh" Content="Refresh List" Height="40" Background="{DynamicResource AccentFill}" Foreground="White" BorderThickness="0" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,15" ToolTip="Refresh the user and computer account list"/>
                         
                         <UniformGrid Columns="2" Rows="1" Margin="0,0,0,25">
-                            <Button x:Name="btnUnlock" Content="Unlock Selected" Margin="0,0,0,0"/>
-                            <Button x:Name="btnUnlockAll" Content="Unlock All" Margin="5,0,0,0"/>
+                            <Button x:Name="btnUnlock" Content="Unlock Selected" Margin="0,0,0,0" ToolTip="Unlock all selected accounts"/>
+                            <Button x:Name="btnUnlockAll" Content="Unlock All" Margin="5,0,0,0" ToolTip="Unlock all locked accounts in the list"/>
                         </UniformGrid>
 
                         <!-- Search Area -->

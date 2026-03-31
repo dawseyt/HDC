@@ -39,7 +39,7 @@
                     <TextBlock Text="Printer Manager" FontSize="18" FontWeight="SemiBold" Foreground="{Theme_Fg}"/>
                     <TextBlock x:Name="lblStatus" Text="Loading printers..." FontSize="12" Foreground="{Theme_SecFg}"/>
                 </StackPanel>
-                <Button x:Name="btnInstallRemote" Content="Install New Printer..." HorizontalAlignment="Right" VerticalAlignment="Center" Padding="15,6" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0"/>
+                <Button x:Name="btnInstallRemote" Content="Install New Printer..." HorizontalAlignment="Right" VerticalAlignment="Center" Padding="15,6" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0" ToolTip="Install a new printer on the remote computer"/>
             </Grid>
         </Border>
 
