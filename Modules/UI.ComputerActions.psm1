@@ -1626,9 +1626,15 @@ function Register-ComputerUIEvents {
                 $pmScript = Join-Path $AppRoot "PrinterManager.ps1"
                 if (-not (Test-Path $pmScript)) { Show-AppMessageBox -Message "Script not found at:`n$pmScript" -Title "Error" -IconType "Error" -OwnerWindow $Window -ThemeColors (Get-FluentThemeColors $State); return }
                 Add-AppLog -Event "Printer Management" -Username "System" -Details "Launching Printer Manager for $targetPC..." -Config $Config -State $State -Status "Info"
+
+                $psExePath = Join-Path $env:windir "System32\WindowsPowerShell\v1.0\powershell.exe"
+                if (-not (Test-Path $psExePath)) {
+                    $psExePath = "powershell.exe"
+                }
+
                 try {
                     $argList = @("-WindowStyle", "Hidden", "-ExecutionPolicy", "Bypass", "-File", "`"$pmScript`"", "-ComputerName", "`"$targetPC`"", "-Theme", "`"$($State.CurrentTheme)`"")
-                    Start-Process -FilePath "powershell.exe" -ArgumentList $argList -WindowStyle Hidden
+                    Start-Process -FilePath $psExePath -ArgumentList $argList -WindowStyle Hidden
                 }
                 catch { Show-AppMessageBox -Message "Launch Failed:`n$($_.Exception.Message)" -Title "Error" -IconType "Error" -OwnerWindow $Window -ThemeColors (Get-FluentThemeColors $State) }
             }
@@ -1890,7 +1896,12 @@ function Open-RemotePowerShell {
         $psCommand = "Write-Host 'Connecting to $safeComputerName...' -ForegroundColor Cyan; Enter-PSSession -ComputerName '$safeComputerName'"
         $argList = @("-WindowStyle", "Normal", "-NoExit", "-ExecutionPolicy", "Bypass", "-Command", $psCommand)
         
-        Start-Process -FilePath "powershell.exe" -ArgumentList $argList -ErrorAction Stop
+        $psExePath = Join-Path $env:windir "System32\WindowsPowerShell\v1.0\powershell.exe"
+        if (-not (Test-Path $psExePath)) {
+            $psExePath = "powershell.exe"
+        }
+
+        Start-Process -FilePath $psExePath -ArgumentList $argList -ErrorAction Stop
         
         if ($Config -and $State) { Add-AppLog -Event "Remote Session" -Username $ComputerName -Details "Opened remote PowerShell session to $ComputerName." -Config $Config -State $State -Status "Info" -Color "Blue" }
     } catch {
