@@ -477,13 +477,13 @@ $RefreshPrinters = {
                 try {
                     $p = New-Object System.Net.NetworkInformation.Ping
                     if ($p.Send($addr, 1200).Status -eq 'Success') { $ping = $true }
-                } catch { Write-Debug "Ping failed for $addr: $($_.Exception.Message)" }
+                } catch { Write-Debug "Ping failed for ${addr}: $($_.Exception.Message)" }
                 try {
                     $tcp = New-Object System.Net.Sockets.TcpClient
                     $ar  = $tcp.BeginConnect($addr, 9100, $null, $null)
                     if ($ar.AsyncWaitHandle.WaitOne(1200, $false) -and $tcp.Connected) { $port9100 = $true }
                     $tcp.Close()
-                } catch { Write-Debug "TCP 9100 check failed for $addr: $($_.Exception.Message)" }
+                } catch { Write-Debug "TCP 9100 check failed for ${addr}: $($_.Exception.Message)" }
                 return [PSCustomObject]@{ IP = $addr; Ping = $ping; Port9100 = $port9100 }
             } -ArgumentList $ip
         }
@@ -501,7 +501,7 @@ $RefreshPrinters = {
             try {
                 $r = Receive-Job $healthJobs[$ip] -ErrorAction SilentlyContinue
                 if ($r) { $healthResults[$ip] = $r }
-            } catch { Write-Warning "Failed to receive job for $ip: $($_.Exception.Message)" }
+            } catch { Write-Warning "Failed to receive job for ${ip}: $($_.Exception.Message)" }
             Stop-Job  $healthJobs[$ip] -ErrorAction SilentlyContinue
             Remove-Job $healthJobs[$ip] -Force -ErrorAction SilentlyContinue
         }
