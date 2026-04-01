@@ -925,6 +925,7 @@ $InstallPrinterAction = {
     
     $cbDriver = $instWin.FindName("cbDriver")
     if ($cbDriver -and $remoteDrivers) { 
+        # Optimized: Set ItemsSource directly to avoid a loop with Items.Add
         $cbDriver.ItemsSource = $remoteDrivers
         if ($cbDriver.Items.Count -gt 0) { $cbDriver.SelectedIndex = 0 }
     }
