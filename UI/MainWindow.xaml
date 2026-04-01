@@ -138,13 +138,13 @@
 
                         <!-- Automation Area -->
                         <TextBlock Text="Automation" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,8"/>
-                        <ComboBox x:Name="cbAutoRefresh" Height="32" VerticalContentAlignment="Center" Margin="0,0,0,15" Background="{DynamicResource CardBackground}" Foreground="{DynamicResource TextPrimary}"/>
+                        <ComboBox x:Name="cbAutoRefresh" AutomationProperties.Name="Auto-Refresh Interval" ToolTip="Select the auto-refresh interval for the list" Height="32" VerticalContentAlignment="Center" Margin="0,0,0,15" Background="{DynamicResource CardBackground}" Foreground="{DynamicResource TextPrimary}"/>
                         
-                        <CheckBox x:Name="chkAutoUnlock" Content="Auto-Unlock accounts" Foreground="{DynamicResource TextPrimary}" Margin="0,0,0,12"/>
-                        <CheckBox x:Name="chkEnableEmail" Content="Send email alerts" Foreground="{DynamicResource TextPrimary}" Margin="0,0,0,20"/>
+                        <CheckBox x:Name="chkAutoUnlock" AutomationProperties.Name="Auto-Unlock accounts" ToolTip="Automatically unlock accounts when a lockout is detected" Content="Auto-Unlock accounts" Foreground="{DynamicResource TextPrimary}" Margin="0,0,0,12"/>
+                        <CheckBox x:Name="chkEnableEmail" AutomationProperties.Name="Send email alerts" ToolTip="Send an email alert when an account is locked out" Content="Send email alerts" Foreground="{DynamicResource TextPrimary}" Margin="0,0,0,20"/>
 
                         <!-- Management Dashboard -->
-                        <Button x:Name="btnOpenDashboard" Content="Management Dashboard" Height="34" Background="{DynamicResource CardBackground}" Foreground="{DynamicResource TextPrimary}" BorderBrush="{DynamicResource ControlStroke}" BorderThickness="1" FontWeight="SemiBold"/>
+                        <Button x:Name="btnOpenDashboard" AutomationProperties.Name="Open Management Dashboard" ToolTip="Open the management dashboard for activity summary" Content="Management Dashboard" Height="34" Background="{DynamicResource CardBackground}" Foreground="{DynamicResource TextPrimary}" BorderBrush="{DynamicResource ControlStroke}" BorderThickness="1" FontWeight="SemiBold"/>
                     </StackPanel>
 
                     <!-- Close App Button (Bottom Left) -->
@@ -387,29 +387,29 @@
                     <TextBlock x:Name="txtPwdTitle" Text="Reset Password" FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" Margin="0,0,0,20"/>
                     
                     <TextBlock Text="Target User:" FontSize="12" Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,4"/>
-                    <TextBox x:Name="txtResetUsername" IsReadOnly="True" Background="{DynamicResource LeftPanelBackground}" Foreground="{DynamicResource TextPrimary}" BorderBrush="{DynamicResource ControlStroke}" Margin="0,0,0,15" Padding="6"/>
+                    <TextBox x:Name="txtResetUsername" AutomationProperties.Name="Target User" ToolTip="User account to reset" IsReadOnly="True" Background="{DynamicResource LeftPanelBackground}" Foreground="{DynamicResource TextPrimary}" BorderBrush="{DynamicResource ControlStroke}" Margin="0,0,0,15" Padding="6"/>
                     
                     <TextBlock Text="New Password:" FontSize="12" Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,4"/>
                     <Grid Margin="0,0,0,15">
-                        <PasswordBox x:Name="txtResetPassword" Padding="6" Foreground="{DynamicResource TextPrimary}" Background="{DynamicResource LeftPanelBackground}" BorderBrush="{DynamicResource ControlStroke}"/>
-                        <TextBox x:Name="txtResetPasswordVisible" Padding="6" Visibility="Collapsed" Foreground="{DynamicResource TextPrimary}" Background="{DynamicResource LeftPanelBackground}" BorderBrush="{DynamicResource ControlStroke}"/>
+                        <PasswordBox x:Name="txtResetPassword" AutomationProperties.Name="New Password" ToolTip="Enter the new password" Padding="6" Foreground="{DynamicResource TextPrimary}" Background="{DynamicResource LeftPanelBackground}" BorderBrush="{DynamicResource ControlStroke}"/>
+                        <TextBox x:Name="txtResetPasswordVisible" AutomationProperties.Name="New Password (Visible)" ToolTip="Enter the new password" Padding="6" Visibility="Collapsed" Foreground="{DynamicResource TextPrimary}" Background="{DynamicResource LeftPanelBackground}" BorderBrush="{DynamicResource ControlStroke}"/>
                     </Grid>
 
                     <TextBlock Text="Confirm Password:" FontSize="12" Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,4"/>
                     <Grid Margin="0,0,0,15">
-                        <PasswordBox x:Name="txtConfirmPassword" Padding="6" Foreground="{DynamicResource TextPrimary}" Background="{DynamicResource LeftPanelBackground}" BorderBrush="{DynamicResource ControlStroke}"/>
-                        <TextBox x:Name="txtConfirmPasswordVisible" Padding="6" Visibility="Collapsed" Foreground="{DynamicResource TextPrimary}" Background="{DynamicResource LeftPanelBackground}" BorderBrush="{DynamicResource ControlStroke}"/>
+                        <PasswordBox x:Name="txtConfirmPassword" AutomationProperties.Name="Confirm Password" ToolTip="Re-enter the new password to confirm" Padding="6" Foreground="{DynamicResource TextPrimary}" Background="{DynamicResource LeftPanelBackground}" BorderBrush="{DynamicResource ControlStroke}"/>
+                        <TextBox x:Name="txtConfirmPasswordVisible" AutomationProperties.Name="Confirm Password (Visible)" ToolTip="Re-enter the new password to confirm" Padding="6" Visibility="Collapsed" Foreground="{DynamicResource TextPrimary}" Background="{DynamicResource LeftPanelBackground}" BorderBrush="{DynamicResource ControlStroke}"/>
                     </Grid>
                     
-                    <CheckBox x:Name="chkShowPassword" Content="Show Passwords" Foreground="{DynamicResource TextPrimary}" Margin="0,0,0,8"/>
-                    <CheckBox x:Name="chkMustChange" Content="User must change password at next logon" Foreground="{DynamicResource TextPrimary}" IsChecked="True" Margin="0,0,0,15"/>
+                    <CheckBox x:Name="chkShowPassword" AutomationProperties.Name="Show Passwords" ToolTip="Toggle visibility of the password fields" Content="Show Passwords" Foreground="{DynamicResource TextPrimary}" Margin="0,0,0,8"/>
+                    <CheckBox x:Name="chkMustChange" AutomationProperties.Name="User must change password at next logon" ToolTip="Require the user to change their password when they next sign in" Content="User must change password at next logon" Foreground="{DynamicResource TextPrimary}" IsChecked="True" Margin="0,0,0,15"/>
                     
                     <TextBlock x:Name="lblMatchStatus" Foreground="{DynamicResource Danger}" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,15"/>
                     
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button x:Name="btnGeneratePass" Content="Generate Strong" Margin="0,0,10,0" Background="{DynamicResource LeftPanelBackground}"/>
-                        <Button x:Name="btnConfirmReset" Content="Reset Password" Margin="0,0,10,0" Background="{DynamicResource AccentFill}" Foreground="White" BorderThickness="0"/>
-                        <Button x:Name="btnCancelReset" Content="Cancel" Background="{DynamicResource LeftPanelBackground}"/>
+                        <Button x:Name="btnGeneratePass" AutomationProperties.Name="Generate Strong Password" ToolTip="Generate a strong, random password" Content="Generate Strong" Margin="0,0,10,0" Background="{DynamicResource LeftPanelBackground}"/>
+                        <Button x:Name="btnConfirmReset" AutomationProperties.Name="Confirm Reset Password" ToolTip="Confirm and reset the user's password" Content="Reset Password" Margin="0,0,10,0" Background="{DynamicResource AccentFill}" Foreground="White" BorderThickness="0"/>
+                        <Button x:Name="btnCancelReset" AutomationProperties.Name="Cancel Password Reset" ToolTip="Cancel the password reset operation" Content="Cancel" Background="{DynamicResource LeftPanelBackground}"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
