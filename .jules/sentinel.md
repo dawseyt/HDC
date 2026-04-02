@@ -1,4 +1,4 @@
-## 2024-05-18 - Cryptographically Secure Random Number Generation
-**Vulnerability:** Weak random number generation (`Get-Random`) used for creating new Active Directory user passwords.
-**Learning:** `Get-Random` in PowerShell 5.1 relies on the non-cryptographically secure `System.Random` class, meaning that the generated passwords could theoretically be predicted by a malicious actor who observes the PRNG's outputs.
-**Prevention:** Use `System.Security.Cryptography.RandomNumberGenerator::Create()` for generating strong, unpredictable random numbers for security-critical tasks like password generation, tokens, or encryption keys.
+## 2025-01-20 - XSS in HTML Dashboard Generation
+**Vulnerability:** Cross-Site Scripting (XSS) vulnerability via unsanitized data injected into `.innerHTML`.
+**Learning:** `GenDash.ps1` generated an HTML dashboard where it injected raw Active Directory data and log values into the DOM using template literals and `.innerHTML` inside its embedded JavaScript. If these fields contained malicious HTML tags, they would be executed when the dashboard was viewed.
+**Prevention:** Whenever generating HTML dashboards with embedded JavaScript and using `.innerHTML` to insert dynamic data, always pass the variables through a custom `escapeHtml` function first to safely encode HTML control characters like `<`, `>`, `&`, `"`, and `'`.
