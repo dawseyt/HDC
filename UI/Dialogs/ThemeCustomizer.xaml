@@ -65,7 +65,7 @@
                     <Grid Margin="0,0,0,14">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                         <TextBlock Text="Color Mode:" VerticalAlignment="Center" FontSize="13"/>
-                        <ComboBox x:Name="cbTheme" Grid.Column="1" Height="28">
+                        <ComboBox x:Name="cbTheme" AutomationProperties.Name="Color Mode" Grid.Column="1" Height="28">
                             <ComboBoxItem Content="Light Theme"/>
                             <ComboBoxItem Content="Dark Theme"/>
                         </ComboBox>
@@ -75,7 +75,7 @@
                     <Grid Margin="0,0,0,6">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                         <TextBlock Text="Accent Color:" VerticalAlignment="Center" FontSize="13"/>
-                        <ComboBox x:Name="cbAccent" Grid.Column="1" Height="28">
+                        <ComboBox x:Name="cbAccent" AutomationProperties.Name="Accent Color" Grid.Column="1" Height="28">
                             <ComboBoxItem Content="Azure Blue"/>
                             <ComboBoxItem Content="Rustic Orange"/>
                             <ComboBoxItem Content="Emerald Green"/>
@@ -85,7 +85,7 @@
                     </Grid>
                     
                     <!-- Custom Hex Field (Toggled Visually) -->
-                    <TextBox x:Name="txtCustomHex" Visibility="Collapsed" HorizontalAlignment="Right" Width="195" Height="28" Margin="0,0,0,14"/>
+                    <TextBox x:Name="txtCustomHex" AutomationProperties.Name="Custom Hex Color" Visibility="Collapsed" HorizontalAlignment="Right" Width="195" Height="28" Margin="0,0,0,14"/>
 
                     <!-- Background Image -->
                     <TextBlock Text="Background Image:" FontSize="13" Margin="0,10,0,6"/>
@@ -95,7 +95,7 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBox x:Name="txtAppImage" Grid.Column="0" Height="28" VerticalContentAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBox x:Name="txtAppImage" AutomationProperties.Name="Background Image" Grid.Column="0" Height="28" VerticalContentAlignment="Center" Margin="0,0,8,0"/>
                         <Button x:Name="btnBrowseApp" Grid.Column="1" Content="..." Width="30" Height="28" Background="{Theme_BtnBg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1" Margin="0,0,4,0" ToolTip="Browse for background image" AutomationProperties.Name="Browse for background image"/>
                         <Button x:Name="btnClearApp" Grid.Column="2" Content="X" Width="30" Height="28" Background="{Theme_BtnBg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1" ToolTip="Clear background image" AutomationProperties.Name="Clear background image"/>
                     </Grid>
@@ -108,7 +108,7 @@
                     <Grid Margin="0,0,0,14">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                         <TextBlock Text="List Density:" VerticalAlignment="Center" FontSize="13"/>
-                        <ComboBox x:Name="cbDensity" Grid.Column="1" Height="28">
+                        <ComboBox x:Name="cbDensity" AutomationProperties.Name="List Density" Grid.Column="1" Height="28">
                             <ComboBoxItem Content="Comfortable (Default)"/>
                             <ComboBoxItem Content="Compact"/>
                         </ComboBox>
@@ -118,7 +118,7 @@
                     <Grid Margin="0,0,0,14">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                         <TextBlock Text="Global Font Size:" VerticalAlignment="Center" FontSize="13"/>
-                        <ComboBox x:Name="cbFontSize" Grid.Column="1" Height="28">
+                        <ComboBox x:Name="cbFontSize" AutomationProperties.Name="Global Font Size" Grid.Column="1" Height="28">
                             <ComboBoxItem Content="Small"/>
                             <ComboBoxItem Content="Default"/>
                             <ComboBoxItem Content="Large"/>
@@ -136,7 +136,7 @@
                         <Button x:Name="btnClearHistory" Content="Clear All" Width="60" Height="22" HorizontalAlignment="Right" Background="{Theme_BtnBg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1" FontSize="11"/>
                     </Grid>
                     <TextBlock Text="One item per line. Edit, remove, or sort items manually below." FontSize="11" Foreground="{Theme_SecFg}" Margin="0,0,0,8"/>
-                    <TextBox x:Name="txtSearchHistory" AcceptsReturn="True" TextWrapping="NoWrap" Height="100" VerticalScrollBarVisibility="Auto" Margin="0,0,0,10"/>
+                    <TextBox x:Name="txtSearchHistory" AutomationProperties.Name="Search History" AcceptsReturn="True" TextWrapping="NoWrap" Height="100" VerticalScrollBarVisibility="Auto" Margin="0,0,0,10"/>
 
                 </StackPanel>
             </ScrollViewer>
