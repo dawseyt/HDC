@@ -821,33 +821,48 @@ function Register-CoreUIEvents {
                 $day = $now.AddDays(-$i).ToString("yyyy-MM-dd")
                 $unlocksByDay[$day] = 0
             }
-            $unlockEvents = @($allLogs | Where-Object { $_.Event -match "Unlock" })
-            foreach ($e in $unlockEvents) {
-                try {
-                    $day = ([datetime]$e.Timestamp).ToString("yyyy-MM-dd")
-                    if ($unlocksByDay.ContainsKey($day)) { $unlocksByDay[$day]++ }
-                } catch {}
-            }
 
             $cutoff = $now.AddDays(-30)
-            $recentLockouts = @($allLogs | Where-Object {
-                if ($_.Event -notmatch "Lockout Detected") { return $false }
-                $parsed = [datetime]::MinValue
-                if (-not [datetime]::TryParse($_.Timestamp, [ref]$parsed)) { return $false }
-                return $parsed -gt $cutoff
-            })
-            $topLocked = $recentLockouts | Group-Object Username | Sort-Object Count -Descending | Select-Object -First 5
-
             $monthStart = [datetime]::new($now.Year, $now.Month, 1)
-            $thisMonth = @($allLogs | Where-Object {
+
+            $recentLockouts = [System.Collections.Generic.List[psobject]]::new()
+
+            $totalUnlocksMonth = 0
+            $totalResetsMonth = 0
+            $totalPrinterMonth = 0
+            $totalTicketsMonth = 0
+
+            # PERFORMANCE OPTIMIZATION (Bolt):
+            # Replaced multiple slow `Where-Object` pipeline operations with a single `foreach` loop
+            # over the large `$allLogs` array. Using `[datetime]::TryParse` instead of `try/catch`
+            # casting also avoids slow exception handling. This single-pass accumulation drastically
+            # reduces processing time for dashboard metrics.
+            foreach ($log in $allLogs) {
                 $parsed = [datetime]::MinValue
-                if (-not [datetime]::TryParse($_.Timestamp, [ref]$parsed)) { return $false }
-                return $parsed -ge $monthStart
-            })
-            $totalUnlocksMonth   = @($thisMonth | Where-Object { $_.Event -match "Unlock Account" }).Count
-            $totalResetsMonth    = @($thisMonth | Where-Object { $_.Event -match "Password Reset" }).Count
-            $totalPrinterMonth   = @($thisMonth | Where-Object { $_.Event -match "Printer" }).Count
-            $totalTicketsMonth   = @($thisMonth | Where-Object { $_.Event -match "Freshservice" }).Count
+                $hasDate = [datetime]::TryParse($log.Timestamp, [ref]$parsed)
+
+                if ($log.Event -match "Unlock") {
+                    if ($hasDate) {
+                        $dayStr = $parsed.ToString("yyyy-MM-dd")
+                        if ($unlocksByDay.ContainsKey($dayStr)) { $unlocksByDay[$dayStr]++ }
+                    }
+                }
+
+                if ($hasDate) {
+                    if ($log.Event -match "Lockout Detected" -and $parsed -gt $cutoff) {
+                        $recentLockouts.Add($log)
+                    }
+
+                    if ($parsed -ge $monthStart) {
+                        if ($log.Event -match "Unlock Account") { $totalUnlocksMonth++ }
+                        elseif ($log.Event -match "Password Reset") { $totalResetsMonth++ }
+                        elseif ($log.Event -match "Printer") { $totalPrinterMonth++ }
+                        elseif ($log.Event -match "Freshservice") { $totalTicketsMonth++ }
+                    }
+                }
+            }
+
+            $topLocked = $recentLockouts | Group-Object Username | Sort-Object Count -Descending | Select-Object -First 5
 
             [System.Windows.Input.Mouse]::OverrideCursor = $null
 
