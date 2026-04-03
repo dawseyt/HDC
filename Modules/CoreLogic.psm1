@@ -289,12 +289,16 @@ function Get-AppLogFiles {
         # Using an escaped path with -Path allows -Filter to work, drastically improving performance over Where-Object.
         $escapedPath = [System.Management.Automation.WildcardPattern]::Escape($logDir)
         $files = Get-ChildItem -Path $escapedPath -Filter "UnlockLog_*.csv" -ErrorAction SilentlyContinue
-        foreach ($f in $files) {
-            $content = Import-Csv -LiteralPath $f.FullName
-            $allLogs += $content
+
+        # OPTIMIZATION (Bolt): Removed O(n^2) array appending (+=).
+        # Using pipeline assignment drastically improves performance for gathering large log sets.
+        $allLogs = foreach ($f in $files) {
+            Import-Csv -LiteralPath $f.FullName
         }
     }
-    return $allLogs
+
+    # Ensure we return an array even if it's empty or has one element
+    return @($allLogs)
 }
 
 function Get-FSAssetDetails {
