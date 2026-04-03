@@ -72,7 +72,7 @@
                             <TextBlock x:Name="TextBlock_TargetComputer" Text="Loading..." FontSize="12" Foreground="{Theme_Fg}" FontWeight="SemiBold"/>
                         </StackPanel>
                     </StackPanel>
-                    <Button x:Name="Button_CloseIcon" Content="&#xE711;" FontFamily="Segoe UI Symbol" FontSize="10" 
+                    <Button x:Name="Button_CloseIcon" Content="&#xE711;" FontFamily="Segoe UI Symbol" FontSize="10" AutomationProperties.Name="Close Window" ToolTip="Close Window"
                             HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" 
                             Background="Transparent" BorderThickness="0" Foreground="{Theme_SecFg}"/>
                 </Grid>
