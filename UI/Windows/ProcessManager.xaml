@@ -43,7 +43,7 @@
                 </StackPanel>
                 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button x:Name="btnStartProcess" Content="Run New Task" Width="120" Height="30" Background="{Theme_BtnBg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1"/>
+                    <Button x:Name="btnStartProcess" Content="Run New Task" Width="120" Height="30" Background="{Theme_BtnBg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1" ToolTip="Start a new process on the remote machine" AutomationProperties.Name="Start new process"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -61,7 +61,7 @@
                     <Border Grid.Row="0" Margin="0,4,0,8" Padding="10,8" Background="{Theme_BtnBg}" CornerRadius="4" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
                         <Grid>
                             <TextBlock x:Name="lblDeviceInfoStatus" Text="Select a computer to load hardware information." Foreground="{Theme_SecFg}" FontSize="13" VerticalAlignment="Center"/>
-                            <Button x:Name="btnRefreshDeviceInfo" Content="Refresh" HorizontalAlignment="Right" Width="80" Height="24" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0" FontSize="12"/>
+                            <Button x:Name="btnRefreshDeviceInfo" Content="Refresh" HorizontalAlignment="Right" Width="80" Height="24" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0" FontSize="12" ToolTip="Refresh device information" AutomationProperties.Name="Refresh device information"/>
                         </Grid>
                     </Border>
 
@@ -461,7 +461,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="Path:" VerticalAlignment="Center" Foreground="{Theme_SecFg}" Margin="0,0,8,0" FontWeight="SemiBold"/>
                             <TextBox x:Name="txtFolderPath" Grid.Column="1" Text="C:\Users\Public\Desktop" Height="26" Background="{Theme_Bg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_GridBorder}" BorderThickness="1" Padding="4,0" VerticalContentAlignment="Center"/>
-                            <Button x:Name="btnBrowseFolder" Grid.Column="2" Content="Go" Width="60" Height="26" Margin="8,0,0,0" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0"/>
+                            <Button x:Name="btnBrowseFolder" Grid.Column="2" Content="Go" Width="60" Height="26" Margin="8,0,0,0" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0" ToolTip="Browse to the specified path" AutomationProperties.Name="Browse to path"/>
                         </Grid>
                     </Border>
 
@@ -568,8 +568,8 @@
                 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
 					 <CheckBox x:Name="chkAutoRefreshProcs" Content="Auto-Refresh (15s)" Foreground="{Theme_Fg}" VerticalAlignment="Center" Margin="0,0,15,0" IsChecked="False"/>
-                     <Button x:Name="btnRefreshProcs" Content="Refresh Now" Margin="0,0,8,0" Width="100" Height="28" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0"/>
-                     <Button x:Name="btnCloseProcs" Content="Close" Width="80" Height="28" Background="{Theme_Bg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1"/>
+                     <Button x:Name="btnRefreshProcs" Content="Refresh Now" Margin="0,0,8,0" Width="100" Height="28" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0" ToolTip="Refresh current tab view" AutomationProperties.Name="Refresh current tab view"/>
+                     <Button x:Name="btnCloseProcs" Content="Close" Width="80" Height="28" Background="{Theme_Bg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1" ToolTip="Close System Manager" AutomationProperties.Name="Close System Manager"/>
                 </StackPanel>
             </Grid>
         </Border>
