@@ -43,7 +43,7 @@
                 </StackPanel>
                 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button x:Name="btnStartProcess" Content="Run New Task" Width="120" Height="30" Background="{Theme_BtnBg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1"/>
+                    <Button x:Name="btnStartProcess" AutomationProperties.Name="Start New Process" ToolTip="Run a new task on the remote device" Content="Run New Task" Width="120" Height="30" Background="{Theme_BtnBg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -61,7 +61,7 @@
                     <Border Grid.Row="0" Margin="0,4,0,8" Padding="10,8" Background="{Theme_BtnBg}" CornerRadius="4" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
                         <Grid>
                             <TextBlock x:Name="lblDeviceInfoStatus" Text="Select a computer to load hardware information." Foreground="{Theme_SecFg}" FontSize="13" VerticalAlignment="Center"/>
-                            <Button x:Name="btnRefreshDeviceInfo" Content="Refresh" HorizontalAlignment="Right" Width="80" Height="24" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0" FontSize="12"/>
+                            <Button x:Name="btnRefreshDeviceInfo" AutomationProperties.Name="Refresh Device Information" ToolTip="Refresh general device information" Content="Refresh" HorizontalAlignment="Right" Width="80" Height="24" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0" FontSize="12"/>
                         </Grid>
                     </Border>
 
@@ -460,8 +460,8 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="Path:" VerticalAlignment="Center" Foreground="{Theme_SecFg}" Margin="0,0,8,0" FontWeight="SemiBold"/>
-                            <TextBox x:Name="txtFolderPath" Grid.Column="1" Text="C:\Users\Public\Desktop" Height="26" Background="{Theme_Bg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_GridBorder}" BorderThickness="1" Padding="4,0" VerticalContentAlignment="Center"/>
-                            <Button x:Name="btnBrowseFolder" Grid.Column="2" Content="Go" Width="60" Height="26" Margin="8,0,0,0" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0"/>
+                            <TextBox x:Name="txtFolderPath" AutomationProperties.Name="Folder Path" ToolTip="Enter a valid folder path to explore" Grid.Column="1" Text="C:\Users\Public\Desktop" Height="26" Background="{Theme_Bg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_GridBorder}" BorderThickness="1" Padding="4,0" VerticalContentAlignment="Center"/>
+                            <Button x:Name="btnBrowseFolder" AutomationProperties.Name="Browse Folder" ToolTip="Navigate to the specified folder" Grid.Column="2" Content="Go" Width="60" Height="26" Margin="8,0,0,0" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0"/>
                         </Grid>
                     </Border>
 
@@ -568,8 +568,8 @@
                 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
 					 <CheckBox x:Name="chkAutoRefreshProcs" Content="Auto-Refresh (15s)" Foreground="{Theme_Fg}" VerticalAlignment="Center" Margin="0,0,15,0" IsChecked="False"/>
-                     <Button x:Name="btnRefreshProcs" Content="Refresh Now" Margin="0,0,8,0" Width="100" Height="28" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0"/>
-                     <Button x:Name="btnCloseProcs" Content="Close" Width="80" Height="28" Background="{Theme_Bg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1"/>
+                     <Button x:Name="btnRefreshProcs" AutomationProperties.Name="Refresh Data Now" ToolTip="Refresh data manually now" Content="Refresh Now" Margin="0,0,8,0" Width="100" Height="28" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0"/>
+                     <Button x:Name="btnCloseProcs" AutomationProperties.Name="Close Process Manager" ToolTip="Close the Process Manager window" Content="Close" Width="80" Height="28" Background="{Theme_Bg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1"/>
                 </StackPanel>
             </Grid>
         </Border>
