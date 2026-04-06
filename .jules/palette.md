@@ -9,3 +9,7 @@
 ## 2024-05-25 - WPF Screen Reader Accessibility
 **Learning:** WPF text boxes and password boxes that rely on separate TextBlocks for visual labels need explicit `AutomationProperties.Name` tags for proper screen reader accessibility, acting as the equivalent of ARIA labels.
 **Action:** Ensure form fields in WPF layouts have `AutomationProperties.Name` applied if their label is a separate element.
+
+## 2024-06-03 - Custom Window Close Buttons
+**Learning:** Custom window close buttons (e.g., icons with text/content like &#xE711;) sometimes do not have appropriate tooltips and automation names out-of-the-box.
+**Action:** Always ensure any icon-only button used for close functionality includes `ToolTip="Close"` and `AutomationProperties.Name="Close"`.
