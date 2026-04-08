@@ -131,7 +131,7 @@
                     <ColumnDefinition Width="8"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBox x:Name="txtAddGroup" Grid.Column="0" Height="30"
+                <TextBox x:Name="txtAddGroup" AutomationProperties.Name="Group to add" Grid.Column="0" Height="30"
                          ToolTip="Type part of a group name and click Search, then select a result to add"/>
                 <Button x:Name="btnSearchGroup" Grid.Column="2" Content="Search Groups"
                         Height="30" Padding="14,0"

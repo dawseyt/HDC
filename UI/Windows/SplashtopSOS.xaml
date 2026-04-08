@@ -60,7 +60,7 @@
                         <TextBlock Text="Provide this link to the user to download the SOS applet." FontSize="12" Foreground="{Theme_SecFg}" Margin="0,0,0,8"/>
                         <Grid>
                             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                            <TextBox x:Name="txtLink" Grid.Column="0" IsReadOnly="True" Height="30" Margin="0,0,6,0"/>
+                            <TextBox x:Name="txtLink" AutomationProperties.Name="Splashtop SOS Link" Grid.Column="0" IsReadOnly="True" Height="30" Margin="0,0,6,0"/>
                             <Button x:Name="btnCopy" Grid.Column="1" Content="Copy" Width="60" Height="30" Background="{Theme_BtnBg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1"/>
                         </Grid>
                     </StackPanel>
