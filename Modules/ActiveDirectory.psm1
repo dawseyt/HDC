@@ -16,8 +16,8 @@ function Get-LockedADUsers {
                     Get-ADUser -Identity $_.SamAccountName -Properties DisplayName, LastLogonDate, LockoutTime, EmailAddress -Server $Config.GeneralSettings.DomainName
                 }
                 
-                foreach ($u in $rawUsers) {
-                     $results += [PSCustomObject]@{
+                $results = @(foreach ($u in $rawUsers) {
+                     [PSCustomObject]@{
                         Name = $u.SamAccountName
                         DisplayValue = $u.SamAccountName
                         Type = "User"
@@ -30,7 +30,7 @@ function Get-LockedADUsers {
                         SamAccountName = $u.SamAccountName 
                         DisplayName = $u.DisplayName
                     }
-                }
+                })
             }
             return $results
         }
@@ -78,9 +78,8 @@ function Search-ADUsers {
 
             $users = Get-ADUser -Filter "SamAccountName -like '*$safe*' -or DisplayName -like '*$safe*'" -Properties DisplayName, LastLogonDate, Enabled, EmailAddress, LockedOut -Server $Config.GeneralSettings.DomainName
             
-            $results = @()
-            foreach ($u in $users) {
-                $results += [PSCustomObject]@{
+            $results = @(foreach ($u in $users) {
+                [PSCustomObject]@{
                     Name = $u.SamAccountName
                     DisplayValue = $u.SamAccountName
                     Type = "User"
@@ -92,7 +91,7 @@ function Search-ADUsers {
                     SamAccountName = $u.SamAccountName
                     DisplayName = $u.DisplayName
                 }
-            }
+            })
             return $results
         }
         return @()
@@ -108,10 +107,9 @@ function Search-ADComputers {
 
             $comps = Get-ADComputer -Filter "Name -like '*$safe*'" -Properties LastLogonDate, Enabled, OperatingSystem -Server $Config.GeneralSettings.DomainName
             
-            $results = @()
             $ping = New-Object System.Net.NetworkInformation.Ping
             
-            foreach ($c in $comps) {
+            $results = @(foreach ($c in $comps) {
                 $isOnline = $false
                 try {
                     # IMPROVEMENT: Reduced ping timeout from 200ms to 100ms to greatly speed up bulk searches
@@ -124,7 +122,7 @@ function Search-ADComputers {
                 # REPLACED EMOJIS WITH SAFE ASCII TEXT
                 $marker = if ($isOnline) { "[Online]" } else { "[Offline]" }
                 
-                $results += [PSCustomObject]@{
+                [PSCustomObject]@{
                     Name = $c.Name
                     DisplayValue = "$marker $($c.Name)"
                     Type = "Computer"
@@ -135,7 +133,7 @@ function Search-ADComputers {
                     Enabled = $c.Enabled
                     OperatingSystem = $c.OperatingSystem
                 }
-            }
+            })
             return $results
         }
         return @()

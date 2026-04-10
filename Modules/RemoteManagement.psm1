@@ -54,8 +54,7 @@ function Get-RemoteActiveUsers {
         return @()
     }
     
-    $sessions = @()
-    for ($i = 1; $i -lt $quserOutput.Count; $i++) {
+    $sessions = @(for ($i = 1; $i -lt $quserOutput.Count; $i++) {
         $line = $quserOutput[$i] -replace '^>', ' ' # Remove active session indicator
         
         $uName = $null
@@ -78,13 +77,13 @@ function Get-RemoteActiveUsers {
         }
         
         if ($uName -and $sId) {
-            $sessions += [PSCustomObject]@{
+            [PSCustomObject]@{
                 Username  = $uName
                 SessionId = $sId
                 State     = $sState
             }
         }
-    }
+    })
     return $sessions
 }
 
