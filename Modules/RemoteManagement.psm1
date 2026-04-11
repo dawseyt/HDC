@@ -773,7 +773,7 @@ function Get-HDRemoteSoftware {
     )
 
     $scriptBlock = {
-        $out = @()
+        $out = [System.Collections.Generic.List[psobject]]::new()
         
         # 1. Standard Desktop Apps (Registry)
         $registryPaths = @(
@@ -785,12 +785,12 @@ function Get-HDRemoteSoftware {
             try {
                 $items = Get-ItemProperty $path -ErrorAction Stop | Where-Object { $_.DisplayName -and $_.SystemComponent -ne 1 -and $_.ParentKeyName -eq $null }
                 foreach ($item in $items) {
-                    $out += [PSCustomObject]@{
+                    $out.Add([PSCustomObject]@{
                         Name       = $item.DisplayName
                         Version    = $item.DisplayVersion
                         Type       = 'Desktop'
                         Identifier = if ($item.QuietUninstallString) { $item.QuietUninstallString } else { $item.UninstallString }
-                    }
+                    })
                 }
             } catch { }
         }
@@ -811,12 +811,12 @@ function Get-HDRemoteSoftware {
                         $nameParts = $fullName -split '_'
                         $displayName = if ($nameParts.Count -gt 0) { $nameParts[0] } else { $fullName }
                         
-                        $out += [PSCustomObject]@{
+                        $out.Add([PSCustomObject]@{
                             Name       = $displayName
                             Version    = if ($nameParts.Count -gt 1) { $nameParts[1] } else { "" }
                             Type       = 'AppX'
                             Identifier = $fullName
-                        }
+                        })
                     }
                 }
             }
