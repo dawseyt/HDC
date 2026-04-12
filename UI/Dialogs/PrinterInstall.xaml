@@ -64,7 +64,7 @@
                 <Border Margin="0,0,0,8" Padding="14,10" Background="{Theme_BtnBg}" CornerRadius="6" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
                     <StackPanel>
                         <TextBlock Text="Printer Name" FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" Margin="0,0,0,6"/>
-                        <TextBox x:Name="txtName" Height="30"/>
+                        <TextBox x:Name="txtName" AutomationProperties.Name="Printer Name" ToolTip="Printer Name" Height="30"/>
                     </StackPanel>
                 </Border>
 
@@ -78,9 +78,9 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <ComboBox x:Name="cbDriver" Grid.Column="0" IsEditable="True" Margin="0,0,6,0"/>
-                            <Button x:Name="btnUploadDriver" Grid.Column="1" Content="Browse INF" Width="90" Height="30" Margin="0,0,6,0" Background="{Theme_BtnBg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1" ToolTip="Upload and stage driver from a local .INF file"/>
-                            <Button x:Name="btnLocalDriver" Grid.Column="2" Content="From This PC" Width="100" Height="30" Background="{Theme_BtnBg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1" ToolTip="Copy an installed driver from this computer"/>
+                            <ComboBox x:Name="cbDriver" AutomationProperties.Name="Driver Name" ToolTip="Driver Name" Grid.Column="0" IsEditable="True" Margin="0,0,6,0"/>
+                            <Button x:Name="btnUploadDriver" AutomationProperties.Name="Upload and stage driver from a local .INF file" Grid.Column="1" Content="Browse INF" Width="90" Height="30" Margin="0,0,6,0" Background="{Theme_BtnBg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1" ToolTip="Upload and stage driver from a local .INF file"/>
+                            <Button x:Name="btnLocalDriver" AutomationProperties.Name="Copy an installed driver from this computer" Grid.Column="2" Content="From This PC" Width="100" Height="30" Background="{Theme_BtnBg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1" ToolTip="Copy an installed driver from this computer"/>
                         </Grid>
                     </StackPanel>
                 </Border>
@@ -89,15 +89,15 @@
                 <Border Margin="0,0,0,0" Padding="14,10" Background="{Theme_BtnBg}" CornerRadius="6" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
                     <StackPanel>
                         <TextBlock Text="IP Address" FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" Margin="0,0,0,6"/>
-                        <TextBox x:Name="txtIP" Height="30"/>
+                        <TextBox x:Name="txtIP" AutomationProperties.Name="IP Address" ToolTip="IP Address" Height="30"/>
                     </StackPanel>
                 </Border>
             </StackPanel>
 
             <Border Grid.Row="2" Background="{Theme_BtnBg}" CornerRadius="0,0,8,8" Padding="16,12" BorderThickness="0,1,0,0" BorderBrush="{Theme_BtnBorder}">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button x:Name="btnInstall" Content="Install" Width="80" Height="28" Margin="0,0,8,0" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0" IsDefault="True"/>
-                    <Button x:Name="btnCancel" Content="Cancel" Width="80" Height="28" Background="{Theme_BtnBg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1" IsCancel="True"/>
+                    <Button x:Name="btnInstall" AutomationProperties.Name="Install Printer" ToolTip="Install Printer" Content="Install" Width="80" Height="28" Margin="0,0,8,0" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0" IsDefault="True"/>
+                    <Button x:Name="btnCancel" AutomationProperties.Name="Cancel" ToolTip="Cancel" Content="Cancel" Width="80" Height="28" Background="{Theme_BtnBg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1" IsCancel="True"/>
                 </StackPanel>
             </Border>
         </Grid>

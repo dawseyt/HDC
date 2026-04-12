@@ -59,14 +59,14 @@
                         </Grid.RowDefinitions>
                         <TextBlock Grid.Row="0" Text="Target User" FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" Margin="0,0,0,3"/>
                         <TextBlock Grid.Row="1" Text="Leave blank to run Computer Policy scope only." FontSize="11" Foreground="{Theme_SecFg}" Margin="0,0,0,8"/>
-                        <TextBox x:Name="txtUser" Grid.Row="2" Height="30"/>
+                        <TextBox x:Name="txtUser" AutomationProperties.Name="Target User" ToolTip="Target User" Grid.Row="2" Height="30"/>
                     </Grid>
                 </Border>
             </StackPanel>
             <Border Grid.Row="2" Background="{Theme_BtnBg}" CornerRadius="0,0,8,8" Padding="16,12" BorderThickness="0,1,0,0" BorderBrush="{Theme_BtnBorder}">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button x:Name="btnOk"     Content="Generate" Width="90" Height="28" Margin="0,0,8,0" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0" IsDefault="True"/>
-                    <Button x:Name="btnCancel" Content="Cancel"   Width="80" Height="28"                   Background="{Theme_BtnBg}"    Foreground="{Theme_Fg}"      BorderBrush="{Theme_BtnBorder}" BorderThickness="1" IsCancel="True"/>
+                    <Button x:Name="btnOk"     AutomationProperties.Name="Generate" ToolTip="Generate GPResult" Content="Generate" Width="90" Height="28" Margin="0,0,8,0" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0" IsDefault="True"/>
+                    <Button x:Name="btnCancel" AutomationProperties.Name="Cancel" ToolTip="Cancel" Content="Cancel"   Width="80" Height="28"                   Background="{Theme_BtnBg}"    Foreground="{Theme_Fg}"      BorderBrush="{Theme_BtnBorder}" BorderThickness="1" IsCancel="True"/>
                 </StackPanel>
             </Border>
         </Grid>
