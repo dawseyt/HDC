@@ -454,10 +454,16 @@ function Repair-HDRemoteSoftware {
         param($targetId, $targetType)
         try {
             if ($targetType -eq 'AppX') {
-                $safeTargetId = $targetId.Replace("'", "''")
+                # 🛡️ Sentinel: Mitigate command injection by using Base64 encoding and -EncodedCommand
+                $targetIdBytes = [System.Text.Encoding]::UTF8.GetBytes($targetId)
+                $b64TargetId = [Convert]::ToBase64String($targetIdBytes)
+
                 # For AppX, a repair is often essentially re-registering the manifest
-                $psCmd = "Get-AppxPackage -Name '*$safeTargetId*' -AllUsers | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register `"`$($_.InstallLocation)\AppXManifest.xml`"}"
-                Start-Process powershell.exe -ArgumentList @("-NonInteractive", "-WindowStyle", "Hidden", "-Command", $psCmd) -Wait -WindowStyle Hidden
+                $psCmd = "`$targetId = [System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('$b64TargetId')); Get-AppxPackage -Name `"*`$targetId*`" -AllUsers | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register `"`$(`$_.InstallLocation)\AppXManifest.xml`"}"
+                $psCmdBytes = [System.Text.Encoding]::Unicode.GetBytes($psCmd)
+                $encodedCmd = [Convert]::ToBase64String($psCmdBytes)
+
+                Start-Process powershell.exe -ArgumentList @("-NonInteractive", "-WindowStyle", "Hidden", "-EncodedCommand", $encodedCmd) -Wait -WindowStyle Hidden
                 return $true
             } else {
                 # Look for MSI product codes which are enclosed in {}
@@ -851,10 +857,16 @@ function Uninstall-HDRemoteSoftware {
         
         try {
             if ($targetType -eq 'AppX') {
+                # 🛡️ Sentinel: Mitigate command injection by using Base64 encoding and -EncodedCommand
                 # Execute in a discrete, non-interactive powershell process to bypass WinRM WinRT loading exceptions
-                $safeTargetId = $targetId.Replace("'", "''")
-                $psCmd = "Remove-AppxPackage -Package '$safeTargetId' -AllUsers"
-                Start-Process powershell.exe -ArgumentList @("-NonInteractive", "-WindowStyle", "Hidden", "-Command", $psCmd) -Wait -WindowStyle Hidden
+                $targetIdBytes = [System.Text.Encoding]::UTF8.GetBytes($targetId)
+                $b64TargetId = [Convert]::ToBase64String($targetIdBytes)
+
+                $psCmd = "`$targetId = [System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('$b64TargetId')); Remove-AppxPackage -Package `$targetId -AllUsers"
+                $psCmdBytes = [System.Text.Encoding]::Unicode.GetBytes($psCmd)
+                $encodedCmd = [Convert]::ToBase64String($psCmdBytes)
+
+                Start-Process powershell.exe -ArgumentList @("-NonInteractive", "-WindowStyle", "Hidden", "-EncodedCommand", $encodedCmd) -Wait -WindowStyle Hidden
             } else {
                 $cmd = $targetId
                 $exe = ''
