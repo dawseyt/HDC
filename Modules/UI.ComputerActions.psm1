@@ -1182,10 +1182,10 @@ function Register-ComputerUIEvents {
                                 $sizeGB = [math]::Round($disk.Size / 1GB, 1); $freeGB = [math]::Round($disk.FreeSpace / 1GB, 1)
                                 $lblDiskSpace.Text = "C:\ Drive: $freeGB GB Free out of $sizeGB GB ($([math]::Round(($freeGB / $sizeGB) * 100, 1))% Free)"
                             }
-                            $rawSoft = Get-HDRemoteSoftware -ComputerName $comp; $resSoft = @()
-                            if ($rawSoft) { 
-                                foreach ($r in $rawSoft) { 
-                                    $resSoft += [PSCustomObject]@{ 
+                            $rawSoft = Get-HDRemoteSoftware -ComputerName $comp
+                            $resSoft = if ($rawSoft) {
+                                @(foreach ($r in $rawSoft) {
+                                    [PSCustomObject]@{
                                         DisplayName = $r.Name
                                         DisplayVersion = $r.Version
                                         Publisher = $r.Type
@@ -1194,24 +1194,24 @@ function Register-ComputerUIEvents {
                                         QuietUninstallString = $r.Identifier
                                         Type = $r.Type
                                     } 
-                                } 
-                            }
+                                })
+                            } else { @() }
                             if ($lvSoftware) { if ($State.SoftLastSortCol) { $resSoft = $resSoft | Sort-Object -Property $State.SoftLastSortCol -Descending:$State.SoftSortDesc }; $lvSoftware.ItemsSource = $resSoft }
                         } elseif ($idx -eq 2) {
-                            $rawProcs = Get-RemoteProcesses -ComputerName $comp; $resProcs = @()
-                            if ($rawProcs) { foreach ($r in $rawProcs) { $resProcs += [PSCustomObject]@{ Name = $r.Name; Id = $r.Id; CPU = $r.CPU; MemMB = $r.MemMB; Description = $r.Description } } }
+                            $rawProcs = Get-RemoteProcesses -ComputerName $comp
+                            $resProcs = if ($rawProcs) { @(foreach ($r in $rawProcs) { [PSCustomObject]@{ Name = $r.Name; Id = $r.Id; CPU = $r.CPU; MemMB = $r.MemMB; Description = $r.Description } }) } else { @() }
                             if ($lvProcesses) { if ($State.ProcLastSortCol) { $resProcs = $resProcs | Sort-Object -Property $State.ProcLastSortCol -Descending:$State.ProcSortDesc }; $lvProcesses.ItemsSource = $resProcs }
                         } elseif ($idx -eq 3) {
-                            $rawSvcs = Get-RemoteServices -ComputerName $comp; $resSvcs = @()
-                            if ($rawSvcs) { foreach ($s in $rawSvcs) { $resSvcs += [PSCustomObject]@{ Name = $s.Name; DisplayName = $s.DisplayName; State = $s.State; StartMode = $s.StartMode } } }
+                            $rawSvcs = Get-RemoteServices -ComputerName $comp
+                            $resSvcs = if ($rawSvcs) { @(foreach ($s in $rawSvcs) { [PSCustomObject]@{ Name = $s.Name; DisplayName = $s.DisplayName; State = $s.State; StartMode = $s.StartMode } }) } else { @() }
                             if ($lvServices) { if ($State.SvcLastSortCol) { $resSvcs = $resSvcs | Sort-Object -Property $State.SvcLastSortCol -Descending:$State.SvcSortDesc } else { $resSvcs = $resSvcs | Sort-Object -Property Name }; $lvServices.ItemsSource = $resSvcs }
                         } elseif ($idx -eq 4) {
-                            $rawProfs = Get-RemoteUserProfiles -ComputerName $comp; $resProfs = @()
-                            if ($rawProfs) { foreach ($p in $rawProfs) { $resProfs += [PSCustomObject]@{ LocalPath = $p.LocalPath; LastUseTime = $p.LastUseTime; Loaded = $p.Loaded; SID = $p.SID } } }
+                            $rawProfs = Get-RemoteUserProfiles -ComputerName $comp
+                            $resProfs = if ($rawProfs) { @(foreach ($p in $rawProfs) { [PSCustomObject]@{ LocalPath = $p.LocalPath; LastUseTime = $p.LastUseTime; Loaded = $p.Loaded; SID = $p.SID } }) } else { @() }
                             if ($lvProfiles) { if ($State.ProfLastSortCol) { $resProfs = $resProfs | Sort-Object -Property $State.ProfLastSortCol -Descending:$State.ProfSortDesc }; $lvProfiles.ItemsSource = $resProfs }
                         } elseif ($idx -eq 5) {
-                            $rawDevs = Get-RemoteDevices -ComputerName $comp; $resDevs = @()
-                            if ($rawDevs) { foreach ($d in $rawDevs) { $resDevs += [PSCustomObject]@{ FriendlyName = $d.FriendlyName; Class = $d.Class; Status = $d.Status; Manufacturer = $d.Manufacturer; InstanceId = $d.InstanceId } } }
+                            $rawDevs = Get-RemoteDevices -ComputerName $comp
+                            $resDevs = if ($rawDevs) { @(foreach ($d in $rawDevs) { [PSCustomObject]@{ FriendlyName = $d.FriendlyName; Class = $d.Class; Status = $d.Status; Manufacturer = $d.Manufacturer; InstanceId = $d.InstanceId } }) } else { @() }
                             if ($lvDevices) { if ($State.DevLastSortCol) { $resDevs = $resDevs | Sort-Object -Property $State.DevLastSortCol -Descending:$State.DevSortDesc } else { $resDevs = $resDevs | Sort-Object -Property Class, FriendlyName }; $lvDevices.ItemsSource = $resDevs }
                         } elseif ($idx -eq 6) {
                             $targetPath = $procWin.Dispatcher.Invoke({
@@ -1229,10 +1229,7 @@ function Register-ComputerUIEvents {
                                     } catch { return @() }
                                 } -ArgumentList $targetPath -ErrorAction SilentlyContinue
 
-                                $resFiles = @()
-                                if ($rawFiles) {
-                                    foreach ($f in $rawFiles) { $resFiles += [PSCustomObject]@{ Name = $f.Name; ItemType = $f.ItemType; Size = $f.Size; LastWriteTime = $f.LastWriteTime; FullName = $f.FullName } }
-                                }
+                                $resFiles = if ($rawFiles) { @(foreach ($f in $rawFiles) { [PSCustomObject]@{ Name = $f.Name; ItemType = $f.ItemType; Size = $f.Size; LastWriteTime = $f.LastWriteTime; FullName = $f.FullName } }) } else { @() }
                                 if ($lvFiles) {
                                     if ($State.FileLastSortCol) { $resFiles = $resFiles | Sort-Object -Property $State.FileLastSortCol -Descending:$State.FileSortDesc }
                                     else { $resFiles = $resFiles | Sort-Object @{Expression={$_.ItemType}; Descending=$true}, Name }
@@ -1241,8 +1238,8 @@ function Register-ComputerUIEvents {
                             }
                         }
                         elseif ($idx -eq 7) {
-                            $rawEvts = Get-RemoteEventLogs -ComputerName $comp; $resEvts = @()
-                            if ($rawEvts) { foreach ($e in $rawEvts) { $resEvts += [PSCustomObject]@{ TimeCreated = $e.TimeCreated; Level = $e.LevelDisplayName; Id = $e.Id; Source = $e.ProviderName; Message = if ($e.Message) { $e.Message -replace "`r", "" -replace "`n", "  " } else { "" } } } }
+                            $rawEvts = Get-RemoteEventLogs -ComputerName $comp
+                            $resEvts = if ($rawEvts) { @(foreach ($e in $rawEvts) { [PSCustomObject]@{ TimeCreated = $e.TimeCreated; Level = $e.LevelDisplayName; Id = $e.Id; Source = $e.ProviderName; Message = if ($e.Message) { $e.Message -replace "`r", "" -replace "`n", "  " } else { "" } } }) } else { @() }
                             if ($lvEvents) { if ($State.EvtLastSortCol) { $resEvts = $resEvts | Sort-Object -Property $State.EvtLastSortCol -Descending:$State.EvtSortDesc }; $lvEvents.ItemsSource = $resEvts }
                         }
 
@@ -1677,8 +1674,7 @@ function Register-ComputerUIEvents {
                             param($c, $modPath)
                             Import-Module $modPath -Force
                             $rawSoft = Get-HDRemoteSoftware -ComputerName $c
-                            $resSoft = @()
-                            if ($rawSoft) { foreach ($r in $rawSoft) { $resSoft += [PSCustomObject]@{ Name = $r.Name; Version = $r.Version; Type = $r.Type; Identifier = $r.Identifier } } }
+                            $resSoft = if ($rawSoft) { @(foreach ($r in $rawSoft) { [PSCustomObject]@{ Name = $r.Name; Version = $r.Version; Type = $r.Type; Identifier = $r.Identifier } }) } else { @() }
                             return $resSoft | Sort-Object Name
                         } -ArgumentList $comp, (Join-Path $localAppRoot "Modules\RemoteManagement.psm1")
 
