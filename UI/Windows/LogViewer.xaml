@@ -62,7 +62,8 @@
                 </StackPanel>
                 <Button x:Name="btnExport" Content="Export CSV" HorizontalAlignment="Right"
                         Width="100" Height="28" Background="{Theme_BtnBg}" Foreground="{Theme_Fg}"
-                        BorderBrush="{Theme_BtnBorder}" BorderThickness="1"/>
+                        BorderBrush="{Theme_BtnBorder}" BorderThickness="1"
+                        AutomationProperties.Name="Export to CSV" ToolTip="Export the currently displayed event logs to a CSV file"/>
             </Grid>
         </Border>
 
@@ -91,15 +92,16 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0"  Text="Operator"    FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <TextBox   x:Name="txtFilterOperator" Grid.Column="1"  Height="28"/>
+                    <TextBox   x:Name="txtFilterOperator" Grid.Column="1"  Height="28" AutomationProperties.Name="Filter by Operator" ToolTip="Enter an operator name to filter logs"/>
                     <TextBlock Grid.Column="3"  Text="Target User" FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <TextBox   x:Name="txtFilterUser"     Grid.Column="4"  Height="28"/>
+                    <TextBox   x:Name="txtFilterUser"     Grid.Column="4"  Height="28" AutomationProperties.Name="Filter by Target User" ToolTip="Enter a target user to filter logs"/>
                     <TextBlock Grid.Column="6"  Text="Start Date"  FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <DatePicker x:Name="dpStartDate"      Grid.Column="7"  Height="28" VerticalContentAlignment="Center"/>
+                    <DatePicker x:Name="dpStartDate"      Grid.Column="7"  Height="28" VerticalContentAlignment="Center" AutomationProperties.Name="Filter Start Date" ToolTip="Select a start date for the log filter"/>
                     <TextBlock Grid.Column="9"  Text="End Date"    FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <DatePicker x:Name="dpEndDate"        Grid.Column="10" Height="28" VerticalContentAlignment="Center"/>
+                    <DatePicker x:Name="dpEndDate"        Grid.Column="10" Height="28" VerticalContentAlignment="Center" AutomationProperties.Name="Filter End Date" ToolTip="Select an end date for the log filter"/>
                     <Button x:Name="btnFilter" Grid.Column="12" Content="Apply Filter"
-                            Height="28" Padding="14,0" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0"/>
+                            Height="28" Padding="14,0" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0"
+                            AutomationProperties.Name="Apply Filter" ToolTip="Apply the specified filters to the event log view"/>
                 </Grid>
             </Border>
 
@@ -161,7 +163,8 @@
         <!-- Footer -->
         <Border Grid.Row="2" Background="{Theme_BtnBg}" BorderBrush="{Theme_GridBorder}" BorderThickness="0,1,0,0" Padding="16,10">
             <Button x:Name="btnCloseLog" Content="Close" Width="80" Height="28" HorizontalAlignment="Right"
-                    Background="{Theme_BtnBg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1"/>
+                    Background="{Theme_BtnBg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_BtnBorder}" BorderThickness="1"
+                    AutomationProperties.Name="Close Log Viewer" ToolTip="Close the Event Log Viewer"/>
         </Border>
     </Grid>
 </Window>
