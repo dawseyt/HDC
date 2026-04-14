@@ -196,6 +196,16 @@ $HtmlTemplate = @'
             }
         }, 1000);
 
+        function escapeHtml(str) {
+            if (!str) return "";
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
         function toggleYearView() {
             showAllYears = !showAllYears;
             const btn = document.getElementById('yearToggleBtn');
@@ -359,7 +369,7 @@ $HtmlTemplate = @'
                 if (evtLower.includes('locked') || evtLower.includes('lockout detected')) color = "bg-red-50 text-red-600 font-bold";
                 else if (evtLower.includes('unlock') || evtLower.includes('lockout cleared')) color = "bg-green-50 text-green-600";
                 
-                return `<tr><td class="px-6 py-2 whitespace-nowrap text-slate-500">${log.dateObj.toLocaleString()}</td><td class="px-6 py-2"><span class="${color} px-2 py-0.5 rounded text-[10px] uppercase border border-opacity-20 border-current">${log.event}</span></td><td class="px-6 py-2 font-bold">${log.username}</td><td class="px-6 py-2 text-slate-500">${log.operator}</td></tr>`;
+                return `<tr><td class="px-6 py-2 whitespace-nowrap text-slate-500">${escapeHtml(log.dateObj.toLocaleString())}</td><td class="px-6 py-2"><span class="${color} px-2 py-0.5 rounded text-[10px] uppercase border border-opacity-20 border-current">${escapeHtml(log.event)}</span></td><td class="px-6 py-2 font-bold">${escapeHtml(log.username)}</td><td class="px-6 py-2 text-slate-500">${escapeHtml(log.operator)}</td></tr>`;
             });
             rawBody.innerHTML = htmlParts.join('');
             
@@ -418,11 +428,11 @@ $HtmlTemplate = @'
                     }
 
                     return `<tr class="hover:bg-slate-50">
-                        <td class="px-6 py-4 font-bold text-slate-800">${item.SamAccountName}</td>
-                        <td class="px-6 py-4 text-slate-600">${lockoutTime}</td>
+                        <td class="px-6 py-4 font-bold text-slate-800">${escapeHtml(item.SamAccountName)}</td>
+                        <td class="px-6 py-4 text-slate-600">${escapeHtml(lockoutTime)}</td>
                         <td class="px-6 py-4">
                             <span class="font-mono text-xs bg-slate-100 border border-slate-200 px-2 py-1 rounded text-slate-600">
-                                ${lockoutSource}
+                                ${escapeHtml(lockoutSource)}
                             </span>
                         </td>
                         <td class="px-6 py-4 text-xs text-slate-400 italic">Real-time AD Status</td>
