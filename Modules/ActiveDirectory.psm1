@@ -8,30 +8,31 @@ function Get-LockedADUsers {
         if (Get-Module -Name ActiveDirectory) {
             $lockedAccounts = Search-ADAccount -LockedOut -Server $Config.GeneralSettings.DomainName -ErrorAction Stop
             
-            $results = @()
-            if ($lockedAccounts) {
-                $rawUsers = $lockedAccounts | Where-Object {
-                    $_.SamAccountName -and ($_.SamAccountName.ToLower() -notin $Config.GeneralSettings.FilteredUsers)
-                } | ForEach-Object {
-                    Get-ADUser -Identity $_.SamAccountName -Properties DisplayName, LastLogonDate, LockoutTime, EmailAddress -Server $Config.GeneralSettings.DomainName
-                }
-                
-                foreach ($u in $rawUsers) {
-                     $results += [PSCustomObject]@{
-                        Name = $u.SamAccountName
-                        DisplayValue = $u.SamAccountName
-                        Type = "User"
-                        Description = $u.DisplayName
-                        LockedOut = $true 
-                        LastLogonDate = $u.LastLogonDate
-                        IsOnline = $null
-                        EmailAddress = $u.EmailAddress
-                        LockoutTime = $u.LockoutTime
-                        SamAccountName = $u.SamAccountName 
-                        DisplayName = $u.DisplayName
+            $results = @(
+                if ($lockedAccounts) {
+                    $rawUsers = $lockedAccounts | Where-Object {
+                        $_.SamAccountName -and ($_.SamAccountName.ToLower() -notin $Config.GeneralSettings.FilteredUsers)
+                    } | ForEach-Object {
+                        Get-ADUser -Identity $_.SamAccountName -Properties DisplayName, LastLogonDate, LockoutTime, EmailAddress -Server $Config.GeneralSettings.DomainName
+                    }
+
+                    foreach ($u in $rawUsers) {
+                         [PSCustomObject]@{
+                            Name = $u.SamAccountName
+                            DisplayValue = $u.SamAccountName
+                            Type = "User"
+                            Description = $u.DisplayName
+                            LockedOut = $true
+                            LastLogonDate = $u.LastLogonDate
+                            IsOnline = $null
+                            EmailAddress = $u.EmailAddress
+                            LockoutTime = $u.LockoutTime
+                            SamAccountName = $u.SamAccountName
+                            DisplayName = $u.DisplayName
+                        }
                     }
                 }
-            }
+            )
             return $results
         }
         return @()
@@ -78,21 +79,22 @@ function Search-ADUsers {
 
             $users = Get-ADUser -Filter "SamAccountName -like '*$safe*' -or DisplayName -like '*$safe*'" -Properties DisplayName, LastLogonDate, Enabled, EmailAddress, LockedOut -Server $Config.GeneralSettings.DomainName
             
-            $results = @()
-            foreach ($u in $users) {
-                $results += [PSCustomObject]@{
-                    Name = $u.SamAccountName
-                    DisplayValue = $u.SamAccountName
-                    Type = "User"
-                    Description = $u.DisplayName
-                    LockedOut = $u.LockedOut
-                    LastLogonDate = $u.LastLogonDate
-                    IsOnline = $null
-                    EmailAddress = $u.EmailAddress
-                    SamAccountName = $u.SamAccountName
-                    DisplayName = $u.DisplayName
+            $results = @(
+                foreach ($u in $users) {
+                    [PSCustomObject]@{
+                        Name = $u.SamAccountName
+                        DisplayValue = $u.SamAccountName
+                        Type = "User"
+                        Description = $u.DisplayName
+                        LockedOut = $u.LockedOut
+                        LastLogonDate = $u.LastLogonDate
+                        IsOnline = $null
+                        EmailAddress = $u.EmailAddress
+                        SamAccountName = $u.SamAccountName
+                        DisplayName = $u.DisplayName
+                    }
                 }
-            }
+            )
             return $results
         }
         return @()
