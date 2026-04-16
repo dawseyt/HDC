@@ -460,7 +460,7 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="Path:" VerticalAlignment="Center" Foreground="{Theme_SecFg}" Margin="0,0,8,0" FontWeight="SemiBold"/>
-                            <TextBox x:Name="txtFolderPath" Grid.Column="1" Text="C:\Users\Public\Desktop" Height="26" Background="{Theme_Bg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_GridBorder}" BorderThickness="1" Padding="4,0" VerticalContentAlignment="Center"/>
+                            <TextBox x:Name="txtFolderPath" AutomationProperties.Name="Path" Grid.Column="1" Text="C:\Users\Public\Desktop" Height="26" Background="{Theme_Bg}" Foreground="{Theme_Fg}" BorderBrush="{Theme_GridBorder}" BorderThickness="1" Padding="4,0" VerticalContentAlignment="Center"/>
                             <Button x:Name="btnBrowseFolder" Grid.Column="2" Content="Go" Width="60" Height="26" Margin="8,0,0,0" Background="{Theme_PrimaryBg}" Foreground="{Theme_PrimaryFg}" BorderThickness="0"/>
                         </Grid>
                     </Border>

@@ -89,7 +89,7 @@
                 <Border Margin="0,0,0,0" Padding="14,10" Background="{Theme_BtnBg}" CornerRadius="6" BorderBrush="{Theme_GridBorder}" BorderThickness="1">
                     <StackPanel>
                         <TextBlock Text="IP Address" FontWeight="SemiBold" Foreground="{Theme_SecFg}" FontSize="13" Margin="0,0,0,6"/>
-                        <TextBox x:Name="txtIP" Height="30"/>
+                        <TextBox x:Name="txtIP" AutomationProperties.Name="IP Address" Height="30"/>
                     </StackPanel>
                 </Border>
             </StackPanel>
