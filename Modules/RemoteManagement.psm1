@@ -454,10 +454,16 @@ function Repair-HDRemoteSoftware {
         param($targetId, $targetType)
         try {
             if ($targetType -eq 'AppX') {
-                $safeTargetId = $targetId.Replace("'", "''")
-                # For AppX, a repair is often essentially re-registering the manifest
-                $psCmd = "Get-AppxPackage -Name '*$safeTargetId*' -AllUsers | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register `"`$($_.InstallLocation)\AppXManifest.xml`"}"
-                Start-Process powershell.exe -ArgumentList @("-NonInteractive", "-WindowStyle", "Hidden", "-Command", $psCmd) -Wait -WindowStyle Hidden
+                # Securely pass user-controlled input to Start-Process using Base64 EncodedCommand
+                $idBytes = [System.Text.Encoding]::Unicode.GetBytes($targetId)
+                $encodedId = [Convert]::ToBase64String($idBytes)
+
+                $psCmd = "`$decodedId = [System.Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('$encodedId')); Get-AppxPackage -Name `"*`$decodedId*`" -AllUsers | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register `"`$(`$_.InstallLocation)\AppXManifest.xml`"}"
+
+                $cmdBytes = [System.Text.Encoding]::Unicode.GetBytes($psCmd)
+                $encodedCmd = [Convert]::ToBase64String($cmdBytes)
+
+                Start-Process powershell.exe -ArgumentList @("-NonInteractive", "-WindowStyle", "Hidden", "-EncodedCommand", $encodedCmd) -Wait -WindowStyle Hidden
                 return $true
             } else {
                 # Look for MSI product codes which are enclosed in {}
@@ -852,9 +858,16 @@ function Uninstall-HDRemoteSoftware {
         try {
             if ($targetType -eq 'AppX') {
                 # Execute in a discrete, non-interactive powershell process to bypass WinRM WinRT loading exceptions
-                $safeTargetId = $targetId.Replace("'", "''")
-                $psCmd = "Remove-AppxPackage -Package '$safeTargetId' -AllUsers"
-                Start-Process powershell.exe -ArgumentList @("-NonInteractive", "-WindowStyle", "Hidden", "-Command", $psCmd) -Wait -WindowStyle Hidden
+                # Securely pass user-controlled input to Start-Process using Base64 EncodedCommand
+                $idBytes = [System.Text.Encoding]::Unicode.GetBytes($targetId)
+                $encodedId = [Convert]::ToBase64String($idBytes)
+
+                $psCmd = "`$decodedId = [System.Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('$encodedId')); Remove-AppxPackage -Package `$decodedId -AllUsers"
+
+                $cmdBytes = [System.Text.Encoding]::Unicode.GetBytes($psCmd)
+                $encodedCmd = [Convert]::ToBase64String($cmdBytes)
+
+                Start-Process powershell.exe -ArgumentList @("-NonInteractive", "-WindowStyle", "Hidden", "-EncodedCommand", $encodedCmd) -Wait -WindowStyle Hidden
             } else {
                 $cmd = $targetId
                 $exe = ''
