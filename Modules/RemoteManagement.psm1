@@ -454,10 +454,11 @@ function Repair-HDRemoteSoftware {
         param($targetId, $targetType)
         try {
             if ($targetType -eq 'AppX') {
-                $safeTargetId = $targetId.Replace("'", "''")
-                # For AppX, a repair is often essentially re-registering the manifest
-                $psCmd = "Get-AppxPackage -Name '*$safeTargetId*' -AllUsers | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register `"`$($_.InstallLocation)\AppXManifest.xml`"}"
-                Start-Process powershell.exe -ArgumentList @("-NonInteractive", "-WindowStyle", "Hidden", "-Command", $psCmd) -Wait -WindowStyle Hidden
+                # 🛡️ Sentinel: Prevent command injection by base64 encoding user-controlled input
+                $b64TargetId = [System.Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($targetId))
+                $psCmd = "`$DecodedId = [System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String('$b64TargetId')); Get-AppxPackage -Name `"*`$DecodedId*`" -AllUsers | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register `"`$(`$_.InstallLocation)\AppXManifest.xml`"}"
+                $encodedCommand = [System.Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($psCmd))
+                Start-Process powershell.exe -ArgumentList @("-NonInteractive", "-WindowStyle", "Hidden", "-EncodedCommand", $encodedCommand) -Wait -WindowStyle Hidden
                 return $true
             } else {
                 # Look for MSI product codes which are enclosed in {}
@@ -852,9 +853,11 @@ function Uninstall-HDRemoteSoftware {
         try {
             if ($targetType -eq 'AppX') {
                 # Execute in a discrete, non-interactive powershell process to bypass WinRM WinRT loading exceptions
-                $safeTargetId = $targetId.Replace("'", "''")
-                $psCmd = "Remove-AppxPackage -Package '$safeTargetId' -AllUsers"
-                Start-Process powershell.exe -ArgumentList @("-NonInteractive", "-WindowStyle", "Hidden", "-Command", $psCmd) -Wait -WindowStyle Hidden
+                # 🛡️ Sentinel: Prevent command injection by base64 encoding user-controlled input
+                $b64TargetId = [System.Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($targetId))
+                $psCmd = "`$DecodedId = [System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String('$b64TargetId')); Remove-AppxPackage -Package `$DecodedId -AllUsers"
+                $encodedCommand = [System.Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($psCmd))
+                Start-Process powershell.exe -ArgumentList @("-NonInteractive", "-WindowStyle", "Hidden", "-EncodedCommand", $encodedCommand) -Wait -WindowStyle Hidden
             } else {
                 $cmd = $targetId
                 $exe = ''
