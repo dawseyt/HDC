@@ -9,3 +9,6 @@
 ## 2024-05-25 - WPF Screen Reader Accessibility
 **Learning:** WPF text boxes and password boxes that rely on separate TextBlocks for visual labels need explicit `AutomationProperties.Name` tags for proper screen reader accessibility, acting as the equivalent of ARIA labels.
 **Action:** Ensure form fields in WPF layouts have `AutomationProperties.Name` applied if their label is a separate element.
+## 2024-06-25 - General Action Button ToolTips and ARIA labels
+**Learning:** Action buttons in the main UI that have clear content but lack explicit screen reader equivalents (AutomationProperties.Name) and visual hover context (ToolTip) can present accessibility barriers and ambiguous UX.
+**Action:** Consistently ensure that all key interactive elements, including primary action buttons like 'Search', 'Unlock', 'Close', and 'View Logs', have explicit `ToolTip` and `AutomationProperties.Name` properties defined, even when they possess text content.
