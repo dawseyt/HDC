@@ -1892,9 +1892,11 @@ function Open-RemotePowerShell {
         $State
     )
     try {
-        $safeComputerName = $ComputerName.Replace("'", "''")
-        $psCommand = "Write-Host 'Connecting to $safeComputerName...' -ForegroundColor Cyan; Enter-PSSession -ComputerName '$safeComputerName'"
-        $argList = @("-WindowStyle", "Normal", "-NoExit", "-ExecutionPolicy", "Bypass", "-Command", $psCommand)
+        # 🛡️ Sentinel: Prevent command injection by base64 encoding user-controlled input
+        $b64ComputerName = [System.Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($ComputerName))
+        $psCommand = "`$CompName = [System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String('$b64ComputerName')); Write-Host `"Connecting to `$CompName...`" -ForegroundColor Cyan; Enter-PSSession -ComputerName `$CompName"
+        $encodedCommand = [System.Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($psCommand))
+        $argList = @("-WindowStyle", "Normal", "-NoExit", "-ExecutionPolicy", "Bypass", "-EncodedCommand", $encodedCommand)
         
         $psExePath = Join-Path $env:windir "System32\WindowsPowerShell\v1.0\powershell.exe"
         if (-not (Test-Path $psExePath)) {
