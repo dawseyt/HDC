@@ -5,3 +5,7 @@
 ## 2025-03-31 - [Optimize DOM rendering in embedded JavaScript]
 **Learning:** Embedded JavaScript manipulating the DOM used iterative `.innerHTML +=` inside loops, causing significant O(n^2) DOM reflow bottlenecks.
 **Action:** Replace iterative concatenation with array accumulations (`map().join("")`) and assign them to `.innerHTML` in a single operation. Use `document.createElement` for dynamic one-off elements like error banners to further improve safety and performance.
+
+## 2025-05-18 - [Optimize PowerShell Array Accumulation in Remote Management]
+**Learning:** Using the `+=` operator to append objects to an array inside loops in PowerShell forces the creation of a new array for every iteration, causing severe O(N^2) performance degradation (e.g., when iterating over hundreds of installed AppX applications or remote user sessions).
+**Action:** Replace `$array = @()` and `$array += $item` with pipeline aggregation directly assigned to a variable via an array subexpression: `$array = @(foreach ($item in $collection) { ... [PSCustomObject]@{...} })`. This allows PowerShell to use optimized dynamic lists internally, yielding O(N) performance.

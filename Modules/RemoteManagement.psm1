@@ -54,37 +54,39 @@ function Get-RemoteActiveUsers {
         return @()
     }
     
-    $sessions = @()
-    for ($i = 1; $i -lt $quserOutput.Count; $i++) {
-        $line = $quserOutput[$i] -replace '^>', ' ' # Remove active session indicator
-        
-        $uName = $null
-        $sId = $null
-        $sState = $null
-        
-        if ($line.Length -ge 65) {
-            # Fixed-width parsing for reliability
-            $uName = $line.Substring(0, 22).Trim()
-            $sId = $line.Substring(41, 5).Trim()
-            $sState = $line.Substring(46, 8).Trim()
-        } else {
-            # Fallback regex/split parsing
-            $tok = $line -split '\s+' | Where-Object { $_ }
-            if ($tok.Count -ge 5) {
-                $uName = $tok[0]
-                $sId = ($tok | Where-Object { $_ -match '^\d+$' } | Select-Object -First 1)
-                $sState = if ($line -match 'Active') { 'Active' } else { 'Disc' }
+    # Performance Optimization: Replaced O(N^2) `$sessions += ...` with pipeline accumulation `(for...)` to drastically improve speed.
+    $sessions = @(
+        for ($i = 1; $i -lt $quserOutput.Count; $i++) {
+            $line = $quserOutput[$i] -replace '^>', ' ' # Remove active session indicator
+
+            $uName = $null
+            $sId = $null
+            $sState = $null
+
+            if ($line.Length -ge 65) {
+                # Fixed-width parsing for reliability
+                $uName = $line.Substring(0, 22).Trim()
+                $sId = $line.Substring(41, 5).Trim()
+                $sState = $line.Substring(46, 8).Trim()
+            } else {
+                # Fallback regex/split parsing
+                $tok = $line -split '\s+' | Where-Object { $_ }
+                if ($tok.Count -ge 5) {
+                    $uName = $tok[0]
+                    $sId = ($tok | Where-Object { $_ -match '^\d+$' } | Select-Object -First 1)
+                    $sState = if ($line -match 'Active') { 'Active' } else { 'Disc' }
+                }
+            }
+
+            if ($uName -and $sId) {
+                [PSCustomObject]@{
+                    Username  = $uName
+                    SessionId = $sId
+                    State     = $sState
+                }
             }
         }
-        
-        if ($uName -and $sId) {
-            $sessions += [PSCustomObject]@{
-                Username  = $uName
-                SessionId = $sId
-                State     = $sState
-            }
-        }
-    }
+    )
     return $sessions
 }
 
@@ -773,56 +775,57 @@ function Get-HDRemoteSoftware {
     )
 
     $scriptBlock = {
-        $out = @()
-        
-        # 1. Standard Desktop Apps (Registry)
-        $registryPaths = @(
-            "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*",
-            "HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"
-        )
+        # Performance Optimization: Replaced O(N^2) `$out += ...` with array subexpression `(...)` pipeline accumulation to drastically improve speed when parsing hundreds of apps.
+        $out = @(
+            # 1. Standard Desktop Apps (Registry)
+            $registryPaths = @(
+                "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*",
+                "HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"
+            )
 
-        foreach ($path in $registryPaths) {
-            try {
-                $items = Get-ItemProperty $path -ErrorAction Stop | Where-Object { $_.DisplayName -and $_.SystemComponent -ne 1 -and $_.ParentKeyName -eq $null }
-                foreach ($item in $items) {
-                    $out += [PSCustomObject]@{
-                        Name       = $item.DisplayName
-                        Version    = $item.DisplayVersion
-                        Type       = 'Desktop'
-                        Identifier = if ($item.QuietUninstallString) { $item.QuietUninstallString } else { $item.UninstallString }
+            foreach ($path in $registryPaths) {
+                try {
+                    $items = Get-ItemProperty $path -ErrorAction Stop | Where-Object { $_.DisplayName -and $_.SystemComponent -ne 1 -and $_.ParentKeyName -eq $null }
+                    foreach ($item in $items) {
+                        [PSCustomObject]@{
+                            Name       = $item.DisplayName
+                            Version    = $item.DisplayVersion
+                            Type       = 'Desktop'
+                            Identifier = if ($item.QuietUninstallString) { $item.QuietUninstallString } else { $item.UninstallString }
+                        }
                     }
-                }
-            } catch { }
-        }
+                } catch { }
+            }
 
-        # 2. Modern AppX Packages (Via globally readable AppxAllUserStore registry key)
-        # This completely bypasses the strict SYSTEM-only ACLs on the Repository key
-        # and sidesteps the WinRM Get-AppxPackage '<Module>' crash entirely.
-        try {
-            $appxRegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Appx\AppxAllUserStore\Applications"
-            if (Test-Path -LiteralPath $appxRegPath) {
-                $appxItems = Get-ChildItem -LiteralPath $appxRegPath -ErrorAction Stop
-                
-                foreach ($item in $appxItems) {
-                    $fullName = $item.PSChildName
+            # 2. Modern AppX Packages (Via globally readable AppxAllUserStore registry key)
+            # This completely bypasses the strict SYSTEM-only ACLs on the Repository key
+            # and sidesteps the WinRM Get-AppxPackage '<Module>' crash entirely.
+            try {
+                $appxRegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Appx\AppxAllUserStore\Applications"
+                if (Test-Path -LiteralPath $appxRegPath) {
+                    $appxItems = Get-ChildItem -LiteralPath $appxRegPath -ErrorAction Stop
                     
-                    # Filter out system frameworks, language packs, and neutral UI elements
-                    if ($fullName -notmatch "(?i)neutral|language|scale|VCLibs|NET\.Native|DirectX|UI\.Xaml|Services\.Targeting") {
-                        $nameParts = $fullName -split '_'
-                        $displayName = if ($nameParts.Count -gt 0) { $nameParts[0] } else { $fullName }
+                    foreach ($item in $appxItems) {
+                        $fullName = $item.PSChildName
                         
-                        $out += [PSCustomObject]@{
-                            Name       = $displayName
-                            Version    = if ($nameParts.Count -gt 1) { $nameParts[1] } else { "" }
-                            Type       = 'AppX'
-                            Identifier = $fullName
+                        # Filter out system frameworks, language packs, and neutral UI elements
+                        if ($fullName -notmatch "(?i)neutral|language|scale|VCLibs|NET\.Native|DirectX|UI\.Xaml|Services\.Targeting") {
+                            $nameParts = $fullName -split '_'
+                            $displayName = if ($nameParts.Count -gt 0) { $nameParts[0] } else { $fullName }
+
+                            [PSCustomObject]@{
+                                Name       = $displayName
+                                Version    = if ($nameParts.Count -gt 1) { $nameParts[1] } else { "" }
+                                Type       = 'AppX'
+                                Identifier = $fullName
+                            }
                         }
                     }
                 }
+            } catch {
+                # Safe catch if the path is completely missing on older OS versions
             }
-        } catch { 
-            # Safe catch if the path is completely missing on older OS versions
-        }
+        )
 
         return $out | Sort-Object Name -Unique
     }
