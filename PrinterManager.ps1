@@ -460,12 +460,12 @@ $RefreshPrinters = {
         # Extract IP from PortName (common formats: "IP_10.1.2.3", "10.1.2.3", "TCP-10.1.2.3")
         # Run checks in parallel jobs, one per unique IP, then map results back.
         $ipMap    = @{}   # portName -> IP string
-        $ipsToCheck = @()
+        $ipsToCheck = New-Object System.Collections.Generic.List[string]
         foreach ($p in $printers) {
             $port = $p.PortName
             $ip   = $null
             if ($port -match '(\d{1,3}(?:\.\d{1,3}){3})') { $ip = $matches[1] }
-            if ($ip) { $ipMap[$port] = $ip; if ($ip -notin $ipsToCheck) { $ipsToCheck += $ip } }
+            if ($ip) { $ipMap[$port] = $ip; if ($ip -notin $ipsToCheck) { $ipsToCheck.Add($ip) } }
         }
 
         # Run health checks concurrently via jobs
@@ -490,8 +490,15 @@ $RefreshPrinters = {
 
         # Wait up to 4 s for all jobs (most LAN pings resolve in < 500 ms)
         $deadline = (Get-Date).AddSeconds(4)
-        while ($healthJobs.Values | Where-Object { $_.State -eq 'Running' }) {
-            if ((Get-Date) -gt $deadline) { break }
+        while ($true) {
+            $anyRunning = $false
+            foreach ($job in $healthJobs.Values) {
+                if ($job.State -eq 'Running') {
+                    $anyRunning = $true
+                    break
+                }
+            }
+            if (-not $anyRunning -or (Get-Date) -gt $deadline) { break }
             Start-Sleep -Milliseconds 150
         }
 
