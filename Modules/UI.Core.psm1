@@ -539,21 +539,27 @@ function Register-CoreUIEvents {
         # ---------------------------------------------------------------------
         # FIX: Handling the "X" button click inside the ComboBox ItemTemplate
         # ---------------------------------------------------------------------
-        $txtSearch.AddHandler([System.Windows.Controls.Primitives.ButtonBase]::ClickEvent, [System.Windows.RoutedEventHandler]{
+        $txtSearch.AddHandler([System.Windows.UIElement]::PreviewMouseLeftButtonDownEvent, [System.Windows.Input.MouseButtonEventHandler]{
             param($sender, $e)
-            $source = $e.OriginalSource
-            # Check if the clicked element is a Button named 'btnRemoveHistoryItem'
-            if ($source -is [System.Windows.Controls.Button] -and $source.Name -eq "btnRemoveHistoryItem") {
-                # The search string is stored in the Tag property of the button
-                $itemToRemove = $source.Tag
+            $curr = $e.OriginalSource
+            $btn = $null
+            while ($curr) {
+                if ($curr -is [System.Windows.Controls.Button] -and $curr.Name -eq "btnRemoveHistoryItem") { $btn = $curr; break }
+                $curr = [System.Windows.Media.VisualTreeHelper]::GetParent($curr)
+            }
+
+            if ($btn) {
+                # Intercept click to prevent selection and dropdown closure
+                $e.Handled = $true
+                $itemToRemove = $btn.Tag
                 if ($null -ne $itemToRemove) {
-                    
                     # 1. Remove from In-Memory State
                     if ($State.SearchHistory) {
                         $State.SearchHistory = @($State.SearchHistory | Where-Object { $_ -ne $itemToRemove })
                     }
                     
                     # 2. Remove from UI (ComboBox Dropdown)
+                    # UI REFRESH: Reset ItemsSource to force update
                     $txtSearch.ItemsSource = $null
                     $txtSearch.ItemsSource = $State.SearchHistory
 
@@ -567,9 +573,6 @@ function Register-CoreUIEvents {
                             $prefs | ConvertTo-Json -Depth 5 | Set-Content -Path $prefsPath -Encoding UTF8
                         }
                     } catch {}
-                    
-                    # Stop the event from bubbling up and selecting the row we just clicked
-                    $e.Handled = $true
                 }
             }
         }.GetNewClosure())
