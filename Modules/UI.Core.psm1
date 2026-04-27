@@ -545,7 +545,16 @@ function Register-CoreUIEvents {
             $btn = $null
             while ($curr) {
                 if ($curr -is [System.Windows.Controls.Button] -and $curr.Name -eq "btnRemoveHistoryItem") { $btn = $curr; break }
-                $curr = [System.Windows.Media.VisualTreeHelper]::GetParent($curr)
+                if ($curr -is [System.Windows.Media.Visual] -or $curr -is [System.Windows.Media.Media3D.Visual3D]) {
+                    $curr = [System.Windows.Media.VisualTreeHelper]::GetParent($curr)
+                } elseif ($curr -is [System.Windows.FrameworkContentElement]) {
+                    $curr = $curr.Parent
+                    if (-not $curr) {
+                        $curr = [System.Windows.LogicalTreeHelper]::GetParent($e.OriginalSource)
+                    }
+                } else {
+                    $curr = [System.Windows.LogicalTreeHelper]::GetParent($curr)
+                }
             }
 
             if ($btn) {
