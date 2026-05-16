@@ -54,8 +54,7 @@ function Get-RemoteActiveUsers {
         return @()
     }
     
-    $sessions = @()
-    for ($i = 1; $i -lt $quserOutput.Count; $i++) {
+    $sessions = @(for ($i = 1; $i -lt $quserOutput.Count; $i++) {
         $line = $quserOutput[$i] -replace '^>', ' ' # Remove active session indicator
         
         $uName = $null
@@ -78,13 +77,13 @@ function Get-RemoteActiveUsers {
         }
         
         if ($uName -and $sId) {
-            $sessions += [PSCustomObject]@{
+            [PSCustomObject]@{
                 Username  = $uName
                 SessionId = $sId
                 State     = $sState
             }
         }
-    }
+    })
     return $sessions
 }
 
@@ -781,11 +780,11 @@ function Get-HDRemoteSoftware {
             "HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"
         )
 
-        foreach ($path in $registryPaths) {
+        $outDesktop = @(foreach ($path in $registryPaths) {
             try {
                 $items = Get-ItemProperty $path -ErrorAction Stop | Where-Object { $_.DisplayName -and $_.SystemComponent -ne 1 -and $_.ParentKeyName -eq $null }
                 foreach ($item in $items) {
-                    $out += [PSCustomObject]@{
+                    [PSCustomObject]@{
                         Name       = $item.DisplayName
                         Version    = $item.DisplayVersion
                         Type       = 'Desktop'
@@ -793,17 +792,18 @@ function Get-HDRemoteSoftware {
                     }
                 }
             } catch { }
-        }
+        })
 
         # 2. Modern AppX Packages (Via globally readable AppxAllUserStore registry key)
         # This completely bypasses the strict SYSTEM-only ACLs on the Repository key
         # and sidesteps the WinRM Get-AppxPackage '<Module>' crash entirely.
+        $outAppX = @()
         try {
             $appxRegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Appx\AppxAllUserStore\Applications"
             if (Test-Path -LiteralPath $appxRegPath) {
                 $appxItems = Get-ChildItem -LiteralPath $appxRegPath -ErrorAction Stop
                 
-                foreach ($item in $appxItems) {
+                $outAppX = @(foreach ($item in $appxItems) {
                     $fullName = $item.PSChildName
                     
                     # Filter out system frameworks, language packs, and neutral UI elements
@@ -811,19 +811,20 @@ function Get-HDRemoteSoftware {
                         $nameParts = $fullName -split '_'
                         $displayName = if ($nameParts.Count -gt 0) { $nameParts[0] } else { $fullName }
                         
-                        $out += [PSCustomObject]@{
+                        [PSCustomObject]@{
                             Name       = $displayName
                             Version    = if ($nameParts.Count -gt 1) { $nameParts[1] } else { "" }
                             Type       = 'AppX'
                             Identifier = $fullName
                         }
                     }
-                }
+                })
             }
         } catch { 
             # Safe catch if the path is completely missing on older OS versions
         }
 
+        $out = @($outDesktop; $outAppX)
         return $out | Sort-Object Name -Unique
     }
 
