@@ -74,7 +74,8 @@
                     </StackPanel>
                     <Button x:Name="Button_CloseIcon" Content="&#xE711;" FontFamily="Segoe UI Symbol" FontSize="10" 
                             HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" 
-                            Background="Transparent" BorderThickness="0" Foreground="{Theme_SecFg}"/>
+                            Background="Transparent" BorderThickness="0" Foreground="{Theme_SecFg}"
+                            ToolTip="Close" AutomationProperties.Name="Close"/>
                 </Grid>
             </Border>
 

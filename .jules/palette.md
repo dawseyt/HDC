@@ -9,3 +9,7 @@
 ## 2024-05-25 - WPF Screen Reader Accessibility
 **Learning:** WPF text boxes and password boxes that rely on separate TextBlocks for visual labels need explicit `AutomationProperties.Name` tags for proper screen reader accessibility, acting as the equivalent of ARIA labels.
 **Action:** Ensure form fields in WPF layouts have `AutomationProperties.Name` applied if their label is a separate element.
+
+## 2024-05-26 - Icon Button Accessibility
+**Learning:** Icon-only buttons lacking accessible names are invisible or meaningless to screen reader users, just like on the web without ARIA labels.
+**Action:** Always provide explicit `ToolTip` and `AutomationProperties.Name` to icon-only WPF elements to guarantee proper context and accessibility.
